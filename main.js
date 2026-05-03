@@ -81,6 +81,7 @@ function importExcelContent(blob, fileName, ss)
 	{
 		newSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
 		trimSheet(newSheet);
+		extractArticles(newSheet);
 	}
 
 	// Clean up temp file
@@ -143,6 +144,166 @@ function setupTrigger()
 	else
 	{
 		console.log('Trigger for ' + triggerName + ' already exists.');
+	}
+}
+
+function onOpen()
+{
+	const ui = SpreadsheetApp.getUi();
+	ui.createMenu('BA Tools')
+		.addItem('Extract Articles from Current Sheet', 'extractArticlesFromActiveSheet')
+		.addToUi();
+}
+
+function extractArticlesFromActiveSheet()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheet = ss.getActiveSheet();
+	if (sheet.getName() === 'Files' || sheet.getName() === 'Articles')
+	{
+		SpreadsheetApp.getUi().alert('Cannot extract articles from this sheet.');
+		return;
+	}
+	extractArticles(sheet);
+}
+
+function extractArticles(sheet)
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	let articlesSheet = ss.getSheetByName('Articles');
+	if (!articlesSheet)
+	{
+		articlesSheet = ss.insertSheet('Articles');
+		articlesSheet.appendRow(['Sheet Name', 'Category', 'Article ID', 'Label', 'Unit', 'Quantity']);
+	}
+
+	const data = sheet.getDataRange().getValues();
+	const sheetName = sheet.getName();
+	const headerRegex = /^Produit.*?(homolog|picerie|tout).*?(COLIS|KILO)/i;
+
+	let isRecording = false;
+	let currentUnit = '';
+	let currentCategory = '';
+	let headerMap = {};
+	let extractedData = [];
+
+	for (let i = 0; i < data.length; i++)
+	{
+		const row = data[i];
+		const firstCell = String(row[0]);
+
+		const headerMatch = firstCell.match(headerRegex);
+		if (!isRecording && headerMatch)
+		{
+			// Header found, look for columns on next line
+			isRecording = true;
+			currentUnit = headerMatch[2].toUpperCase() === 'KILO' ? 'kg' : 'colis';
+			
+			const typeKey = headerMatch[1].toLowerCase();
+			if (typeKey.includes('homolog'))
+			{
+				currentCategory = 'Asso';
+			}
+			else if (typeKey.includes('picerie'))
+			{
+				currentCategory = 'ES';
+			}
+			else if (typeKey.includes('tout'))
+			{
+				currentCategory = 'Asso|ES';
+			}
+
+			const nextRow = data[i + 1];
+			if (!nextRow)
+			{
+				continue;
+			}
+
+			// Detect headers
+			const requiredHeaders = ["ARTICLE", "DESIGNATION", "Max en KG", "Poids brut", "Nb max de colis"];
+			headerMap = {};
+			
+			for (const target of requiredHeaders)
+			{
+				headerMap[target] = -1;
+				for (let j = 0; j < nextRow.length; j++)
+				{
+					const cellVal = String(nextRow[j]).trim();
+					if (cellVal.startsWith(target))
+					{
+						headerMap[target] = j;
+						break;
+					}
+				}
+			}
+
+			// Validate headers
+			if (headerMap["ARTICLE"] === -1)
+			{
+				throw new Error('Missing "ARTICLE" column in sheet ' + sheetName);
+			}
+			if (headerMap["DESIGNATION"] === -1)
+			{
+				throw new Error('Missing "DESIGNATION" column in sheet ' + sheetName);
+			}
+			
+			if (currentUnit === 'kg' && headerMap["Max en KG"] === -1)
+			{
+				throw new Error('Missing "Max en KG" column in sheet ' + sheetName);
+			}
+			if (currentUnit === 'colis')
+			{
+				if (headerMap["Poids brut"] === -1)
+				{
+					throw new Error('Missing "Poids brut" column in sheet ' + sheetName);
+				}
+				if (headerMap["Nb max de colis"] === -1)
+				{
+					throw new Error('Missing "Nb max de colis" column in sheet ' + sheetName);
+				}
+			}
+
+			i++; // Skip the column header row
+			continue;
+		}
+
+		if (isRecording)
+		{
+			const idVal = row[headerMap["ARTICLE"]];
+			const labelVal = row[headerMap["DESIGNATION"]];
+
+			// Stop recording the current section if we hit a non-numeric value in the article column
+			if (idVal === '' || isNaN(idVal) || String(idVal).trim() === '')
+			{
+				isRecording = false;
+				continue;
+			}
+
+			let quantity = 0;
+			if (currentUnit === 'kg')
+			{
+				quantity = row[headerMap["Max en KG"]];
+			}
+			else
+			{
+				const rawPoidsBrut = row[headerMap["Poids brut"]];
+				let poidsBrutStr = String(rawPoidsBrut);
+				// Handle French locale (comma as decimal separator)
+				const sanitizedPoidsBrut = poidsBrutStr.replace(',', '.');
+				const poidsBrut = parseFloat(sanitizedPoidsBrut) || 0;
+				
+				const nbMax = parseFloat(row[headerMap["Nb max de colis"]]) || 0;
+				quantity = poidsBrut * nbMax;
+			}
+
+			extractedData.push([sheetName, currentCategory, idVal, labelVal, currentUnit, quantity]);
+		}
+	}
+
+	if (extractedData.length > 0)
+	{
+		articlesSheet.getRange(articlesSheet.getLastRow() + 1, 1, extractedData.length, 6).setValues(extractedData);
+		SpreadsheetApp.getActiveSpreadsheet().toast('Extracted ' + extractedData.length + ' articles.');
 	}
 }
 
