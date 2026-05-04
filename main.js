@@ -1,5 +1,5 @@
 const URL_TO_CHECK = 'https://ba13.banquealimentaire.org/bon-de-commande-1290';
-const REGEX_PATTERN = /https:\/\/ba13\.banquealimentaire\.org\/sites\/default\/files\/.*?\/([^"\/]+?)\.xlsx/;
+const REGEX_PATTERN = /https:\/\/ba13\.banquealimentaire\.org\/sites\/default\/files\/.*?\/([^"\/]+?\.xlsx)/;
 
 function checkAndDownload()
 {
@@ -85,6 +85,9 @@ function importDataToNewSheet(data, fileName, ss)
 		ss.deleteSheet(newSheet);
 	}
 	newSheet = ss.insertSheet(sanitizedName);
+
+	// Store original filename as metadata
+	newSheet.addDeveloperMetadata('originalFileName', fileName);
 
 	if (data.length > 0)
 	{
@@ -180,7 +183,7 @@ function importFromSpreadsheetUrl()
 				// Extract filename from URL
 				const parts = url.split('/');
 				let fileName = parts[parts.length - 1].split('?')[0];
-				fileName = decodeURIComponent(fileName).replace(/\.xlsx$/i, '');
+				fileName = decodeURIComponent(fileName);
 				
 				const res = UrlFetchApp.fetch(url);
 				const blob = res.getBlob();
@@ -259,7 +262,7 @@ function extractArticles(sheet)
 	}
 
 	const data = sheet.getDataRange().getValues();
-	const sheetName = sheet.getName();
+	const sheetName = getDisplayName(sheet);
 	const headerRegex = /^Produit.*?(homolog|picerie|tout).*?(COLIS|KILO)/i;
 
 	let isRecording = false;
@@ -388,10 +391,37 @@ function extractArticles(sheet)
 	}
 }
 
+function getOriginalFileName(sheet)
+{
+	const metadata = sheet.getDeveloperMetadata();
+	const entry = metadata.find(m => m.getKey() === 'originalFileName');
+	return entry ? entry.getValue() : sheet.getName();
+}
+
+function getDisplayName(sheet)
+{
+	const originalName = getOriginalFileName(sheet);
+	const menuMatch = originalName.match(/BA13_(\d{3})_.*?(_\d)?\.xlsx$/);
+	if (menuMatch)
+	{
+		return 'Menu' + menuMatch[1] + (menuMatch[2] || '');
+	}
+	return originalName;
+}
+
 function sanitizeSheetName(name)
 {
+	// Specific pattern for Menu sheets
+	const menuMatch = name.match(/BA13_(\d{3})_.*?(_\d)?\.xlsx$/);
+	if (menuMatch)
+	{
+		return 'Menu' + menuMatch[1] + (menuMatch[2] || '');
+	}
+
 	// Remove forbidden characters: \ / ? * [ ] :
 	let sanitized = name.replace(/[\\\/\?\*\[\]\:]/g, '');
+	// Remove extension if present for sheet name fallback
+	sanitized = sanitized.replace(/\.xlsx$/i, '');
 	// Truncate to 31 characters, keeping the rightmost part
 	return sanitized.length > 31 ? sanitized.slice(-31) : sanitized;
 }
