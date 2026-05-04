@@ -67,6 +67,15 @@ function importExcelContent(blob, fileName, ss)
 	const sourceSheet = tempSs.getSheets()[0];
 	const data = sourceSheet.getDataRange().getValues();
 
+	// Import content
+	importDataToNewSheet(data, fileName, ss);
+
+	// Clean up temp file
+	Drive.Files.remove(tempFile.id);
+}
+
+function importDataToNewSheet(data, fileName, ss)
+{
 	// Create new sheet in target spreadsheet
 	const sanitizedName = sanitizeSheetName(fileName);
 	let newSheet = ss.getSheetByName(sanitizedName);
@@ -83,9 +92,6 @@ function importExcelContent(blob, fileName, ss)
 		trimSheet(newSheet);
 		extractArticles(newSheet);
 	}
-
-	// Clean up temp file
-	Drive.Files.remove(tempFile.id);
 }
 
 function trimSheet(sheet)
@@ -152,7 +158,82 @@ function onOpen()
 	const ui = SpreadsheetApp.getUi();
 	ui.createMenu('BA Tools')
 		.addItem('Extract Articles from Current Sheet', 'extractArticlesFromActiveSheet')
+		.addItem('Import from Spreadsheet URL', 'importFromSpreadsheetUrl')
 		.addToUi();
+}
+
+function importFromSpreadsheetUrl()
+{
+	const ui = SpreadsheetApp.getUi();
+	const response = ui.prompt('Import from URL', 'Enter the URL of the Google Sheet or Excel file (.xlsx) to import:', ui.ButtonSet.OK_CANCEL);
+
+	if (response.getSelectedButton() === ui.Button.OK)
+	{
+		const url = response.getResponseText().trim();
+		const targetSs = SpreadsheetApp.getActiveSpreadsheet();
+
+		// Check if it's an XLSX file
+		if (url.toLowerCase().includes('.xlsx'))
+		{
+			try
+			{
+				// Extract filename from URL
+				const parts = url.split('/');
+				let fileName = parts[parts.length - 1].split('?')[0];
+				fileName = decodeURIComponent(fileName).replace(/\.xlsx$/i, '');
+				
+				const res = UrlFetchApp.fetch(url);
+				const blob = res.getBlob();
+				importExcelContent(blob, fileName, targetSs);
+				ui.alert('Imported successfully from Excel: ' + fileName);
+				return;
+			}
+			catch (e)
+			{
+				ui.alert('Error importing Excel file: ' + e.message);
+				return;
+			}
+		}
+
+		// Try to extract Google Sheet ID
+		// First try the standard /d/ID/ pattern
+		let id = null;
+		const dMatch = url.match(/\/d\/([-\w]+)/);
+		if (dMatch)
+		{
+			id = dMatch[1];
+		}
+		else
+		{
+			// Fallback to searching for any string that looks like an ID
+			const gSheetMatch = url.match(/[-\w]{25,}/);
+			if (gSheetMatch)
+			{
+				id = gSheetMatch[0];
+			}
+		}
+
+		if (!id)
+		{
+			ui.alert('Invalid URL. Could not find a Spreadsheet ID or Excel file.');
+			return;
+		}
+
+		try
+		{
+			const sourceSs = SpreadsheetApp.openById(id);
+			const fileName = sourceSs.getName();
+			const sourceSheet = sourceSs.getSheets()[0]; // Get the first sheet
+			const data = sourceSheet.getDataRange().getValues();
+
+			importDataToNewSheet(data, fileName, targetSs);
+			ui.alert('Imported successfully from Google Sheet: ' + fileName);
+		}
+		catch (e)
+		{
+			ui.alert('Error opening Google Sheet: ' + e.message);
+		}
+	}
 }
 
 function extractArticlesFromActiveSheet()
@@ -311,6 +392,6 @@ function sanitizeSheetName(name)
 {
 	// Remove forbidden characters: \ / ? * [ ] :
 	let sanitized = name.replace(/[\\\/\?\*\[\]\:]/g, '');
-	// Truncate to 31 characters
-	return sanitized.substring(0, 31);
+	// Truncate to 31 characters, keeping the rightmost part
+	return sanitized.length > 31 ? sanitized.slice(-31) : sanitized;
 }
