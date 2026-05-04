@@ -8,7 +8,7 @@ function checkAndDownload()
 	if (!filesSheet)
 	{
 		filesSheet = ss.insertSheet('Files');
-		filesSheet.appendRow(['Date', 'Filename']);
+		filesSheet.appendRow(['Date', 'Filename', 'Sheet Name']);
 	}
 
 	const content = UrlFetchApp.fetch(URL_TO_CHECK).getContentText();
@@ -33,7 +33,7 @@ function checkAndDownload()
 	if (fileName !== lastFileName)
 	{
 		console.log('New file detected: ' + fileName);
-		processExcelFile(fullUrl, fileName, ss, filesSheet);
+		processExcelFile(fullUrl, fileName, ss);
 	}
 	else
 	{
@@ -41,13 +41,10 @@ function checkAndDownload()
 	}
 }
 
-function processExcelFile(url, fileName, ss, filesSheet)
+function processExcelFile(url, fileName, ss)
 {
 	const response = UrlFetchApp.fetch(url);
 	const blob = response.getBlob();
-
-	// Store in Files sheet
-	filesSheet.appendRow([new Date(), fileName]);
 
 	// Import content
 	importExcelContent(blob, fileName, ss);
@@ -89,12 +86,26 @@ function importDataToNewSheet(data, fileName, ss)
 	// Store original filename as metadata
 	newSheet.addDeveloperMetadata('originalFileName', fileName);
 
+	// Log to Files sheet
+	logImport(fileName, sanitizedName, ss);
+
 	if (data.length > 0)
 	{
 		newSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
 		trimSheet(newSheet);
 		extractArticles(newSheet);
 	}
+}
+
+function logImport(fileName, sheetName, ss)
+{
+	let filesSheet = ss.getSheetByName('Files');
+	if (!filesSheet)
+	{
+		filesSheet = ss.insertSheet('Files');
+		filesSheet.appendRow(['Date', 'Filename', 'Sheet Name']);
+	}
+	filesSheet.appendRow([new Date(), fileName, sheetName]);
 }
 
 function trimSheet(sheet)
@@ -188,7 +199,6 @@ function importFromSpreadsheetUrl()
 				const res = UrlFetchApp.fetch(url);
 				const blob = res.getBlob();
 				importExcelContent(blob, fileName, targetSs);
-				ui.alert('Imported successfully from Excel: ' + fileName);
 				return;
 			}
 			catch (e)
@@ -230,7 +240,6 @@ function importFromSpreadsheetUrl()
 			const data = sourceSheet.getDataRange().getValues();
 
 			importDataToNewSheet(data, fileName, targetSs);
-			ui.alert('Imported successfully from Google Sheet: ' + fileName);
 		}
 		catch (e)
 		{
