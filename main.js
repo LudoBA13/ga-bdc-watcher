@@ -105,7 +105,7 @@ function logImport(fileName, sheetName, ss)
 		filesSheet = ss.insertSheet('Files');
 		filesSheet.appendRow(['Date', 'Filename', 'Sheet Name']);
 	}
-	filesSheet.appendRow([new Date(), fileName, sheetName]);
+	filesSheet.appendRow([new Date, fileName, sheetName]);
 }
 
 function trimSheet(sheet)
@@ -127,7 +127,7 @@ function trimSheet(sheet)
 
 function scheduledCheck()
 {
-	const now = new Date();
+	const now = new Date;
 	// Get hour in CET (Europe/Paris)
 	const hour = parseInt(Utilities.formatDate(now, 'Europe/Paris', 'H'));
 
@@ -313,7 +313,7 @@ function extractArticles(sheet)
 			}
 
 			// Detect headers
-			const requiredHeaders = ["ARTICLE", "DESIGNATION", "Max en KG", "Poids brut", "Nb max de colis"];
+			const requiredHeaders = ['ARTICLE', 'DESIGNATION', 'Max en KG', 'Poids brut', 'Nb max de colis'];
 			headerMap = {};
 			
 			for (const target of requiredHeaders)
@@ -331,26 +331,26 @@ function extractArticles(sheet)
 			}
 
 			// Validate headers
-			if (headerMap["ARTICLE"] === -1)
+			if (headerMap['ARTICLE'] === -1)
 			{
 				throw new Error('Missing "ARTICLE" column in sheet ' + sheetName);
 			}
-			if (headerMap["DESIGNATION"] === -1)
+			if (headerMap['DESIGNATION'] === -1)
 			{
 				throw new Error('Missing "DESIGNATION" column in sheet ' + sheetName);
 			}
 			
-			if (currentUnit === 'kg' && headerMap["Max en KG"] === -1)
+			if (currentUnit === 'kg' && headerMap['Max en KG'] === -1)
 			{
 				throw new Error('Missing "Max en KG" column in sheet ' + sheetName);
 			}
 			if (currentUnit === 'colis')
 			{
-				if (headerMap["Poids brut"] === -1)
+				if (headerMap['Poids brut'] === -1)
 				{
 					throw new Error('Missing "Poids brut" column in sheet ' + sheetName);
 				}
-				if (headerMap["Nb max de colis"] === -1)
+				if (headerMap['Nb max de colis'] === -1)
 				{
 					throw new Error('Missing "Nb max de colis" column in sheet ' + sheetName);
 				}
@@ -362,8 +362,8 @@ function extractArticles(sheet)
 
 		if (isRecording)
 		{
-			const idVal = row[headerMap["ARTICLE"]];
-			const labelVal = row[headerMap["DESIGNATION"]];
+			const idVal = row[headerMap['ARTICLE']];
+			const labelVal = row[headerMap['DESIGNATION']];
 
 			// Stop recording the current section if we hit a non-numeric value in the article column
 			if (idVal === '' || isNaN(idVal) || String(idVal).trim() === '')
@@ -375,17 +375,17 @@ function extractArticles(sheet)
 			let quantity = 0;
 			if (currentUnit === 'kg')
 			{
-				quantity = row[headerMap["Max en KG"]];
+				quantity = row[headerMap['Max en KG']];
 			}
 			else
 			{
-				const rawPoidsBrut = row[headerMap["Poids brut"]];
+				const rawPoidsBrut = row[headerMap['Poids brut']];
 				let poidsBrutStr = String(rawPoidsBrut);
 				// Handle French locale (comma as decimal separator)
 				const sanitizedPoidsBrut = poidsBrutStr.replace(',', '.');
 				const poidsBrut = parseFloat(sanitizedPoidsBrut) || 0;
 				
-				const nbMax = parseFloat(row[headerMap["Nb max de colis"]]) || 0;
+				const nbMax = parseFloat(row[headerMap['Nb max de colis']]) || 0;
 				quantity = poidsBrut * nbMax;
 			}
 
