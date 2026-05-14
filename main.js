@@ -4,7 +4,8 @@ const CONFIG = {
 	REGEX_MENU_PATTERN: /BA13_(\d{3})_.*?(_\d)?\.xlsx$/,
 	FORBIDDEN_SHEET_CHARS: /[\\\/\?\*\[\]\:]/g,
 	OPERATING_HOURS: { START: 7, END: 20 },
-	TIMEZONE: 'Europe/Paris'
+	TIMEZONE: 'Europe/Paris',
+	NOTIFICATION_EMAIL: Session.getEffectiveUser().getEmail()
 };
 
 /**
@@ -52,6 +53,23 @@ function checkAndDownload()
 	console.log('New file detected: ' + fileName);
 	const blob = UrlFetchApp.fetch(fullUrl).getBlob();
 	importExcelContent(blob, fileName, ss);
+	sendNotificationEmail(fileName, ss);
+}
+
+/**
+ * Sends a notification email when a new file is detected.
+ */
+function sendNotificationEmail(fileName, ss)
+{
+	const recipient = CONFIG.NOTIFICATION_EMAIL;
+	const subject = 'New BDC Detected: ' + fileName;
+	const body = 'A new BDC has been detected and imported into the spreadsheet.\n\n' +
+		'Filename: ' + fileName + '\n' +
+		'Spreadsheet: ' + ss.getUrl() + '\n\n' +
+		'This is an automated message.';
+
+	MailApp.sendEmail(recipient, subject, body);
+	console.log('Notification email sent to ' + recipient);
 }
 
 /**
@@ -403,7 +421,23 @@ function onOpen()
 	SpreadsheetApp.getUi().createMenu('BA Tools')
 		.addItem('Extract Articles from Current Sheet', 'extractArticlesFromActiveSheet')
 		.addItem('Import from Spreadsheet URL', 'importFromSpreadsheetUrl')
+		.addSeparator()
+		.addItem('Test Email Notification', 'testEmailNotification')
 		.addToUi();
+}
+
+function testEmailNotification()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	try
+	{
+		sendNotificationEmail('TEST_FILE.xlsx', ss);
+		SpreadsheetApp.getUi().alert('Test email sent to ' + CONFIG.NOTIFICATION_EMAIL);
+	}
+	catch (e)
+	{
+		SpreadsheetApp.getUi().alert('Error sending email: ' + e.message);
+	}
 }
 
 function extractArticlesFromActiveSheet()
