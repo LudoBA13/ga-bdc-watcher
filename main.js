@@ -494,6 +494,12 @@ function recomputeAllArticles()
 		extractArticles(sheet);
 	});
 	
+	const finalArticlesSheet = ss.getSheetByName('Articles');
+	if (finalArticlesSheet)
+	{
+		resizeSheet(finalArticlesSheet);
+	}
+	
 	ss.toast('Recomputation complete.');
 }
 
