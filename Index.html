@@ -94,9 +94,9 @@
 				const section = document.getElementById('orgSection');
 				if (data)
 				{
-					document.getElementById('orgName').textContent = data.name;
-					document.getElementById('orgUd').textContent = data.ud;
-					document.getElementById('orgPlanning').textContent = data.planning;
+					document.getElementById('orgName').textContent = data['Nom'];
+					document.getElementById('orgUd').textContent = data['UD'];
+					document.getElementById('orgPlanning').textContent = data['Planning'];
 					section.classList.remove('hidden');
 				}
 				else

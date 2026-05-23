@@ -87,9 +87,9 @@ function lookupOrganization(codeVif)
 		if (String(data[i][codeIndex]) === String(codeVif))
 		{
 			return {
-				name: data[i][nameIndex],
-				ud: data[i][udIndex],
-				planning: data[i][planningIndex]
+				'Nom': data[i][nameIndex],
+				'UD': data[i][udIndex],
+				'Planning': data[i][planningIndex]
 			};
 		}
 	}
