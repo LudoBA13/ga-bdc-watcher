@@ -321,6 +321,19 @@ function validateHeaders(map, unit, sheetName)
 	}
 }
 
+function mapCategory(typeKey)
+{
+	if (typeKey.includes('homolog'))
+	{
+		return 'Asso';
+	}
+	if (typeKey.includes('picerie'))
+	{
+		return 'ES';
+	}
+	return 'Asso|ES';
+}
+
 function extractSpreadsheetId(url)
 {
 	const dMatch = url.match(/\/d\/([-\w]+)/);
