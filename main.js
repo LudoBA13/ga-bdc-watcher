@@ -454,6 +454,7 @@ function recomputeAllArticles()
 	
 	sheets.forEach(sheet =>
 	{
+		ss.toast('Processing ' + sheet.getName() + '...');
 		extractArticles(sheet);
 	});
 	
