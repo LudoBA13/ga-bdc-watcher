@@ -317,7 +317,7 @@ function validateHeaders(map, unit, sheetName)
 	}
 	if (map['Nb max de colis pour 100 UD'] === -1 && map['Max en KG pour 100UD'] === -1)
 	{
-		throw new Error('Missing Max Qty columns in ' + sheetName + '. Expected one of: "Nb max de colis pour 100 UD", "Max en KG pour 100UD"');
+		throw new Error('Missing Max Qty columns in ' + sheetName + '. Found: ' + Object.keys(map).join(', '));
 	}
 }
 
