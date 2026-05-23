@@ -43,20 +43,28 @@
 				
 				categories.forEach(category =>
 				{
-					units.forEach(unit =>
+					const hasArticles = articles.some(a => a.Category === category);
+					if (hasArticles)
 					{
-						const filtered = articles.filter(a => a.Category === category && a.Unit === unit);
-						if (filtered.length > 0)
+						const categorySection = document.createElement('div');
+						categorySection.innerHTML = `<h2>${category}</h2>`;
+						
+						units.forEach(unit =>
 						{
-							const section = document.createElement('div');
-							section.innerHTML = `<h2>${category} - ${unit}</h2>`;
-							filtered.forEach(a =>
+							const filtered = articles.filter(a => a.Category === category && a.Unit === unit);
+							if (filtered.length > 0)
 							{
-								section.innerHTML += `<p>${a.Label} (${a.Quantity})</p>`;
-							});
-							container.appendChild(section);
-						}
-					});
+								const unitSection = document.createElement('div');
+								unitSection.innerHTML = `<h3>${unit}</h3>`;
+								filtered.forEach(a =>
+								{
+									unitSection.innerHTML += `<p>${a.Label} (${a.Quantity})</p>`;
+								});
+								categorySection.appendChild(unitSection);
+							}
+						});
+						container.appendChild(categorySection);
+					}
 				});
 			}
 
