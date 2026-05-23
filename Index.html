@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<base target="_top">
+		<style>
+			.hidden
+			{
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Formulaire de Commande</h1>
+		<form id="orderForm" onsubmit="handleFormSubmit(this)">
+			<label for="email">Email:</label><br>
+			<input type="email" id="email" name="email" required><br><br>
+
+			<label for="codeVif">Code VIF:</label><br>
+			<input type="text" id="codeVif" name="codeVif" required oninput="checkCodeVif(this.value)"><br><br>
+
+			<div id="orgSection" class="hidden">
+				<p><strong>Organisation:</strong> <span id="orgName"></span></p>
+				<p><strong>UD:</strong> <span id="orgUd"></span></p>
+				<p><strong>Planning:</strong> <span id="orgPlanning"></span></p>
+			</div>
+			
+			<button type="submit">Envoyer</button>
+		</form>
+
+		<script>
+			function checkCodeVif(val)
+			{
+				const regex = /^[1-9]0?13[0-9]{4}/;
+				if (regex.test(val))
+				{
+					google.script.run.withSuccessHandler(showOrg).lookupOrganization(val);
+				}
+				else
+				{
+					document.getElementById('orgSection').classList.add('hidden');
+				}
+			}
+
+			function showOrg(data)
+			{
+				const section = document.getElementById('orgSection');
+				if (data)
+				{
+					document.getElementById('orgName').textContent = data.name;
+					document.getElementById('orgUd').textContent = data.ud;
+					document.getElementById('orgPlanning').textContent = data.planning;
+					section.classList.remove('hidden');
+				}
+				else
+				{
+					section.classList.add('hidden');
+				}
+			}
+
+			function handleFormSubmit(form)
+			{
+				event.preventDefault();
+				google.script.run.withSuccessHandler(alert).processForm(form);
+			}
+		</script>
+	</body>
+</html>
