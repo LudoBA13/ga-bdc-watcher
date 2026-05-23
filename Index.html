@@ -24,10 +24,42 @@
 				<p><strong>Planning:</strong> <span id="orgPlanning"></span></p>
 			</div>
 			
+			<div id="articleSections"></div>
+
 			<button type="submit">Envoyer</button>
 		</form>
 
 		<script>
+			window.onload = function()
+			{
+				google.script.run.withSuccessHandler(renderArticles).getCurrentArticles();
+			};
+
+			function renderArticles(articles)
+			{
+				const container = document.getElementById('articleSections');
+				const categories = ['Asso', 'ES', 'Asso|ES'];
+				const units = ['colis', 'kg'];
+				
+				categories.forEach(category =>
+				{
+					units.forEach(unit =>
+					{
+						const filtered = articles.filter(a => a.Category === category && a.Unit === unit);
+						if (filtered.length > 0)
+						{
+							const section = document.createElement('div');
+							section.innerHTML = `<h2>${category} - ${unit}</h2>`;
+							filtered.forEach(a =>
+							{
+								section.innerHTML += `<p>${a.Label} (${a.Quantity})</p>`;
+							});
+							container.appendChild(section);
+						}
+					});
+				});
+			}
+
 			function checkCodeVif(val)
 			{
 				const regex = /^[1-9]0?13[0-9]{4}/;
