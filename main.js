@@ -198,7 +198,7 @@ function handleGoogleSheetUrlImport(url, ss, ui)
 function extractArticles(sheet)
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const articlesSheet = getOrCreateSheet(ss, 'Articles', ['Sheet Name', 'Category', 'Article ID', 'Label', 'Unit', 'Quantity']);
+	const articlesSheet = getOrCreateSheet(ss, 'Articles', ['Sheet Name', 'Category', 'Article ID', 'Label', 'Unit', 'Unit Weight', 'Max Qty']);
 	const data = sheet.getDataRange().getValues();
 	const displayName = getDisplayName(sheet);
 
@@ -229,7 +229,7 @@ function extractArticles(sheet)
 
 	if (extractionState.results.length > 0)
 	{
-		articlesSheet.getRange(articlesSheet.getLastRow() + 1, 1, extractionState.results.length, 6).setValues(extractionState.results);
+		articlesSheet.getRange(articlesSheet.getLastRow() + 1, 1, extractionState.results.length, 7).setValues(extractionState.results);
 		ss.toast('Extracted ' + extractionState.results.length + ' articles.');
 	}
 }
@@ -278,8 +278,20 @@ function processArticleRow(row, state, sheetName)
 
 	const labelVal = row[state.headerMap.DESIGNATION];
 	const quantity = calculateQuantity(row, state);
+	const unitWeight = calculateUnitWeight(row, state);
 
-	state.results.push([sheetName, state.category, idVal, labelVal, state.unit, quantity]);
+	state.results.push([sheetName, state.category, idVal, labelVal, state.unit, unitWeight, quantity]);
+}
+
+function calculateUnitWeight(row, state)
+{
+	if (state.unit === 'kg')
+	{
+		return 1;
+	}
+	
+	const val = row[state.headerMap['Poids brut du colis']];
+	return val ? parseFloat(String(val).replace(',', '.')) : 1;
 }
 
 function calculateQuantity(row, state)
@@ -313,7 +325,7 @@ function mapCategory(typeKey)
 
 function mapColumns(row)
 {
-	const targets = ['ARTICLE', 'DESIGNATION', 'Max en KG', 'Poids brut', 'Nb max de colis'];
+	const targets = ['ARTICLE', 'DESIGNATION', 'Max en KG', 'Poids brut', 'Nb max de colis', 'Poids brut du colis'];
 	const map = {};
 	targets.forEach(t =>
 	{
