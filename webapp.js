@@ -31,6 +31,39 @@ function doGet()
 }
 
 /**
+ * Returns data from Articles sheet as objects.
+ */
+function getCurrentArticles()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheet = ss.getSheetByName('Articles');
+	if (!sheet)
+	{
+		return [];
+	}
+
+	const data = sheet.getDataRange().getValues();
+	if (data.length <= 1)
+	{
+		return [];
+	}
+
+	const headers = data[0];
+	const result = [];
+	for (let i = 1; i < data.length; i++)
+	{
+		const row = data[i];
+		const obj = {};
+		headers.forEach((header, index) =>
+		{
+			obj[header] = row[index];
+		});
+		result.push(obj);
+	}
+	return result;
+}
+
+/**
  * Mock lookup for Code VIF.
  */
 function lookupOrganization(codeVif)
