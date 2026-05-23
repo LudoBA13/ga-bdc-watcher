@@ -277,7 +277,7 @@ function processArticleRow(row, state, sheetName)
 	}
 
 	const labelVal = row[state.headerMap.DESIGNATION];
-	const quantity = calculateQuantity(row, state);
+	const quantity = row[state.headerMap['Nb max de colis pour 100 UD']] || row[state.headerMap['Max en KG pour 100UD']];
 	const unitWeight = calculateUnitWeight(row, state);
 
 	state.results.push([sheetName, state.category, idVal, labelVal, state.unit, unitWeight, quantity]);
@@ -294,38 +294,9 @@ function calculateUnitWeight(row, state)
 	return val ? parseFloat(String(val).replace(',', '.')) : 1;
 }
 
-function calculateQuantity(row, state)
-{
-	if (state.unit === 'kg')
-	{
-		return row[state.headerMap['Max en KG']];
-	}
-
-	const poidsBrut = parseFloat(String(row[state.headerMap['Poids brut']]).replace(',', '.')) || 0;
-	const nbMax = parseFloat(row[state.headerMap['Nb max de colis']]) || 0;
-	return poidsBrut * nbMax;
-}
-
-/**
- * Utility functions.
- */
-
-function mapCategory(typeKey)
-{
-	if (typeKey.includes('homolog'))
-	{
-		return 'Asso';
-	}
-	if (typeKey.includes('picerie'))
-	{
-		return 'ES';
-	}
-	return 'Asso|ES';
-}
-
 function mapColumns(row)
 {
-	const targets = ['ARTICLE', 'DESIGNATION', 'Max en KG', 'Poids brut', 'Nb max de colis', 'Poids brut du colis'];
+	const targets = ['ARTICLE', 'DESIGNATION', 'Poids brut du colis', 'Nb max de colis pour 100 UD', 'Max en KG pour 100UD'];
 	const map = {};
 	targets.forEach(t =>
 	{
@@ -344,13 +315,9 @@ function validateHeaders(map, unit, sheetName)
 	{
 		throw new Error('Missing "DESIGNATION" in ' + sheetName);
 	}
-	if (unit === 'kg' && map['Max en KG'] === -1)
+	if (map['Nb max de colis pour 100 UD'] === -1 && map['Max en KG pour 100UD'] === -1)
 	{
-		throw new Error('Missing "Max en KG" in ' + sheetName);
-	}
-	if (unit === 'colis' && (map['Poids brut'] === -1 || map['Nb max de colis'] === -1))
-	{
-		throw new Error('Missing shipping columns in ' + sheetName);
+		throw new Error('Missing Max Qty columns in ' + sheetName);
 	}
 }
 
