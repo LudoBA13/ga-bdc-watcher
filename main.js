@@ -432,10 +432,32 @@ function onOpen()
 {
 	SpreadsheetApp.getUi().createMenu('BA Tools')
 		.addItem('Extract Articles from Current Sheet', 'extractArticlesFromActiveSheet')
+		.addItem('Recompute all articles', 'recomputeAllArticles')
 		.addItem('Import from Spreadsheet URL', 'importFromSpreadsheetUrl')
 		.addSeparator()
 		.addItem('Test Email Notification', 'testEmailNotification')
 		.addToUi();
+}
+
+function recomputeAllArticles()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const articlesSheet = ss.getSheetByName('Articles');
+	if (articlesSheet)
+	{
+		ss.deleteSheet(articlesSheet);
+	}
+	
+	getOrCreateSheet(ss, 'Articles', ['Sheet Name', 'Category', 'Article ID', 'Label', 'Unit', 'Unit Weight', 'Max Qty']);
+	
+	const sheets = ss.getSheets().filter(s => s.getName().startsWith('Menu_')).sort((a, b) => a.getName().localeCompare(b.getName()));
+	
+	sheets.forEach(sheet =>
+	{
+		extractArticles(sheet);
+	});
+	
+	ss.toast('Recomputation complete.');
 }
 
 function testEmailNotification()
