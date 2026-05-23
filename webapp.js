@@ -64,17 +64,34 @@ function getCurrentArticles()
 }
 
 /**
- * Mock lookup for Code VIF.
+ * Look up organization data from ACStructures sheet.
  */
 function lookupOrganization(codeVif)
 {
-	if (codeVif === '1139998')
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheet = ss.getSheetByName('ACStructures');
+	if (!sheet)
 	{
-		return {
-			name: 'Test AP',
-			ud: 100,
-			planning: '1er lundi 8h30'
-		};
+		return null;
+	}
+
+	const data = sheet.getDataRange().getValues();
+	const headers = data[0];
+	const codeIndex = headers.indexOf('Code VIF');
+	const nameIndex = headers.indexOf('Nom');
+	const udIndex = headers.indexOf('UD');
+	const planningIndex = headers.indexOf('Planning');
+
+	for (let i = 1; i < data.length; i++)
+	{
+		if (String(data[i][codeIndex]) === String(codeVif))
+		{
+			return {
+				name: data[i][nameIndex],
+				ud: data[i][udIndex],
+				planning: data[i][planningIndex]
+			};
+		}
 	}
 	return null;
 }
