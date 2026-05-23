@@ -7,6 +7,11 @@
 			{
 				display: none;
 			}
+			/* Example rule: hide sections not matching a filter if we add a filter class to articleSections */
+			.filter-for_asso #articleSections section:not(.for_asso)
+			{
+				display: none;
+			}
 		</style>
 	</head>
 	<body>
@@ -57,7 +62,7 @@
 							if (filtered.length > 0)
 							{
 								const unitSection = document.createElement('section');
-								unitSection.className = 'as_' + unit;
+								unitSection.className = 'as_' + unit + ' ' + categoryClass;
 								unitSection.innerHTML = `<h3>${unit}</h3>`;
 								filtered.forEach(a =>
 								{
