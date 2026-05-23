@@ -450,7 +450,7 @@ function recomputeAllArticles()
 	
 	getOrCreateSheet(ss, 'Articles', ['Sheet Name', 'Category', 'Article ID', 'Label', 'Unit', 'Unit Weight', 'Max Qty']);
 	
-	const sheets = ss.getSheets().filter(s => s.getName().startsWith('Menu_')).sort((a, b) => a.getName().localeCompare(b.getName()));
+	const sheets = ss.getSheets().filter(s => /^Menu\d/.test(s.getName())).sort((a, b) => a.getName().localeCompare(b.getName()));
 	
 	sheets.forEach(sheet =>
 	{
