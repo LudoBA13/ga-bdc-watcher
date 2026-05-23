@@ -300,7 +300,7 @@ function mapColumns(row)
 		ARTICLE: row.findIndex(cell => String(cell).trim().startsWith('ARTICLE')),
 		DESIGNATION: row.findIndex(cell => String(cell).trim().startsWith('DESIGNATION')),
 		'Poids brut du colis': row.findIndex(cell => String(cell).trim().startsWith('Poids brut du colis')),
-		MAX_QTY: row.findIndex(cell => /^max.*100.*UD/i.test(String(cell).trim()))
+		MAX_QTY: row.findIndex(cell => /max.*100.*UD/i.test(String(cell).trim()))
 	};
 	return map;
 }
@@ -317,7 +317,7 @@ function validateHeaders(map, unit, sheetName)
 	}
 	if (map.MAX_QTY === -1)
 	{
-		throw new Error('Missing Max Qty column (expected pattern /^max.*100.*UD/i) in ' + sheetName + '. Found: ' + Object.keys(map).join(', '));
+		throw new Error('Missing Max Qty column (expected pattern /max.*100.*UD/i) in ' + sheetName + '. Found: ' + Object.keys(map).join(', '));
 	}
 }
 
