@@ -1,4 +1,26 @@
 /**
+ * Retrieves the content of the CurrentArticles sheet.
+ */
+function getCurrentArticles()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheet = ss.getSheetByName('CurrentArticles');
+	if (!sheet)
+	{
+		return [];
+	}
+
+	const data = sheet.getDataRange().getValues();
+	if (data.length <= 1)
+	{
+		return [];
+	}
+
+	// Returns data without the header row
+	return data.slice(1);
+}
+
+/**
  * Web App entry point.
  */
 function doGet()
