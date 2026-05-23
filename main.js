@@ -231,6 +231,7 @@ function extractArticles(sheet)
 	{
 		articlesSheet.getRange(articlesSheet.getLastRow() + 1, 1, extractionState.results.length, 7).setValues(extractionState.results);
 		ss.toast('Extracted ' + extractionState.results.length + ' articles.');
+		extractCurrentArticles();
 	}
 }
 
