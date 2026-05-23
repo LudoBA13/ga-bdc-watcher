@@ -277,7 +277,7 @@ function processArticleRow(row, state, sheetName)
 	}
 
 	const labelVal = row[state.headerMap.DESIGNATION];
-	const quantity = row[state.headerMap['Nb max de colis pour 100 UD']] || row[state.headerMap['Max en KG pour 100UD']];
+	const quantity = row[state.headerMap.MAX_QTY];
 	const unitWeight = calculateUnitWeight(row, state);
 
 	state.results.push([sheetName, state.category, idVal, labelVal, state.unit, unitWeight, quantity]);
@@ -296,12 +296,12 @@ function calculateUnitWeight(row, state)
 
 function mapColumns(row)
 {
-	const targets = ['ARTICLE', 'DESIGNATION', 'Poids brut du colis', 'Nb max de colis pour 100 UD', 'Max en KG pour 100UD'];
-	const map = {};
-	targets.forEach(t =>
-	{
-		map[t] = row.findIndex(cell => String(cell).trim().startsWith(t));
-	});
+	const map = {
+		ARTICLE: row.findIndex(cell => String(cell).trim().startsWith('ARTICLE')),
+		DESIGNATION: row.findIndex(cell => String(cell).trim().startsWith('DESIGNATION')),
+		'Poids brut du colis': row.findIndex(cell => String(cell).trim().startsWith('Poids brut du colis')),
+		MAX_QTY: row.findIndex(cell => /^max.*100.*UD/i.test(String(cell).trim()))
+	};
 	return map;
 }
 
@@ -315,9 +315,9 @@ function validateHeaders(map, unit, sheetName)
 	{
 		throw new Error('Missing "DESIGNATION" in ' + sheetName);
 	}
-	if (map['Nb max de colis pour 100 UD'] === -1 && map['Max en KG pour 100UD'] === -1)
+	if (map.MAX_QTY === -1)
 	{
-		throw new Error('Missing Max Qty columns in ' + sheetName + '. Found: ' + Object.keys(map).join(', '));
+		throw new Error('Missing Max Qty column (expected pattern /^max.*100.*UD/i) in ' + sheetName + '. Found: ' + Object.keys(map).join(', '));
 	}
 }
 
