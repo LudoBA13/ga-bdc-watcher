@@ -392,7 +392,10 @@ function resizeSheet(sheet)
 	const lastRow = sheet.getLastRow();
 	const lastCol = sheet.getLastColumn();
 	if (lastRow > 0) sheet.autoResizeRows(1, lastRow);
-	if (lastCol > 0) sheet.autoResizeColumns(1, lastCol);
+	for (let i = 1; i <= lastCol; i++)
+	{
+		sheet.autoResizeColumn(i);
+	}
 }
 
 function deleteSheetIfExists(ss, name)
