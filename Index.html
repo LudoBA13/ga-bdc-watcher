@@ -46,7 +46,7 @@
 					const hasArticles = articles.some(a => a.Category === category);
 					if (hasArticles)
 					{
-						const categoryClass = 'for_' + category.toLowerCase().replace('|', '_');
+						const categoryClass = category.toLowerCase().split('|').map(c => 'for_' + c).join(' ');
 						const categorySection = document.createElement('section');
 						categorySection.className = categoryClass;
 						categorySection.innerHTML = `<h2>${category}</h2>`;
@@ -57,7 +57,7 @@
 							if (filtered.length > 0)
 							{
 								const unitSection = document.createElement('section');
-								unitSection.className = 'in_' + unit;
+								unitSection.className = 'as_' + unit;
 								unitSection.innerHTML = `<h3>${unit}</h3>`;
 								filtered.forEach(a =>
 								{
