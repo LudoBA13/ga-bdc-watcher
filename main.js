@@ -413,10 +413,46 @@ function onOpen()
 	SpreadsheetApp.getUi().createMenu('BA Tools')
 		.addItem('Extract Articles from Current Sheet', 'extractArticlesFromActiveSheet')
 		.addItem('Recompute all articles', 'recomputeAllArticles')
+		.addItem('Extract Current Articles', 'extractCurrentArticles')
 		.addItem('Import from Spreadsheet URL', 'importFromSpreadsheetUrl')
 		.addSeparator()
 		.addItem('Test Email Notification', 'testEmailNotification')
 		.addToUi();
+}
+
+function extractCurrentArticles()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const articlesSheet = ss.getSheetByName('Articles');
+	if (!articlesSheet)
+	{
+		ss.toast('Articles sheet not found.');
+		return;
+	}
+
+	const data = articlesSheet.getDataRange().getValues();
+	if (data.length <= 1)
+	{
+		ss.toast('No articles found.');
+		return;
+	}
+
+	const lastSheetName = data[data.length - 1][0];
+	const filteredRows = data.filter((row, index) => index > 0 && row[0] === lastSheetName);
+
+	if (filteredRows.length === 0)
+	{
+		ss.toast('No matching articles found.');
+		return;
+	}
+
+	const headers = data[0];
+	const currentArticlesSheet = getOrCreateSheet(ss, 'CurrentArticles', headers);
+	currentArticlesSheet.clearContents();
+	currentArticlesSheet.appendRow(headers);
+	currentArticlesSheet.getRange(2, 1, filteredRows.length, headers.length).setValues(filteredRows);
+
+	ss.toast('Extracted ' + filteredRows.length + ' current articles from ' + lastSheetName);
 }
 
 function recomputeAllArticles()
