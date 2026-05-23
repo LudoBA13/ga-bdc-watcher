@@ -373,8 +373,26 @@ function getOrCreateSheet(ss, name, headers)
 	{
 		sheet = ss.insertSheet(name);
 		sheet.appendRow(headers);
+		styleHeader(sheet.getRange(1, 1, 1, headers.length));
 	}
 	return sheet;
+}
+
+function styleHeader(range)
+{
+	range.setHorizontalAlignment('center')
+		.setVerticalAlignment('middle')
+		.setBackground('#4a86e8')
+		.setFontWeight('bold')
+		.setFontColor('white');
+}
+
+function resizeSheet(sheet)
+{
+	const lastRow = sheet.getLastRow();
+	const lastCol = sheet.getLastColumn();
+	if (lastRow > 0) sheet.autoResizeRows(1, lastRow);
+	if (lastCol > 0) sheet.autoResizeColumns(1, lastCol);
 }
 
 function deleteSheetIfExists(ss, name)
@@ -452,6 +470,7 @@ function extractCurrentArticles()
 	currentArticlesSheet.clearContents();
 	currentArticlesSheet.appendRow(headers);
 	currentArticlesSheet.getRange(2, 1, filteredRows.length, headers.length).setValues(filteredRows);
+	resizeSheet(currentArticlesSheet);
 
 	ss.toast('Extracted ' + filteredRows.length + ' current articles from ' + lastSheetName);
 }
