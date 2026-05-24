@@ -27,6 +27,8 @@ function doGet()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
 	
+	const startTime = new Date().getTime();
+
 	// Get maxDate from ACStructures
 	let maxDate = '';
 	const sheetOrg = ss.getSheetByName('ACStructures');
@@ -55,9 +57,11 @@ function doGet()
 		}
 	}
 
+	const endTime = new Date().getTime();
 	const template = HtmlService.createTemplateFromFile('Index');
 	template.maxDate = maxDate;
 	template.menuId = menuId;
+	template.serverPerf = endTime - startTime;
 	return template.evaluate()
 		.setTitle('Formulaire de Commande BDC')
 		.addMetaTag('viewport', 'width=device-width, initial-scale=1');
