@@ -56,6 +56,10 @@
 			{
 				background-color: #ff000020;
 			}
+			.weight-col::after
+			{
+				content: " kg";
+			}
 			#articleSections.filter-for_asso > .for_asso,
 			#articleSections.filter-for_es > .for_es
 			{
@@ -264,6 +268,13 @@
 				unitSection.innerHTML = `<h3>${getUnitLabel(unit)}</h3>`;
 				const table = document.createElement('table');
 				table.innerHTML = `
+					<colgroup>
+						<col>
+						<col class="weight-col">
+						<col>
+						<col>
+						<col>
+					</colgroup>
 					<thead>
 						<tr>
 							<th>Désignation</th>
