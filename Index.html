@@ -49,6 +49,16 @@
 		</form>
 
 		<script>
+			const perfStart = performance.now();
+
+			function logPerformance(message)
+			{
+				const duration = (performance.now() - perfStart).toFixed(2);
+				const comment = document.createComment(` Perf: ${message} took ${duration}ms `);
+				document.body.appendChild(comment);
+				console.log(`Perf: ${message} took ${duration}ms`);
+			}
+
 			function pruneCaches()
 			{
 				const html = document.documentElement;
@@ -112,6 +122,7 @@
 				{
 					console.log('Loading articles from cache.');
 					renderArticles(JSON.parse(cachedData));
+					logPerformance('Initial render from cache');
 				}
 				else
 				{
@@ -120,6 +131,7 @@
 					{
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
 						renderArticles(response.articles);
+						logPerformance('Initial render from server');
 					}).getCurrentArticles();
 				}
 			};
