@@ -13,6 +13,8 @@ const CONFIG = {
  */
 function scheduledCheck()
 {
+	updateCachedMaxDate();
+
 	const now = new Date;
 	const hour = parseInt(Utilities.formatDate(now, CONFIG.TIMEZONE, 'H'));
 

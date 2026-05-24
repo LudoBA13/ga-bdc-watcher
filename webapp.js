@@ -90,9 +90,9 @@ function getCurrentArticles()
 }
 
 /**
- * Scheduled check to update maxDate cache.
+ * Updates the maxDate cache.
  */
-function scheduledCheck()
+function updateCachedMaxDate()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
 	const sheetOrg = ss.getSheetByName('ACStructures');
@@ -113,6 +113,10 @@ function scheduledCheck()
 	}
 	PropertiesService.getScriptProperties().setProperty('maxDate', maxDate);
 }
+
+/**
+ * Look up organization data from ACStructures sheet.
+ */
 function lookupOrganization(codeVif)
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
