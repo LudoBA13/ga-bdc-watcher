@@ -47,14 +47,14 @@
 			window.onload = function()
 			{
 				const cachedData = localStorage.getItem('articlesData');
-				const cachedUpdate = localStorage.getItem('lastUpdate');
+				const cachedMenuId = localStorage.getItem('menuId');
 
 				google.script.run.withSuccessHandler(response =>
 				{
-					if (response.lastUpdate !== cachedUpdate)
+					if (response.menuId !== cachedMenuId)
 					{
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
-						localStorage.setItem('lastUpdate', response.lastUpdate);
+						localStorage.setItem('menuId', response.menuId);
 						renderArticles(response.articles);
 					}
 					else

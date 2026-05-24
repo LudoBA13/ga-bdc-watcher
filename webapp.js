@@ -39,16 +39,16 @@ function getCurrentArticles()
 	const sheet = ss.getSheetByName('Articles');
 	if (!sheet)
 	{
-		return { articles: [], lastUpdate: '' };
+		return { articles: [], menuId: '' };
 	}
 
 	const data = sheet.getDataRange().getValues();
 	if (data.length <= 1)
 	{
-		return { articles: [], lastUpdate: '' };
+		return { articles: [], menuId: '' };
 	}
 
-	const lastUpdate = sheet.getRange(sheet.getLastRow(), 1).getValue();
+	const menuId = sheet.getRange(sheet.getLastRow(), 1).getValue();
 	const headers = data[0];
 	const result = [];
 	for (let i = 1; i < data.length; i++)
@@ -61,7 +61,7 @@ function getCurrentArticles()
 		});
 		result.push(obj);
 	}
-	return { articles: result, lastUpdate: lastUpdate };
+	return { articles: result, menuId: menuId };
 }
 
 /**
