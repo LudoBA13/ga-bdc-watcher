@@ -12,6 +12,17 @@
 				opacity: 0.5;
 				pointer-events: none;
 			}
+			.spinner
+			{
+				display: inline-block;
+				width: 1rem;
+				height: 1rem;
+				border: 2px solid #ccc;
+				border-top: 2px solid #333;
+				border-radius: 50%;
+				animation: spin 1s linear infinite;
+			}
+			@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 			.article-section
 			{
 				display: none;
@@ -34,6 +45,7 @@
 			<input type="text" id="codeVif" name="codeVif" required oninput="checkCodeVif(this.value)"><br><br>
 
 			<div id="orgSection" class="disabled">
+				<div id="orgSpinner" class="spinner hidden"></div>
 				<dl>
 					<dt>Organisation</dt>
 					<dd data-structure-info="Nom"></dd>
@@ -281,6 +293,7 @@
 				else
 				{
 					console.log('No cache found for org:', val, '. Fetching fresh data.');
+					document.getElementById('orgSpinner').classList.remove('hidden');
 					google.script.run.withSuccessHandler(response =>
 					{
 						localStorage.setItem('orgData_' + val, JSON.stringify(response));
@@ -291,6 +304,7 @@
 
 			function showOrg(data, codeVif)
 			{
+				document.getElementById('orgSpinner').classList.add('hidden');
 				const section = document.getElementById('orgSection');
 				if (!data)
 				{
