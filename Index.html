@@ -204,6 +204,11 @@
 				}
 			}
 
+			function handleFormSubmit(form)
+			{
+				event.preventDefault();
+				google.script.run.withSuccessHandler(alert).processForm(form);
+			}
 		</script>
 	</body>
 </html>
