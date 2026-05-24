@@ -164,24 +164,27 @@
 				const section = document.getElementById('orgSection');
 				if (!response)
 				{
+					console.log('No data received for org:', codeVif);
 					section.classList.add('hidden');
 					return;
 				}
 
 				const { data, maxDate } = response;
-				const cachedDataStr = localStorage.getItem('orgData_' + codeVif);
+				console.log('Processing org data:', codeVif, 'MaxDate:', maxDate);
 
+				const cachedDataStr = localStorage.getItem('orgData_' + codeVif);
 				if (!cachedDataStr)
 				{
-					console.log('Fetching fresh org data.');
+					console.log('No cache found for org:', codeVif, '. Fetching fresh data.');
 					localStorage.setItem('orgData_' + codeVif, JSON.stringify(data));
 				}
 				else
 				{
-					console.log('Loading org data from cache.');
+					console.log('Org cache found for:', codeVif, '. Using cached data.');
 				}
 
 				const cachedData = JSON.parse(localStorage.getItem('orgData_' + codeVif));
+				console.log('Applying data to UI:', cachedData);
 				for (const key in cachedData)
 				{
 					const el = section.querySelector(`[data-structure-info="${key}"]`);
@@ -194,6 +197,7 @@
 
 				const container = document.getElementById('articleSections');
 				const dist = cachedData['Modes de distribution de l\'aide alimentaire'] || '';
+				console.log('Determining visibility filter for:', dist);
 				if (dist.includes('picerie'))
 				{
 					container.className = 'filter-for_es';
