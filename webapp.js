@@ -25,7 +25,25 @@ function getCurrentArticles()
  */
 function doGet()
 {
-	return HtmlService.createTemplateFromFile('Index').evaluate()
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheet = ss.getSheetByName('ACStructures');
+	let maxDate = '';
+	if (sheet)
+	{
+		const data = sheet.getDataRange().getValues();
+		const dateIndex = data[0].indexOf('Date de mise à jour');
+		for (let i = 1; i < data.length; i++)
+		{
+			if (data[i][dateIndex] > maxDate)
+			{
+				maxDate = data[i][dateIndex];
+			}
+		}
+	}
+
+	const template = HtmlService.createTemplateFromFile('Index');
+	template.maxDate = maxDate;
+	return template.evaluate()
 		.setTitle('Formulaire de Commande BDC')
 		.addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }

@@ -44,8 +44,25 @@
 		</form>
 
 		<script>
+			const SERVER_MAX_DATE = '<?= maxDate ?>';
+
 			window.onload = function()
 			{
+				const cachedMaxDate = localStorage.getItem('orgMaxDate');
+				if (SERVER_MAX_DATE !== cachedMaxDate)
+				{
+					console.log('Cache outdated on load. Clearing org cache.');
+					for (let i = localStorage.length - 1; i >= 0; i--)
+					{
+						const key = localStorage.key(i);
+						if (key && key.startsWith('orgData_'))
+						{
+							localStorage.removeItem(key);
+						}
+					}
+					localStorage.setItem('orgMaxDate', SERVER_MAX_DATE);
+				}
+
 				const cachedData = localStorage.getItem('articlesData');
 				const cachedMenuId = localStorage.getItem('menuId');
 
