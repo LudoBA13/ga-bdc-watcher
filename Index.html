@@ -7,8 +7,8 @@
 			{
 				display: none;
 			}
-			.filter-for_asso #articleSections section:not(.for_asso),
-			.filter-for_es #articleSections section:not(.for_es)
+			#articleSections:not(.for_asso) > .for_asso,
+			#articleSections:not(.for_es)   > .for_es
 			{
 				display: none;
 			}
@@ -110,6 +110,17 @@
 					}
 				}
 				section.classList.remove('hidden');
+
+				const container = document.getElementById('articleSections');
+				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
+				if (dist.includes('picerie'))
+				{
+					container.className = 'filter-for_es';
+				}
+				else
+				{
+					container.className = 'filter-for_asso';
+				}
 			}
 
 			function handleFormSubmit(form)
