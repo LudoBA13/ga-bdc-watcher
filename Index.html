@@ -343,8 +343,10 @@
 			{
 				const row = input.closest('tr');
 				const maxQty = parseFloat(row.cells[2].textContent) || 0;
+				const unitWeight = parseFloat(row.cells[1].textContent) || 0;
 				const enteredQty = parseFloat(input.value) || 0;
 				
+				// Validate qty exceeded
 				if (enteredQty > maxQty)
 				{
 					row.classList.add('qty-exceeded');
@@ -353,6 +355,10 @@
 				{
 					row.classList.remove('qty-exceeded');
 				}
+
+				// Update Total kg
+				const totalKg = enteredQty * unitWeight;
+				row.querySelector('.total-kg').textContent = totalKg.toFixed(2);
 			}
 
 			function checkCodeVif(val)
