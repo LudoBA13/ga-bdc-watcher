@@ -102,6 +102,32 @@
 				}
 			};
 
+			function getCategoryLabel(category)
+			{
+				if (category === 'Asso')
+				{
+					return 'Produits réservés aux Associations homologuées';
+				}
+				if (category === 'ES')
+				{
+					return 'Produits réservés aux Épiceries Sociales';
+				}
+				return 'Produits disponibles pour tous';
+			}
+
+			function getUnitLabel(unit)
+			{
+				if (unit === 'kg')
+				{
+					return 'Produits au KILO';
+				}
+				if (unit === 'colis')
+				{
+					return 'Produits en COLIS';
+				}
+				return '';
+			}
+
 			function createProductElement(product)
 			{
 				const p = document.createElement('p');
