@@ -29,22 +29,9 @@ function doGet()
 	
 	const startTotal = new Date().getTime();
 
-	// Get maxDate from ACStructures
+	// Get maxDate from ScriptProperties
 	const startMaxDate = new Date().getTime();
-	let maxDate = '';
-	const sheetOrg = ss.getSheetByName('ACStructures');
-	if (sheetOrg)
-	{
-		const data = sheetOrg.getDataRange().getValues();
-		const dateIndex = data[0].indexOf('Date de mise à jour');
-		for (let i = 1; i < data.length; i++)
-		{
-			if (data[i][dateIndex] > maxDate)
-			{
-				maxDate = data[i][dateIndex];
-			}
-		}
-	}
+	let maxDate = PropertiesService.getScriptProperties().getProperty('maxDate') || '';
 	const endMaxDate = new Date().getTime();
 
 	// Get menuId from Articles
@@ -103,8 +90,29 @@ function getCurrentArticles()
 }
 
 /**
- * Look up organization data from ACStructures sheet.
+ * Scheduled check to update maxDate cache.
  */
+function scheduledCheck()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheetOrg = ss.getSheetByName('ACStructures');
+	if (!sheetOrg)
+	{
+		return;
+	}
+
+	let maxDate = '';
+	const data = sheetOrg.getDataRange().getValues();
+	const dateIndex = data[0].indexOf('Date de mise à jour');
+	for (let i = 1; i < data.length; i++)
+	{
+		if (data[i][dateIndex] > maxDate)
+		{
+			maxDate = data[i][dateIndex];
+		}
+	}
+	PropertiesService.getScriptProperties().setProperty('maxDate', maxDate);
+}
 function lookupOrganization(codeVif)
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
