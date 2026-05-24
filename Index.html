@@ -84,6 +84,28 @@
 			{
 				pruneCaches();
 
+				const emailEl = document.getElementById('email');
+				const codeVifEl = document.getElementById('codeVif');
+
+				const savedEmail = localStorage.getItem('email');
+				const savedOrg = localStorage.getItem('codeVif');
+
+				if (savedEmail) {
+					emailEl.value = savedEmail;
+				}
+				if (savedOrg) {
+					codeVifEl.value = savedOrg;
+					checkCodeVif(savedOrg);
+				}
+
+				emailEl.addEventListener('input', (e) => {
+					localStorage.setItem('email', e.target.value);
+				});
+
+				codeVifEl.addEventListener('input', (e) => {
+					localStorage.setItem('codeVif', e.target.value);
+				});
+
 				const cachedData = localStorage.getItem('articlesData');
 
 				if (cachedData)
