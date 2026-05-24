@@ -234,6 +234,7 @@
 				
 				// Unit Weight
 				const tdWeight = document.createElement('td');
+				tdWeight.className = 'weight-col';
 				tdWeight.textContent = product['Unit Weight'];
 				tr.appendChild(tdWeight);
 
@@ -268,13 +269,6 @@
 				unitSection.innerHTML = `<h3>${getUnitLabel(unit)}</h3>`;
 				const table = document.createElement('table');
 				table.innerHTML = `
-					<colgroup>
-						<col>
-						<col class="weight-col">
-						<col>
-						<col>
-						<col>
-					</colgroup>
 					<thead>
 						<tr>
 							<th>Désignation</th>
