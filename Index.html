@@ -236,6 +236,7 @@
 				const tdWeight = document.createElement('td');
 				tdWeight.className = 'weight-col';
 				const weight = parseFloat(product['Unit Weight']) || 0;
+				tdWeight.dataset.unitWeight = weight;
 				tdWeight.textContent = weight.toFixed(1);
 				tr.appendChild(tdWeight);
 
@@ -349,7 +350,7 @@
 			{
 				const row = input.closest('tr');
 				const maxQty = parseFloat(row.cells[2].textContent) || 0;
-				const unitWeight = parseFloat(row.cells[1].textContent) || 1;
+				const unitWeight = parseFloat(row.cells[1].dataset.unitWeight) || 1;
 				const enteredQty = parseFloat(input.value) || 0;
 				
 				// Validate qty exceeded
