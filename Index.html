@@ -51,7 +51,7 @@
 
 		<script>
 			const perfStart = performance.now();
-			const serverPerf = <?= JSON.stringify(serverPerf) ?>;
+			const serverPerf = <?!= JSON.stringify(serverPerf) ?>;
 			const debug = document.getElementById('debug');
 			debug.innerHTML += `<div>Perf: Server computation total=${serverPerf.total}ms (maxDate=${serverPerf.maxDate}ms, menuId=${serverPerf.menuId}ms)</div>`;
 
@@ -219,6 +219,7 @@
 
 			function renderArticles(articles)
 			{
+				const renderStart = performance.now();
 				const container = document.getElementById('articleSections');
 				const categories = ['Asso', 'ES', 'Asso|ES'];
 				const units = ['colis', 'kg'];
@@ -231,6 +232,7 @@
 						return;
 					}
 
+					const catStart = performance.now();
 					const categoryClass = category.toLowerCase().split('|').map(c => 'for_' + c).join(' ');
 					const categorySection = createCategorySection(category, categoryClass);
 					
@@ -242,11 +244,15 @@
 							return;
 						}
 
+						const unitStart = performance.now();
 						const unitSection = createUnitSection(unit, filtered, categoryClass);
+						unitSection.dataset.perf = (performance.now() - unitStart).toFixed(2);
 						categorySection.appendChild(unitSection);
 					});
 					container.appendChild(categorySection);
+					logPerformance(`Category ${category}`);
 				});
+				logPerformance('Total renderArticles');
 			}
 
 			function checkCodeVif(val)
