@@ -27,9 +27,10 @@ function doGet()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
 	
-	const startTime = new Date().getTime();
+	const startTotal = new Date().getTime();
 
 	// Get maxDate from ACStructures
+	const startMaxDate = new Date().getTime();
 	let maxDate = '';
 	const sheetOrg = ss.getSheetByName('ACStructures');
 	if (sheetOrg)
@@ -44,8 +45,10 @@ function doGet()
 			}
 		}
 	}
+	const endMaxDate = new Date().getTime();
 
 	// Get menuId from Articles
+	const startMenuId = new Date().getTime();
 	let menuId = '';
 	const sheetArt = ss.getSheetByName('Articles');
 	if (sheetArt)
@@ -56,12 +59,17 @@ function doGet()
 			menuId = sheetArt.getRange(lastRow, 1).getValue();
 		}
 	}
+	const endMenuId = new Date().getTime();
 
-	const endTime = new Date().getTime();
+	const endTotal = new Date().getTime();
 	const template = HtmlService.createTemplateFromFile('Index');
 	template.maxDate = maxDate;
 	template.menuId = menuId;
-	template.serverPerf = endTime - startTime;
+	template.serverPerf = {
+		total: endTotal - startTotal,
+		maxDate: endMaxDate - startMaxDate,
+		menuId: endMenuId - startMenuId
+	};
 	return template.evaluate()
 		.setTitle('Formulaire de Commande BDC')
 		.addMetaTag('viewport', 'width=device-width, initial-scale=1');

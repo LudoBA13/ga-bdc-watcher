@@ -50,8 +50,8 @@
 
 		<script>
 			const perfStart = performance.now();
-			const serverPerf = <?= serverPerf ?>;
-			const comment = document.createComment(` Perf: Server template computation took ${serverPerf}ms `);
+			const serverPerf = <?= JSON.stringify(serverPerf) ?>;
+			const comment = document.createComment(` Perf: Server computation total=${serverPerf.total}ms (maxDate=${serverPerf.maxDate}ms, menuId=${serverPerf.menuId}ms) `);
 			document.body.appendChild(comment);
 
 			function logPerformance(message)
