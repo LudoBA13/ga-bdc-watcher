@@ -7,10 +7,14 @@
 			{
 				display: none;
 			}
-			#articleSections:not(.for_asso) > .for_asso,
-			#articleSections:not(.for_es)   > .for_es
+			.article-section
 			{
 				display: none;
+			}
+			#articleSections.filter-for_asso > .for_asso,
+			#articleSections.filter-for_es > .for_es
+			{
+				display: block;
 			}
 		</style>
 	</head>
@@ -56,7 +60,7 @@
 
 					const categoryClass = category.toLowerCase().split('|').map(c => 'for_' + c).join(' ');
 					const categorySection = document.createElement('section');
-					categorySection.className = categoryClass;
+					categorySection.className = 'article-section ' + categoryClass;
 					categorySection.innerHTML = `<h2>${category}</h2>`;
 					
 					units.forEach(unit =>
