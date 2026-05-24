@@ -343,7 +343,7 @@
 			{
 				const row = input.closest('tr');
 				const maxQty = parseFloat(row.cells[2].textContent) || 0;
-				const unitWeight = parseFloat(row.cells[1].textContent) || 0;
+				const unitWeight = parseFloat(row.cells[1].textContent) || 1;
 				const enteredQty = parseFloat(input.value) || 0;
 				
 				// Validate qty exceeded
