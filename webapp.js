@@ -1,4 +1,26 @@
 /**
+ * Retrieves the content of the CurrentArticles sheet.
+ */
+function getCurrentArticles()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheet = ss.getSheetByName('CurrentArticles');
+	if (!sheet)
+	{
+		return [];
+	}
+
+	const data = sheet.getDataRange().getValues();
+	if (data.length <= 1)
+	{
+		return [];
+	}
+
+	// Returns data without the header row
+	return data.slice(1);
+}
+
+/**
  * Web App entry point.
  */
 function doGet()
@@ -42,12 +64,12 @@ function doGet()
 }
 
 /**
- * Returns data from Articles sheet as objects, with a cache-buster value.
+ * Returns data from CurrentArticles sheet as objects, with a cache-buster value.
  */
 function getCurrentArticles()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const sheet = ss.getSheetByName('Articles');
+	const sheet = ss.getSheetByName('CurrentArticles');
 	if (!sheet)
 	{
 		return { articles: [], menuId: '' };
@@ -59,7 +81,6 @@ function getCurrentArticles()
 		return { articles: [], menuId: '' };
 	}
 
-	const menuId = sheet.getRange(sheet.getLastRow(), 1).getValue();
 	const headers = data[0];
 	const result = [];
 	for (let i = 1; i < data.length; i++)
@@ -72,6 +93,8 @@ function getCurrentArticles()
 		});
 		result.push(obj);
 	}
+
+	const menuId = result.length > 0 ? result[result.length - 1]['Sheet Name'] : '';
 	return { articles: result, menuId: menuId };
 }
 
