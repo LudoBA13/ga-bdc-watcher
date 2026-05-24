@@ -136,10 +136,13 @@
 					return;
 				}
 
-				google.script.run.withSuccessHandler(showOrg).lookupOrganization(val);
+				google.script.run.withSuccessHandler(response =>
+				{
+					showOrg(response, val);
+				}).lookupOrganization(val);
 			}
 
-			function showOrg(response)
+			function showOrg(response, codeVif)
 			{
 				const section = document.getElementById('orgSection');
 				if (!response)
@@ -153,28 +156,32 @@
 
 				if (maxDate !== cachedMaxDate)
 				{
-					console.log('Org cache miss or outdated. Updating.');
-					localStorage.setItem('orgData', JSON.stringify(data));
+					console.log('Org cache outdated. Clearing cache.');
+					for (let i = localStorage.length - 1; i >= 0; i--)
+					{
+						const key = localStorage.key(i);
+						if (key && key.startsWith('orgData_'))
+						{
+							localStorage.removeItem(key);
+						}
+					}
 					localStorage.setItem('orgMaxDate', maxDate);
 				}
-				else
-				{
-					console.log('Loading org data from cache.');
-				}
 
-				const cachedData = JSON.parse(localStorage.getItem('orgData'));
-				for (const key in cachedData)
+				localStorage.setItem('orgData_' + codeVif, JSON.stringify(data));
+				
+				for (const key in data)
 				{
 					const el = section.querySelector(`[data-structure-info="${key}"]`);
 					if (el)
 					{
-						el.textContent = cachedData[key];
+						el.textContent = data[key];
 					}
 				}
 				section.classList.remove('hidden');
 
 				const container = document.getElementById('articleSections');
-				const dist = cachedData['Modes de distribution de l\'aide alimentaire'] || '';
+				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
 				if (dist.includes('picerie'))
 				{
 					container.className = 'filter-for_es';
