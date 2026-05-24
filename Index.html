@@ -130,9 +130,14 @@
 
 			function createProductElement(product)
 			{
-				const p = document.createElement('p');
-				p.textContent = `${product.Label} (${product.Quantity})`;
-				return p;
+				const tr = document.createElement('tr');
+				const tdLabel = document.createElement('td');
+				tdLabel.textContent = product.Label;
+				tr.appendChild(tdLabel);
+				const tdQuantity = document.createElement('td');
+				tdQuantity.textContent = product.Quantity;
+				tr.appendChild(tdQuantity);
+				return tr;
 			}
 
 			function createUnitSection(unit, filtered, categoryClass)
@@ -140,10 +145,12 @@
 				const unitSection = document.createElement('section');
 				unitSection.className = 'as_' + unit + ' ' + categoryClass;
 				unitSection.innerHTML = `<h3>${getUnitLabel(unit)}</h3>`;
+				const table = document.createElement('table');
 				filtered.forEach(product =>
 				{
-					unitSection.appendChild(createProductElement(product));
+					table.appendChild(createProductElement(product));
 				});
+				unitSection.appendChild(table);
 				return unitSection;
 			}
 
