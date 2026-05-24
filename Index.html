@@ -167,10 +167,21 @@
 					return;
 				}
 
-				google.script.run.withSuccessHandler(response =>
+				const cachedData = localStorage.getItem('orgData_' + val);
+				if (cachedData)
 				{
-					showOrg(response, val);
-				}).lookupOrganization(val);
+					console.log('Loading org data from cache for:', val);
+					showOrg(JSON.parse(cachedData), val);
+				}
+				else
+				{
+					console.log('No cache found for org:', val, '. Fetching fresh data.');
+					google.script.run.withSuccessHandler(response =>
+					{
+						localStorage.setItem('orgData_' + val, JSON.stringify(response));
+						showOrg(response, val);
+					}).lookupOrganization(val);
+				}
 			}
 
 			function showOrg(data, codeVif)
@@ -183,33 +194,19 @@
 					return;
 				}
 
-				console.log('Processing org data:', codeVif);
-				const cachedDataStr = localStorage.getItem('orgData_' + codeVif);
-
-				if (!cachedDataStr)
-				{
-					console.log('No cache found for org:', codeVif, '. Fetching fresh data.');
-					localStorage.setItem('orgData_' + codeVif, JSON.stringify(data));
-				}
-				else
-				{
-					console.log('Org cache found for:', codeVif, '. Using cached data.');
-				}
-
-				const cachedData = JSON.parse(localStorage.getItem('orgData_' + codeVif));
-				console.log('Applying data to UI:', cachedData);
-				for (const key in cachedData)
+				console.log('Applying data to UI:', data);
+				for (const key in data)
 				{
 					const el = section.querySelector(`[data-structure-info="${key}"]`);
 					if (el)
 					{
-						el.textContent = cachedData[key];
+						el.textContent = data[key];
 					}
 				}
 				section.classList.remove('hidden');
 
 				const container = document.getElementById('articleSections');
-				const dist = cachedData['Modes de distribution de l\'aide alimentaire'] || '';
+				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
 				console.log('Determining visibility filter for:', dist);
 				if (dist.includes('picerie'))
 				{
