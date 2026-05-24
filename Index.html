@@ -12,6 +12,16 @@
 				opacity: 0.5;
 				pointer-events: none;
 			}
+			#orgSection.loading > #orgSpinner,
+			#orgSection.loaded > #orgSpinner,
+			#orgSection.disabled > #orgSpinner
+			{
+				display: none;
+			}
+			#orgSection.loading > #orgSpinner
+			{
+				display: inline-block;
+			}
 			.spinner
 			{
 				display: inline-block;
@@ -45,7 +55,7 @@
 			<input type="text" id="codeVif" name="codeVif" required oninput="checkCodeVif(this.value)"><br><br>
 
 			<div id="orgSection" class="disabled">
-				<div id="orgSpinner" class="spinner hidden"></div>
+				<div id="orgSpinner" class="spinner"></div>
 				<dl>
 					<dt>Organisation</dt>
 					<dd data-structure-info="Nom"></dd>
@@ -278,9 +288,10 @@
 			function checkCodeVif(val)
 			{
 				const regex = /^[1-9]0?13[0-9]{4}/;
+				const section = document.getElementById('orgSection');
 				if (!regex.test(val))
 				{
-					document.getElementById('orgSection').classList.add('disabled');
+					section.className = 'disabled';
 					return;
 				}
 
@@ -293,7 +304,7 @@
 				else
 				{
 					console.log('No cache found for org:', val, '. Fetching fresh data.');
-					document.getElementById('orgSpinner').classList.remove('hidden');
+					section.className = 'loading';
 					google.script.run.withSuccessHandler(response =>
 					{
 						localStorage.setItem('orgData_' + val, JSON.stringify(response));
@@ -304,12 +315,11 @@
 
 			function showOrg(data, codeVif)
 			{
-				document.getElementById('orgSpinner').classList.add('hidden');
 				const section = document.getElementById('orgSection');
 				if (!data)
 				{
 					console.log('No data received for org:', codeVif);
-					section.classList.add('disabled');
+					section.className = 'disabled';
 					return;
 				}
 
@@ -322,7 +332,7 @@
 						el.textContent = data[key];
 					}
 				}
-				section.classList.remove('disabled');
+				section.className = 'loaded';
 
 				const container = document.getElementById('articleSections');
 				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
