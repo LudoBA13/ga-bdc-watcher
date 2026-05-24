@@ -49,16 +49,7 @@ function doGet()
 
 	// Get menuId from Articles
 	const startMenuId = new Date().getTime();
-	let menuId = '';
-	const sheetArt = ss.getSheetByName('Articles');
-	if (sheetArt)
-	{
-		const lastRow = sheetArt.getLastRow();
-		if (lastRow > 1)
-		{
-			menuId = sheetArt.getRange(lastRow, 1).getValue();
-		}
-	}
+	let menuId = PropertiesService.getScriptProperties().getProperty('menuId') || '';
 	const endMenuId = new Date().getTime();
 
 	const endTotal = new Date().getTime();
@@ -107,6 +98,7 @@ function getCurrentArticles()
 	}
 
 	const menuId = result.length > 0 ? result[result.length - 1]['Sheet Name'] : '';
+	PropertiesService.getScriptProperties().setProperty('menuId', menuId);
 	return { articles: result, menuId: menuId };
 }
 
