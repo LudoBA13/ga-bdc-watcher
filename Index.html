@@ -61,9 +61,13 @@
 
 			function pruneCaches()
 			{
+				const attrStart = performance.now();
 				const html = document.documentElement;
 				const currentMenuId = html.dataset.cacheMenuId;
 				const currentOrgDate = html.dataset.cacheOrg;
+				const attrDuration = (performance.now() - attrStart).toFixed(2);
+				const comment = document.createComment(` Perf: Data attribute retrieval took ${attrDuration}ms `);
+				document.body.appendChild(comment);
 
 				const cachedMenuId = localStorage.getItem('menuId');
 				const cachedOrgDate = localStorage.getItem('orgMaxDate');
