@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-cache-menu-id="<?= menuId ?>" data-cache-org="<?= maxDate ?>">
 	<head>
 		<base target="_top">
 		<style>
@@ -44,50 +44,57 @@
 		</form>
 
 		<script>
-			const SERVER_MAX_DATE = '<?= maxDate ?>';
-
-			function pruneOrgCache()
+			function pruneCaches()
 			{
-				const cachedMaxDate = localStorage.getItem('orgMaxDate');
-				if (SERVER_MAX_DATE === cachedMaxDate)
+				const html = document.documentElement;
+				const currentMenuId = html.dataset.cacheMenuId;
+				const currentOrgDate = html.dataset.cacheOrg;
+
+				const cachedMenuId = localStorage.getItem('menuId');
+				const cachedOrgDate = localStorage.getItem('orgMaxDate');
+
+				if (currentMenuId !== cachedMenuId)
 				{
-					return;
+					console.log('Menu cache outdated. Clearing.');
+					localStorage.removeItem('articlesData');
+					localStorage.setItem('menuId', currentMenuId);
 				}
 
-				console.log('Cache outdated on load. Clearing org cache.');
-				for (let i = localStorage.length - 1; i >= 0; i--)
+				if (currentOrgDate !== cachedOrgDate)
 				{
-					const key = localStorage.key(i);
-					if (key && key.startsWith('orgData_'))
+					console.log('Org cache outdated. Clearing.');
+					for (let i = localStorage.length - 1; i >= 0; i--)
 					{
-						localStorage.removeItem(key);
+						const key = localStorage.key(i);
+						if (key && key.startsWith('orgData_'))
+						{
+							localStorage.removeItem(key);
+						}
 					}
+					localStorage.setItem('orgMaxDate', currentOrgDate);
 				}
-				localStorage.setItem('orgMaxDate', SERVER_MAX_DATE);
 			}
 
 			window.onload = function()
 			{
-				pruneOrgCache();
+				pruneCaches();
 
 				const cachedData = localStorage.getItem('articlesData');
-				const cachedMenuId = localStorage.getItem('menuId');
 
-				google.script.run.withSuccessHandler(response =>
+				if (cachedData)
 				{
-					if (response.menuId !== cachedMenuId)
+					console.log('Loading articles from cache.');
+					renderArticles(JSON.parse(cachedData));
+				}
+				else
+				{
+					console.log('Cache miss. Fetching fresh data.');
+					google.script.run.withSuccessHandler(response =>
 					{
-						console.log('Cache miss or outdated. Fetching fresh data.');
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
-						localStorage.setItem('menuId', response.menuId);
 						renderArticles(response.articles);
-					}
-					else
-					{
-						console.log('Loading articles from cache.');
-						renderArticles(JSON.parse(cachedData));
-					}
-				}).getCurrentArticles();
+					}).getCurrentArticles();
+				}
 			};
 
 			function renderArticles(articles)
