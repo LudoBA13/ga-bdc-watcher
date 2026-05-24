@@ -169,25 +169,9 @@
 				}
 
 				const { data, maxDate } = response;
-				const cachedMaxDate = localStorage.getItem('orgMaxDate');
-
 				const cachedDataStr = localStorage.getItem('orgData_' + codeVif);
-				if (maxDate !== cachedMaxDate)
-				{
-					console.log('Org cache outdated. Clearing cache.');
-					for (let i = localStorage.length - 1; i >= 0; i--)
-					{
-						const key = localStorage.key(i);
-						if (key && key.startsWith('orgData_'))
-						{
-							localStorage.removeItem(key);
-						}
-					}
-					localStorage.setItem('orgMaxDate', maxDate);
-					console.log('Fetching fresh org data.');
-					localStorage.setItem('orgData_' + codeVif, JSON.stringify(data));
-				}
-				else if (!cachedDataStr)
+
+				if (!cachedDataStr)
 				{
 					console.log('Fetching fresh org data.');
 					localStorage.setItem('orgData_' + codeVif, JSON.stringify(data));
@@ -198,7 +182,6 @@
 				}
 
 				const cachedData = JSON.parse(localStorage.getItem('orgData_' + codeVif));
-
 				for (const key in cachedData)
 				{
 					const el = section.querySelector(`[data-structure-info="${key}"]`);
@@ -220,6 +203,7 @@
 					container.className = 'filter-for_asso';
 				}
 			}
+
 		</script>
 	</body>
 </html>
