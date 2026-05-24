@@ -218,12 +218,37 @@
 			function createProductElement(product)
 			{
 				const tr = document.createElement('tr');
-				for (const key in product)
-				{
-					const td = document.createElement('td');
-					td.textContent = product[key];
-					tr.appendChild(td);
-				}
+				
+				// Label
+				const tdLabel = document.createElement('td');
+				tdLabel.textContent = product['Label'];
+				tr.appendChild(tdLabel);
+				
+				// Unit Weight
+				const tdWeight = document.createElement('td');
+				tdWeight.textContent = product['Unit Weight'];
+				tr.appendChild(tdWeight);
+
+				// Qty Max
+				const tdMax = document.createElement('td');
+				tdMax.textContent = product['Max Qty'];
+				tr.appendChild(tdMax);
+
+				// Qty Input
+				const tdInput = document.createElement('td');
+				const input = document.createElement('input');
+				input.type = 'number';
+				input.min = '0';
+				input.max = product['Max Qty'];
+				tdInput.appendChild(input);
+				tr.appendChild(tdInput);
+
+				// Total Kg
+				const tdTotal = document.createElement('td');
+				tdTotal.className = 'total-kg';
+				tdTotal.textContent = '0';
+				tr.appendChild(tdTotal);
+
 				return tr;
 			}
 
@@ -233,18 +258,20 @@
 				unitSection.className = 'as_' + unit + ' ' + categoryClass;
 				unitSection.innerHTML = `<h3>${getUnitLabel(unit)}</h3>`;
 				const table = document.createElement('table');
-				const thead = document.createElement('thead');
-				const trHead = document.createElement('tr');
-				const keys = Object.keys(filtered[0]);
-				keys.forEach(key =>
-				{
-					const th = document.createElement('th');
-					th.textContent = key;
-					trHead.appendChild(th);
-				});
-				thead.appendChild(trHead);
-				table.appendChild(thead);
-				const tbody = document.createElement('tbody');
+				table.innerHTML = `
+					<thead>
+						<tr>
+							<th>Désignation</th>
+							<th>Poids du colis</th>
+							<th>Qté max</th>
+							<th>Qté souhaitée</th>
+							<th>Total kg</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				`;
+				
+				const tbody = table.querySelector('tbody');
 				filtered.forEach(product =>
 				{
 					tbody.appendChild(createProductElement(product));
