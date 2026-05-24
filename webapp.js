@@ -84,14 +84,16 @@ function lookupOrganization(codeVif)
 
 	for (let i = 1; i < data.length; i++)
 	{
-		if (String(data[i][codeIndex]) === String(codeVif))
+		if (String(data[i][codeIndex]) !== String(codeVif))
 		{
-			return {
-				'Nom': data[i][nameIndex],
-				'UD': data[i][udIndex],
-				'Planning': data[i][planningIndex]
-			};
+			continue;
 		}
+
+		return {
+			'Nom': data[i][nameIndex],
+			'UD': data[i][udIndex],
+			'Planning': data[i][planningIndex]
+		};
 	}
 	return null;
 }

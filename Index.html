@@ -49,65 +49,67 @@
 				categories.forEach(category =>
 				{
 					const hasArticles = articles.some(a => a.Category === category);
-					if (hasArticles)
+					if (!hasArticles)
 					{
-						const categoryClass = category.toLowerCase().split('|').map(c => 'for_' + c).join(' ');
-						const categorySection = document.createElement('section');
-						categorySection.className = categoryClass;
-						categorySection.innerHTML = `<h2>${category}</h2>`;
-						
-						units.forEach(unit =>
-						{
-							const filtered = articles.filter(a => a.Category === category && a.Unit === unit);
-							if (filtered.length > 0)
-							{
-								const unitSection = document.createElement('section');
-								unitSection.className = 'as_' + unit + ' ' + categoryClass;
-								unitSection.innerHTML = `<h3>${unit}</h3>`;
-								filtered.forEach(a =>
-								{
-									unitSection.innerHTML += `<p>${a.Label} (${a.Quantity})</p>`;
-								});
-								categorySection.appendChild(unitSection);
-							}
-						});
-						container.appendChild(categorySection);
+						return;
 					}
+
+					const categoryClass = category.toLowerCase().split('|').map(c => 'for_' + c).join(' ');
+					const categorySection = document.createElement('section');
+					categorySection.className = categoryClass;
+					categorySection.innerHTML = `<h2>${category}</h2>`;
+					
+					units.forEach(unit =>
+					{
+						const filtered = articles.filter(a => a.Category === category && a.Unit === unit);
+						if (filtered.length === 0)
+						{
+							return;
+						}
+
+						const unitSection = document.createElement('section');
+						unitSection.className = 'as_' + unit + ' ' + categoryClass;
+						unitSection.innerHTML = `<h3>${unit}</h3>`;
+						filtered.forEach(a =>
+						{
+							unitSection.innerHTML += `<p>${a.Label} (${a.Quantity})</p>`;
+						});
+						categorySection.appendChild(unitSection);
+					});
+					container.appendChild(categorySection);
 				});
 			}
 
 			function checkCodeVif(val)
 			{
 				const regex = /^[1-9]0?13[0-9]{4}/;
-				if (regex.test(val))
-				{
-					google.script.run.withSuccessHandler(showOrg).lookupOrganization(val);
-				}
-				else
+				if (!regex.test(val))
 				{
 					document.getElementById('orgSection').classList.add('hidden');
+					return;
 				}
+
+				google.script.run.withSuccessHandler(showOrg).lookupOrganization(val);
 			}
 
 			function showOrg(data)
 			{
 				const section = document.getElementById('orgSection');
-				if (data)
-				{
-					for (const key in data)
-					{
-						const el = section.querySelector(`[data-structure-info="${key}"]`);
-						if (el)
-						{
-							el.textContent = data[key];
-						}
-					}
-					section.classList.remove('hidden');
-				}
-				else
+				if (!data)
 				{
 					section.classList.add('hidden');
+					return;
 				}
+
+				for (const key in data)
+				{
+					const el = section.querySelector(`[data-structure-info="${key}"]`);
+					if (el)
+					{
+						el.textContent = data[key];
+					}
+				}
+				section.classList.remove('hidden');
 			}
 
 			function handleFormSubmit(form)
