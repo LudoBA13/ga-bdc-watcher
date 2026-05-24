@@ -53,12 +53,14 @@
 				{
 					if (response.menuId !== cachedMenuId)
 					{
+						console.log('Cache miss or outdated. Fetching fresh data.');
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
 						localStorage.setItem('menuId', response.menuId);
 						renderArticles(response.articles);
 					}
 					else
 					{
+						console.log('Loading articles from cache.');
 						renderArticles(JSON.parse(cachedData));
 					}
 				}).getCurrentArticles();
