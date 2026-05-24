@@ -24,9 +24,9 @@
 			<input type="text" id="codeVif" name="codeVif" required oninput="checkCodeVif(this.value)"><br><br>
 
 			<div id="orgSection" class="hidden">
-				<p><strong>Organisation:</strong> <span id="orgName"></span></p>
-				<p><strong>UD:</strong> <span id="orgUd"></span></p>
-				<p><strong>Planning:</strong> <span id="orgPlanning"></span></p>
+				<p><strong>Organisation:</strong> <span data-structure-info="Nom"></span></p>
+				<p><strong>UD:</strong> <span data-structure-info="UD"></span></p>
+				<p><strong>Planning:</strong> <span data-structure-info="Planning"></span></p>
 			</div>
 			
 			<div id="articleSections"></div>
@@ -94,9 +94,14 @@
 				const section = document.getElementById('orgSection');
 				if (data)
 				{
-					document.getElementById('orgName').textContent = data['Nom'];
-					document.getElementById('orgUd').textContent = data['UD'];
-					document.getElementById('orgPlanning').textContent = data['Planning'];
+					for (const key in data)
+					{
+						const el = section.querySelector(`[data-structure-info="${key}"]`);
+						if (el)
+						{
+							el.textContent = data[key];
+						}
+					}
 					section.classList.remove('hidden');
 				}
 				else
