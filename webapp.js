@@ -78,9 +78,7 @@ function lookupOrganization(codeVif)
 	const data = sheet.getDataRange().getValues();
 	const headers = data[0];
 	const codeIndex = headers.indexOf('Code VIF');
-	const nameIndex = headers.indexOf('Nom');
-	const udIndex = headers.indexOf('UD');
-	const planningIndex = headers.indexOf('Planning');
+	const requestedFields = ['Nom', 'UD', 'Planning', 'Modes de distribution de l\'aide alimentaire'];
 
 	for (let i = 1; i < data.length; i++)
 	{
@@ -89,11 +87,12 @@ function lookupOrganization(codeVif)
 			continue;
 		}
 
-		return {
-			'Nom': data[i][nameIndex],
-			'UD': data[i][udIndex],
-			'Planning': data[i][planningIndex]
-		};
+		const result = {};
+		requestedFields.forEach(field =>
+		{
+			result[field] = data[i][headers.indexOf(field)];
+		});
+		return result;
 	}
 	return null;
 }
