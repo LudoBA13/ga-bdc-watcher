@@ -7,6 +7,11 @@
 			{
 				display: none;
 			}
+			.disabled
+			{
+				opacity: 0.5;
+				pointer-events: none;
+			}
 			.article-section
 			{
 				display: none;
@@ -27,7 +32,7 @@
 			<label for="codeVif">Code VIF:</label><br>
 			<input type="text" id="codeVif" name="codeVif" required oninput="checkCodeVif(this.value)"><br><br>
 
-			<div id="orgSection" class="hidden">
+			<div id="orgSection" class="disabled">
 				<dl>
 					<dt>Organisation</dt>
 					<dd data-structure-info="Nom"></dd>
@@ -163,7 +168,7 @@
 				const regex = /^[1-9]0?13[0-9]{4}/;
 				if (!regex.test(val))
 				{
-					document.getElementById('orgSection').classList.add('hidden');
+					document.getElementById('orgSection').classList.add('disabled');
 					return;
 				}
 
@@ -190,7 +195,7 @@
 				if (!data)
 				{
 					console.log('No data received for org:', codeVif);
-					section.classList.add('hidden');
+					section.classList.add('disabled');
 					return;
 				}
 
@@ -203,7 +208,7 @@
 						el.textContent = data[key];
 					}
 				}
-				section.classList.remove('hidden');
+				section.classList.remove('disabled');
 
 				const container = document.getElementById('articleSections');
 				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
