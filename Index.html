@@ -139,27 +139,42 @@
 				google.script.run.withSuccessHandler(showOrg).lookupOrganization(val);
 			}
 
-			function showOrg(data)
+			function showOrg(response)
 			{
 				const section = document.getElementById('orgSection');
-				if (!data)
+				if (!response)
 				{
 					section.classList.add('hidden');
 					return;
 				}
 
-				for (const key in data)
+				const { data, maxDate } = response;
+				const cachedMaxDate = localStorage.getItem('orgMaxDate');
+
+				if (maxDate !== cachedMaxDate)
+				{
+					console.log('Org cache miss or outdated. Updating.');
+					localStorage.setItem('orgData', JSON.stringify(data));
+					localStorage.setItem('orgMaxDate', maxDate);
+				}
+				else
+				{
+					console.log('Loading org data from cache.');
+				}
+
+				const cachedData = JSON.parse(localStorage.getItem('orgData'));
+				for (const key in cachedData)
 				{
 					const el = section.querySelector(`[data-structure-info="${key}"]`);
 					if (el)
 					{
-						el.textContent = data[key];
+						el.textContent = cachedData[key];
 					}
 				}
 				section.classList.remove('hidden');
 
 				const container = document.getElementById('articleSections');
-				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
+				const dist = cachedData['Modes de distribution de l\'aide alimentaire'] || '';
 				if (dist.includes('picerie'))
 				{
 					container.className = 'filter-for_es';

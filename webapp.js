@@ -79,23 +79,39 @@ function lookupOrganization(codeVif)
 	const data = sheet.getDataRange().getValues();
 	const headers = data[0];
 	const codeIndex = headers.indexOf('Code VIF');
+	const dateIndex = headers.indexOf('Date de mise à jour');
 	const requestedFields = ['Nom', 'UD', 'Planning', 'Modes de distribution de l\'aide alimentaire'];
+
+	let maxDate = '';
+	let orgData = null;
 
 	for (let i = 1; i < data.length; i++)
 	{
-		if (String(data[i][codeIndex]) !== String(codeVif))
+		const rowDate = data[i][dateIndex];
+		if (rowDate > maxDate)
 		{
-			continue;
+			maxDate = rowDate;
 		}
 
-		const result = {};
-		requestedFields.forEach(field =>
+		if (String(data[i][codeIndex]) === String(codeVif))
 		{
-			result[field] = data[i][headers.indexOf(field)];
-		});
-		return result;
+			orgData = {};
+			requestedFields.forEach(field =>
+			{
+				orgData[field] = data[i][headers.indexOf(field)];
+			});
+		}
 	}
-	return null;
+
+	if (!orgData)
+	{
+		return null;
+	}
+
+	return {
+		data: orgData,
+		maxDate: maxDate
+	};
 }
 
 /**
