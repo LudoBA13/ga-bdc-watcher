@@ -138,12 +138,16 @@
 					const fetchStart = performance.now();
 					google.script.run.withSuccessHandler(response =>
 					{
+						const fetchDuration = (performance.now() - fetchStart).toFixed(2);
+						
+						const renderStart = performance.now();
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
 						renderArticles(response.articles);
-						const fetchDuration = (performance.now() - fetchStart).toFixed(2);
+						const renderDuration = (performance.now() - renderStart).toFixed(2);
+						
 						const debug = document.getElementById('debug');
-						debug.innerHTML += `<div>Perf: Cache miss fetch and render took ${fetchDuration}ms</div>`;
-						console.log(`Perf: Cache miss fetch and render took ${fetchDuration}ms`);
+						debug.innerHTML += `<div>Perf: Cache miss - Fetch took ${fetchDuration}ms, Render took ${renderDuration}ms</div>`;
+						console.log(`Perf: Cache miss - Fetch took ${fetchDuration}ms, Render took ${renderDuration}ms`);
 					}).getCurrentArticles();
 				}
 			};
