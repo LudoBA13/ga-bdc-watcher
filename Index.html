@@ -182,10 +182,26 @@
 
 				const cachedData = JSON.parse(localStorage.getItem('orgData_' + codeVif));
 
-			function handleFormSubmit(form)
-			{
-				event.preventDefault();
-				google.script.run.withSuccessHandler(alert).processForm(form);
+				for (const key in cachedData)
+				{
+					const el = section.querySelector(`[data-structure-info="${key}"]`);
+					if (el)
+					{
+						el.textContent = cachedData[key];
+					}
+				}
+				section.classList.remove('hidden');
+
+				const container = document.getElementById('articleSections');
+				const dist = cachedData['Modes de distribution de l\'aide alimentaire'] || '';
+				if (dist.includes('picerie'))
+				{
+					container.className = 'filter-for_es';
+				}
+				else
+				{
+					container.className = 'filter-for_asso';
+				}
 			}
 		</script>
 	</body>
