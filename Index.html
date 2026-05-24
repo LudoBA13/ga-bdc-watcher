@@ -52,6 +52,10 @@
 			{
 				display: none;
 			}
+			.qty-exceeded
+			{
+				background-color: #ff000020;
+			}
 			#articleSections.filter-for_asso > .for_asso,
 			#articleSections.filter-for_es > .for_es
 			{
@@ -239,7 +243,8 @@
 				const input = document.createElement('input');
 				input.type = 'number';
 				input.min = '0';
-				input.max = product['Max Qty'];
+				input.value = '0';
+				input.oninput = function() { validateQty(this); };
 				tdInput.appendChild(input);
 				tr.appendChild(tdInput);
 
@@ -325,6 +330,29 @@
 					logPerformance(`Category ${category}`);
 				});
 				logPerformance('Total renderArticles');
+				validateAllQtys();
+			}
+
+			function validateAllQtys()
+			{
+				const inputs = document.querySelectorAll('#articleSections input[type="number"]');
+				inputs.forEach(input => validateQty(input));
+			}
+
+			function validateQty(input)
+			{
+				const row = input.closest('tr');
+				const maxQty = parseFloat(row.cells[2].textContent) || 0;
+				const enteredQty = parseFloat(input.value) || 0;
+				
+				if (enteredQty > maxQty)
+				{
+					row.classList.add('qty-exceeded');
+				}
+				else
+				{
+					row.classList.remove('qty-exceeded');
+				}
 			}
 
 			function checkCodeVif(val)
