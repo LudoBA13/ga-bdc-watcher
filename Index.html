@@ -135,11 +135,15 @@
 				else
 				{
 					console.log('Cache miss. Fetching fresh data.');
+					const fetchStart = performance.now();
 					google.script.run.withSuccessHandler(response =>
 					{
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
 						renderArticles(response.articles);
-						logPerformance('Initial render from server');
+						const fetchDuration = (performance.now() - fetchStart).toFixed(2);
+						const debug = document.getElementById('debug');
+						debug.innerHTML += `<div>Perf: Cache miss fetch and render took ${fetchDuration}ms</div>`;
+						console.log(`Perf: Cache miss fetch and render took ${fetchDuration}ms`);
 					}).getCurrentArticles();
 				}
 			};
