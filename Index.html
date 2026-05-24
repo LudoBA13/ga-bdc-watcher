@@ -61,7 +61,17 @@
 					const categoryClass = category.toLowerCase().split('|').map(c => 'for_' + c).join(' ');
 					const categorySection = document.createElement('section');
 					categorySection.className = 'article-section ' + categoryClass;
-					categorySection.innerHTML = `<h2>${category}</h2>`;
+					
+					let categoryTitle = 'Produits disponibles pour tous';
+					if (category === 'Asso')
+					{
+						categoryTitle = 'Produits réservés aux Associations homologuées';
+					}
+					else if (category === 'ES')
+					{
+						categoryTitle = 'Produits réservés aux Épiceries Sociales';
+					}
+					categorySection.innerHTML = `<h2>${categoryTitle}</h2>`;
 					
 					units.forEach(unit =>
 					{
@@ -73,7 +83,18 @@
 
 						const unitSection = document.createElement('section');
 						unitSection.className = 'as_' + unit + ' ' + categoryClass;
-						unitSection.innerHTML = `<h3>${unit}</h3>`;
+						
+						let unitTitle = '';
+						if (unit === 'kg')
+						{
+							unitTitle = 'Produits au KILO';
+						}
+						else if (unit === 'colis')
+						{
+							unitTitle = 'Produits en COLIS';
+						}
+						
+						unitSection.innerHTML = `<h3>${unitTitle}</h3>`;
 						filtered.forEach(a =>
 						{
 							unitSection.innerHTML += `<p>${a.Label} (${a.Quantity})</p>`;
