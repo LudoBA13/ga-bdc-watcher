@@ -46,9 +46,21 @@
 		<script>
 			window.onload = function()
 			{
+				const cachedData = localStorage.getItem('articlesData');
+				const cachedUpdate = localStorage.getItem('lastUpdate');
+
 				google.script.run.withSuccessHandler(response =>
 				{
-					renderArticles(response.articles);
+					if (response.lastUpdate !== cachedUpdate)
+					{
+						localStorage.setItem('articlesData', JSON.stringify(response.articles));
+						localStorage.setItem('lastUpdate', response.lastUpdate);
+						renderArticles(response.articles);
+					}
+					else
+					{
+						renderArticles(JSON.parse(cachedData));
+					}
 				}).getCurrentArticles();
 			};
 
