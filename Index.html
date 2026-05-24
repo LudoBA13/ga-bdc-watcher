@@ -365,7 +365,9 @@
 
 				// Update Total kg
 				const totalKg = enteredQty * unitWeight;
-				row.querySelector('.total-kg').textContent = totalKg.toFixed(2);
+				const tdTotal = row.querySelector('.total-kg');
+				tdTotal.dataset.totalKg = totalKg;
+				tdTotal.textContent = totalKg.toFixed(2);
 			}
 
 			function checkCodeVif(val)
