@@ -235,7 +235,8 @@
 				// Unit Weight
 				const tdWeight = document.createElement('td');
 				tdWeight.className = 'weight-col';
-				tdWeight.textContent = product['Unit Weight'];
+				const weight = parseFloat(product['Unit Weight']) || 0;
+				tdWeight.textContent = weight.toFixed(1);
 				tr.appendChild(tdWeight);
 
 				// Qty Max
