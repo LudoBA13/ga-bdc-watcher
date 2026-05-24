@@ -154,6 +154,7 @@
 				const { data, maxDate } = response;
 				const cachedMaxDate = localStorage.getItem('orgMaxDate');
 
+				const cachedDataStr = localStorage.getItem('orgData_' + codeVif);
 				if (maxDate !== cachedMaxDate)
 				{
 					console.log('Org cache outdated. Clearing cache.');
@@ -166,31 +167,20 @@
 						}
 					}
 					localStorage.setItem('orgMaxDate', maxDate);
+					console.log('Fetching fresh org data.');
+					localStorage.setItem('orgData_' + codeVif, JSON.stringify(data));
 				}
-
-				localStorage.setItem('orgData_' + codeVif, JSON.stringify(data));
-				
-				for (const key in data)
+				else if (!cachedDataStr)
 				{
-					const el = section.querySelector(`[data-structure-info="${key}"]`);
-					if (el)
-					{
-						el.textContent = data[key];
-					}
-				}
-				section.classList.remove('hidden');
-
-				const container = document.getElementById('articleSections');
-				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
-				if (dist.includes('picerie'))
-				{
-					container.className = 'filter-for_es';
+					console.log('Fetching fresh org data.');
+					localStorage.setItem('orgData_' + codeVif, JSON.stringify(data));
 				}
 				else
 				{
-					container.className = 'filter-for_asso';
+					console.log('Loading org data from cache.');
 				}
-			}
+
+				const cachedData = JSON.parse(localStorage.getItem('orgData_' + codeVif));
 
 			function handleFormSubmit(form)
 			{
