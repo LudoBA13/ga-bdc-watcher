@@ -46,7 +46,10 @@
 		<script>
 			window.onload = function()
 			{
-				google.script.run.withSuccessHandler(renderArticles).getCurrentArticles();
+				google.script.run.withSuccessHandler(response =>
+				{
+					renderArticles(response.articles);
+				}).getCurrentArticles();
 			};
 
 			function renderArticles(articles)

@@ -31,7 +31,7 @@ function doGet()
 }
 
 /**
- * Returns data from Articles sheet as objects.
+ * Returns data from Articles sheet as objects, with a cache-buster value.
  */
 function getCurrentArticles()
 {
@@ -39,15 +39,16 @@ function getCurrentArticles()
 	const sheet = ss.getSheetByName('Articles');
 	if (!sheet)
 	{
-		return [];
+		return { articles: [], lastUpdate: '' };
 	}
 
 	const data = sheet.getDataRange().getValues();
 	if (data.length <= 1)
 	{
-		return [];
+		return { articles: [], lastUpdate: '' };
 	}
 
+	const lastUpdate = sheet.getRange(sheet.getLastRow(), 1).getValue();
 	const headers = data[0];
 	const result = [];
 	for (let i = 1; i < data.length; i++)
@@ -60,7 +61,7 @@ function getCurrentArticles()
 		});
 		result.push(obj);
 	}
-	return result;
+	return { articles: result, lastUpdate: lastUpdate };
 }
 
 /**
