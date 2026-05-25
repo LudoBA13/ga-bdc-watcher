@@ -157,7 +157,7 @@ function processForm(formData)
 	{
 		const blob = generateOrderExcelBlob(formData);
 		
-		const recipient = Session.getEffectiveUser().getEmail();
+		const ownerEmail = Session.getEffectiveUser().getEmail();
 		const subject = 'Nouvelle commande - ' + formData.codeVif;
 		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + formData.codeVif + 
 			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate + 
@@ -165,7 +165,8 @@ function processForm(formData)
 			'\nCommentaires : ' + (formData.comments || 'Aucun');
 
 		MailApp.sendEmail({
-			to: recipient,
+			to: formData.email,
+			bcc: ownerEmail,
 			subject: subject,
 			body: body,
 			attachments: [blob]
