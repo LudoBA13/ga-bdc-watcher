@@ -5,7 +5,8 @@ const CONFIG = {
 	FORBIDDEN_SHEET_CHARS: /[\\\/\?\*\[\]\:]/g,
 	OPERATING_HOURS: { START: 7, END: 20 },
 	TIMEZONE: 'Europe/Paris',
-	NOTIFICATION_EMAIL: Session.getEffectiveUser().getEmail()
+	NOTIFICATION_EMAIL: Session.getEffectiveUser().getEmail(),
+	DRIVE_FOLDER_ID: '1wlCuBGmKa8yWJePfA5MmE3Aqpnhggjq8'
 };
 
 /**
@@ -89,25 +90,36 @@ function isAlreadyProcessed(fileName, ss)
 }
 
 /**
- * Converts XLSX blob to Google Sheets and imports it.
+ * Saves the original XLSX blob as a file, and imports a converted version into the spreadsheet.
  */
 function importExcelContent(blob, fileName, ss)
 {
-	const fileResource = {
+	// 1. Save original binary file
+	const rawFileResource = {
 		title: fileName,
-		mimeType: MimeType.GOOGLE_SHEETS
+		mimeType: MimeType.MICROSOFT_EXCEL,
+		parents: [{ id: CONFIG.DRIVE_FOLDER_ID }]
 	};
+	Drive.Files.insert(rawFileResource, blob, { convert: false });
 
-	const tempFile = Drive.Files.insert(fileResource, blob, { convert: true });
+	// 2. Save converted version to Drive (for processing)
+	const sheetFileResource = {
+		title: fileName,
+		mimeType: MimeType.GOOGLE_SHEETS,
+		parents: [{ id: CONFIG.DRIVE_FOLDER_ID }]
+	};
+	const sheetFile = Drive.Files.insert(sheetFileResource, blob, { convert: true });
+	
 	try
 	{
-		const tempSs = SpreadsheetApp.openById(tempFile.id);
+		// 3. Import data from the converted file
+		const tempSs = SpreadsheetApp.openById(sheetFile.id);
 		const data = tempSs.getSheets()[0].getDataRange().getValues();
 		importDataToNewSheet(data, fileName, ss);
 	}
 	finally
 	{
-		Drive.Files.remove(tempFile.id);
+		Drive.Files.remove(sheetFile.id);
 	}
 }
 
