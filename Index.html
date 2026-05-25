@@ -318,8 +318,14 @@
 
 				if (draft.articles)
 				{
-					const inputs = document.querySelectorAll('#articleSections input[type="number"]');
-					for (const input of inputs)
+					// Determine org type (ES vs Asso) to set restoration direction
+					const dist = (window.currentOrgData && window.currentOrgData['Modes de distribution de l\'aide alimentaire']) || '';
+					const isES = dist.includes('picerie');
+
+					const inputs = Array.from(document.querySelectorAll('#articleSections input[type="number"]'));
+					const order = isES ? inputs : inputs.reverse();
+
+					for (const input of order)
 					{
 						const id = input.dataset.articleId;
 						if (draft.articles[id])
@@ -675,6 +681,7 @@
 
 			function showOrg(data, codeVif)
 			{
+				window.currentOrgData = data;
 				const section = document.getElementById('orgSection');
 				if (!data)
 				{
