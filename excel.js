@@ -141,6 +141,8 @@ function normalizeArticleId(value)
 		return null;
 	}
 	
-	const num = parseInt(value, 10);
+	// Convert to string and strip non-numeric characters for potential hidden issues
+	const str = String(value).trim();
+	const num = parseInt(str.replace(/\D/g, ''), 10);
 	return isNaN(num) ? null : String(num);
 }

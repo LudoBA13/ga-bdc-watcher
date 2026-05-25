@@ -165,7 +165,7 @@ function processForm(formData)
 			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate + 
 			'\nClient : ' + formData.email +
 			'\nCommentaires : ' + (formData.comments || 'Aucun') +
-			'\n\n--- Debug Logs ---\n' + logs;
+			'\n\n--- Debug Logs ---\n' + (logs || 'No logs available.');
 
 		MailApp.sendEmail({
 			to: formData.email,
