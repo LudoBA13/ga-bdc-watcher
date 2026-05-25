@@ -21,6 +21,25 @@
 				background-color: #fff;
 				padding: 0 1em;
 			}
+			main.container
+			{
+				padding-bottom: 5rem;
+			}
+			.sticky-footer
+			{
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background-color: #fff;
+				box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+				z-index: 1000;
+				padding: 0.5rem 0;
+			}
+			.sticky-footer .container
+			{
+				margin-bottom: 0;
+			}
 			#debug
 			{
 				display: none;
@@ -175,10 +194,19 @@
 				</div>
 				
 				<div id="articleSections"></div>
-
-				<button type="submit">Envoyer</button>
 			</form>
 		</main>
+
+		<footer class="sticky-footer">
+			<div class="container grid">
+				<div style="display: flex; align-items: center; justify-content: center;">
+					<strong>Poids total : <span id="footerTotalWeight">0.00</span> kg</strong>
+				</div>
+				<div>
+					<button type="submit" form="orderForm" style="margin-bottom: 0;">Envoyer</button>
+				</div>
+			</div>
+		</footer>
 
 		<script>
 			const perfStart = performance.now();
