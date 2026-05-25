@@ -113,31 +113,33 @@
 		</style>
 	</head>
 	<body>
-		<div id="debug" style="font-family: monospace; font-size: 12px; background: #eee; padding: 5px; margin-bottom: 10px;"></div>
-		<h1>Formulaire de Commande</h1>
-		<form id="orderForm" onsubmit="handleFormSubmit(this)">
-			<label for="email">Email:</label><br>
-			<input type="email" id="email" name="email" required><br><br>
+		<main class="container">
+			<div id="debug" style="font-family: monospace; font-size: 12px; background: #eee; padding: 5px; margin-bottom: 10px;"></div>
+			<h1>Formulaire de Commande</h1>
+			<form id="orderForm" onsubmit="handleFormSubmit(this)">
+				<label for="email">Email:</label><br>
+				<input type="email" id="email" name="email" required><br><br>
 
-			<label for="codeVif">Code VIF:</label><br>
-			<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[1-9]0?13[0-9]{4}" required oninput="checkCodeVif(this.value)"><br><br>
+				<label for="codeVif">Code VIF:</label><br>
+				<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[1-9]0?13[0-9]{4}" required oninput="checkCodeVif(this.value)"><br><br>
 
-			<div id="orgSection" class="disabled">
-				<div id="orgSpinner" class="spinner"></div>
-				<dl>
-					<dt>Organisation</dt>
-					<dd data-structure-info="Nom"></dd>
-					<dt>UD</dt>
-					<dd data-structure-info="UD"></dd>
-					<dt>Planning</dt>
-					<dd data-structure-info="Planning"></dd>
-				</dl>
-			</div>
-			
-			<div id="articleSections"></div>
+				<div id="orgSection" class="disabled">
+					<div id="orgSpinner" class="spinner"></div>
+					<dl>
+						<dt>Organisation</dt>
+						<dd data-structure-info="Nom"></dd>
+						<dt>UD</dt>
+						<dd data-structure-info="UD"></dd>
+						<dt>Planning</dt>
+						<dd data-structure-info="Planning"></dd>
+					</dl>
+				</div>
+				
+				<div id="articleSections"></div>
 
-			<button type="submit">Envoyer</button>
-		</form>
+				<button type="submit">Envoyer</button>
+			</form>
+		</main>
 
 		<script>
 			const perfStart = performance.now();
