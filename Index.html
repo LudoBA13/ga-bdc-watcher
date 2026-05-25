@@ -288,6 +288,7 @@
 				tdInput.className = 'col-order-qty';
 				const input = document.createElement('input');
 				input.type = 'number';
+				input.inputMode = 'numeric';
 				input.min = '0';
 				input.value = '0';
 				input.oninput = function() { validateQty(this); };
