@@ -155,7 +155,22 @@ function processForm(formData)
 {
 	try
 	{
-		sendExcelOrder(formData);
+		const blob = generateOrderExcelBlob(formData);
+		
+		const recipient = Session.getEffectiveUser().getEmail();
+		const subject = 'Nouvelle commande - ' + formData.codeVif;
+		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + formData.codeVif + 
+			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate + 
+			'\nClient : ' + formData.email +
+			'\nCommentaires : ' + (formData.comments || 'Aucun');
+
+		MailApp.sendEmail({
+			to: recipient,
+			subject: subject,
+			body: body,
+			attachments: [blob]
+		});
+
 		return 'Votre commande a été envoyée avec succès.';
 	}
 	catch (e)

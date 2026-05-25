@@ -1,13 +1,13 @@
 /**
- * Generates an Excel order from a template and sends it by email.
+ * Generates an Excel order from a template and returns it as a blob.
  * 
  * @param {Object} orderData The order details.
- * @param {string} orderData.email The user's email.
  * @param {string} orderData.codeVif The partner code.
  * @param {string} orderData.pickupDate The pickup date (YYYY-MM-DD).
  * @param {Object} orderData.articles Map of Article ID (string) to Quantity (number/string).
+ * @return {Blob} The generated Excel file.
  */
-function sendExcelOrder(orderData)
+function generateOrderExcelBlob(orderData)
 {
 	const templateId = getLatestTemplateId();
 	if (!templateId)
@@ -53,11 +53,20 @@ function sendExcelOrder(orderData)
 		// Write quantities to column H (8th column)
 		sheet.getRange(40, 8, quantities.length, 1).setValues(quantities);
 
-		// 4. Force calculation if needed (SpreadsheetApp usually handles this)
+		// 4. Force calculation
 		SpreadsheetApp.flush();
 
-		// 5. Send email to owner with Excel attachment
-		emailExcelFile(ss, orderData);
+		// 5. Export back to XLSX
+		const url = 'https://docs.google.com/spreadsheets/d/' + tempSheetId + '/export?format=xlsx';
+		const token = ScriptApp.getOAuthToken();
+		const response = UrlFetchApp.fetch(url, {
+			headers: {
+				'Authorization': 'Bearer ' + token
+			}
+		});
+
+		const fileName = 'Commande_' + orderData.codeVif + '_' + orderData.pickupDate + '.xlsx';
+		return response.getBlob().setName(fileName);
 	}
 	finally
 	{
@@ -122,34 +131,4 @@ function normalizeArticleId(value)
 	}
 	
 	return null;
-}
-
-/**
- * Emails the spreadsheet as an Excel file to the owner.
- */
-function emailExcelFile(spreadsheet, orderData)
-{
-	const url = 'https://docs.google.com/spreadsheets/d/' + spreadsheet.getId() + '/export?format=xlsx';
-	const token = ScriptApp.getOAuthToken();
-	const response = UrlFetchApp.fetch(url, {
-		headers: {
-			'Authorization': 'Bearer ' + token
-		}
-	});
-
-	const fileName = 'Commande_' + orderData.codeVif + '_' + orderData.pickupDate + '.xlsx';
-	const blob = response.getBlob().setName(fileName);
-
-	const recipient = Session.getEffectiveUser().getEmail();
-	const subject = 'Nouvelle commande - ' + orderData.codeVif;
-	const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + orderData.codeVif + 
-		'.\n\nDate d\'enlèvement prévue : ' + orderData.pickupDate + 
-		'\nClient : ' + orderData.email;
-
-	MailApp.sendEmail({
-		to: recipient,
-		subject: subject,
-		body: body,
-		attachments: [blob]
-	});
 }
