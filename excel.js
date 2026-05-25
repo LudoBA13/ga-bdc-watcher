@@ -37,30 +37,32 @@ function generateOrderExcelBlob(orderData)
 		// Range A40:A110 contains Article IDs
 		const rangeA = sheet.getRange('A40:A110');
 		const ids = rangeA.getValues();
-		const quantities = [];
+		const quantities = new Array(ids.length).fill(['']);
 
-		for (let i = 0; i < ids.length; i++)
+		// Process only articles present in orderData
+		for (const [articleId, qty] of Object.entries(orderData.articles))
 		{
-			const cellValue = ids[i][0];
-			const articleId = normalizeArticleId(cellValue);
-			
-			if (articleId)
+			if (!qty || parseFloat(qty) === 0)
 			{
-				const qty = orderData.articles[articleId];
-				if (qty)
+				continue;
+			}
+
+			// Find corresponding row in template
+			let found = false;
+			for (let i = 0; i < ids.length; i++)
+			{
+				if (normalizeArticleId(ids[i][0]) === articleId)
 				{
-					quantities.push([qty]);
+					quantities[i] = [qty];
 					logs.push('Matched Article ID ' + articleId + ' with Qty: ' + qty);
-				}
-				else
-				{
-					quantities.push(['']);
-					logs.push('Article ID ' + articleId + ' found in template, but no Qty provided.');
+					found = true;
+					break;
 				}
 			}
-			else
+			
+			if (!found)
 			{
-				quantities.push(['']);
+				logs.push('Article ID ' + articleId + ' provided in order, but not found in template.');
 			}
 		}
 
