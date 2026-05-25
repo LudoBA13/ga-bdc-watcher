@@ -149,12 +149,37 @@ function lookupOrganization(codeVif)
 }
 
 /**
+ * Logs order to 'Orders' sheet.
+ */
+function logOrder(formData)
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	let sheet = ss.getSheetByName('Orders');
+	if (!sheet)
+	{
+		sheet = ss.insertSheet('Orders');
+		sheet.appendRow(['Date', 'Email', 'Code VIF', 'Pickup Date', 'Comments', 'Articles']);
+	}
+	
+	const row = [
+		new Date(),
+		formData.email,
+		formData.codeVif,
+		formData.pickupDate,
+		formData.comments || 'Aucun',
+		JSON.stringify(formData.articles)
+	];
+	sheet.appendRow(row);
+}
+
+/**
  * Handle form submission.
  */
 function processForm(formData)
 {
 	try
 	{
+		logOrder(formData);
 		const result = generateOrderExcelBlob(formData);
 		const blob = result.blob;
 		const logs = result.logs;
