@@ -39,6 +39,11 @@ function generateOrderExcelBlob(orderData)
 		const ids = rangeA.getValues();
 		const quantities = new Array(ids.length).fill(['']);
 
+		// Determine organization type (ES vs Asso) to set iteration direction
+		const orgData = lookupOrganization(orderData.codeVif);
+		const dist = (orgData && orgData['Modes de distribution de l\'aide alimentaire']) || '';
+		const isES = dist.includes('picerie');
+
 		// Process only articles present in orderData
 		const missingArticles = [];
 		for (const [articleId, qty] of Object.entries(orderData.articles))
@@ -50,14 +55,35 @@ function generateOrderExcelBlob(orderData)
 
 			// Find corresponding row in template
 			let found = false;
-			for (let i = 0; i < ids.length; i++)
+
+			// ES products are at the top, Asso products are at the bottom.
+			// We iterate in the corresponding direction to ensure we match the correct section.
+			if (isES)
 			{
-				if (normalizeArticleId(ids[i][0]) === articleId)
+				// ES: Iterate top-to-bottom
+				for (let i = 0; i < ids.length; i++)
 				{
-					quantities[i] = [qty];
-					logs.push('Matched Article ID ' + articleId + ' with Qty: ' + qty);
-					found = true;
-					break;
+					if (normalizeArticleId(ids[i][0]) === articleId)
+					{
+						quantities[i] = [qty];
+						logs.push('Matched Article ID ' + articleId + ' with Qty: ' + qty);
+						found = true;
+						break;
+					}
+				}
+			}
+			else
+			{
+				// Asso: Iterate bottom-to-top
+				for (let i = ids.length - 1; i >= 0; i--)
+				{
+					if (normalizeArticleId(ids[i][0]) === articleId)
+					{
+						quantities[i] = [qty];
+						logs.push('Matched Article ID ' + articleId + ' with Qty: ' + qty);
+						found = true;
+						break;
+					}
 				}
 			}
 			
