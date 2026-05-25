@@ -77,10 +77,10 @@ function getCurrentArticles()
 	{
 		const row = data[i];
 		const obj = {};
-		headers.forEach((header, index) =>
+		for (const [index, header] of headers.entries())
 		{
 			obj[header] = row[index];
-		});
+		}
 		result.push(obj);
 	}
 
@@ -139,10 +139,10 @@ function lookupOrganization(codeVif)
 		}
 
 		const result = {};
-		requestedFields.forEach(field =>
+		for (const field of requestedFields)
 		{
 			result[field] = data[i][headers.indexOf(field)];
-		});
+		}
 		return result;
 	}
 	return null;
