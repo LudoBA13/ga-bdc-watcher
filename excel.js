@@ -40,6 +40,7 @@ function generateOrderExcelBlob(orderData)
 		const quantities = new Array(ids.length).fill(['']);
 
 		// Process only articles present in orderData
+		const missingArticles = [];
 		for (const [articleId, qty] of Object.entries(orderData.articles))
 		{
 			if (!qty || parseFloat(qty) === 0)
@@ -62,8 +63,15 @@ function generateOrderExcelBlob(orderData)
 			
 			if (!found)
 			{
-				logs.push('Article ID ' + articleId + ' provided in order, but not found in template.');
+				const msg = 'WARNING: Article ID ' + articleId + ' provided in order, but not found in template range (A40:A110).';
+				logs.push(msg);
+				missingArticles.push(msg);
 			}
+		}
+
+		if (missingArticles.length > 0)
+		{
+			logs.push('\nSummary of missing articles:\n' + missingArticles.join('\n'));
 		}
 
 		// Write quantities to column H (8th column)
