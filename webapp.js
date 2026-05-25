@@ -170,8 +170,9 @@ function processForm(formData)
 		}
 
 		const ownerEmail = Session.getEffectiveUser().getEmail();
-		const subject = 'Nouvelle commande - ' + formData.codeVif;
-		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + formData.codeVif + 
+		const orgName = orgData ? orgData['Nom'] : 'Inconnu';
+		const subject = 'Nouvelle commande - ' + orgName + ' (' + formData.codeVif + ')';
+		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + orgName + ' (' + formData.codeVif + ')' + 
 			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate + 
 			'\nClient : ' + formData.email +
 			'\n\n--- Détails Partenaire ---\n' + orgInfo +
