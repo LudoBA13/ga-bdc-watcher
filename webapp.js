@@ -166,7 +166,7 @@ function logOrder(formData)
 		formData.email,
 		formData.codeVif,
 		formData.pickupDate,
-		formData.comments || 'Aucun',
+		formData.comments,
 		JSON.stringify(formData.articles)
 	];
 	sheet.appendRow(row);
