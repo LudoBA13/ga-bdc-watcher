@@ -737,6 +737,7 @@
 						btn.disabled = false;
 						
 						// Clear draft and non-persistent fields
+						/*
 						localStorage.removeItem('orderDraft');
 						document.getElementById('pickupDate').value = '';
 						document.getElementById('orderComments').value = '';
@@ -746,6 +747,7 @@
 							input.value = '';
 							validateQty(input);
 						}
+						*/
 					})
 					.withFailureHandler(err => {
 						alert("Erreur: " + err);
