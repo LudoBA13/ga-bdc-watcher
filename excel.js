@@ -132,20 +132,15 @@ function createTemporarySheetFromExcel(excelFileId, title)
 }
 
 /**
- * Normalizes a cell value to a numeric Article ID if possible.
+ * Normalizes a value to a string representation of a number to ignore leading zeros.
  */
 function normalizeArticleId(value)
 {
-	if (typeof value === 'number')
+	if (value === null || value === undefined || value === '')
 	{
-		return String(Math.floor(value));
+		return null;
 	}
 	
-	const str = String(value).trim();
-	if (/^\d+$/.test(str))
-	{
-		return str;
-	}
-	
-	return null;
+	const num = parseInt(value, 10);
+	return isNaN(num) ? null : String(num);
 }

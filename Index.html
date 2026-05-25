@@ -286,7 +286,8 @@
 				{
 					if (input.value && input.value !== '0')
 					{
-						data.articles[input.dataset.articleId] = input.value;
+						const articleId = String(parseInt(input.dataset.articleId, 10));
+						data.articles[articleId] = input.value;
 					}
 				}
 				return data;
