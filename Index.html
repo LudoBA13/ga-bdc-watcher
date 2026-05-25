@@ -324,14 +324,24 @@
 
 					const inputs = Array.from(document.querySelectorAll('#articleSections input[type="number"]'));
 					const order = isES ? inputs : inputs.reverse();
+					const restoredIds = new Set();
 
-					for (const input of order)
+					for (const articleId in draft.articles)
 					{
-						const id = input.dataset.articleId;
-						if (draft.articles[id])
+						if (restoredIds.has(articleId))
 						{
-							input.value = draft.articles[id];
-							validateQty(input);
+							continue;
+						}
+
+						for (const input of order)
+						{
+							if (input.dataset.articleId === articleId)
+							{
+								input.value = draft.articles[articleId];
+								validateQty(input);
+								restoredIds.add(articleId);
+								break;
+							}
 						}
 					}
 				}
