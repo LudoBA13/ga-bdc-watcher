@@ -155,14 +155,17 @@ function processForm(formData)
 {
 	try
 	{
-		const blob = generateOrderExcelBlob(formData);
+		const result = generateOrderExcelBlob(formData);
+		const blob = result.blob;
+		const logs = result.logs;
 		
 		const ownerEmail = Session.getEffectiveUser().getEmail();
 		const subject = 'Nouvelle commande - ' + formData.codeVif;
 		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + formData.codeVif + 
 			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate + 
 			'\nClient : ' + formData.email +
-			'\nCommentaires : ' + (formData.comments || 'Aucun');
+			'\nCommentaires : ' + (formData.comments || 'Aucun') +
+			'\n\n--- Debug Logs ---\n' + logs;
 
 		MailApp.sendEmail({
 			to: formData.email,

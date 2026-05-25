@@ -5,10 +5,14 @@
  * @param {string} orderData.codeVif The partner code.
  * @param {string} orderData.pickupDate The pickup date (YYYY-MM-DD).
  * @param {Object} orderData.articles Map of Article ID (string) to Quantity (number/string).
- * @return {Blob} The generated Excel file.
+ * @return {Object} {blob: Blob, logs: string}
  */
 function generateOrderExcelBlob(orderData)
 {
+	const logs = [];
+	logs.push('Order Generation Started: ' + new Date().toISOString());
+	logs.push('Order Data: ' + JSON.stringify(orderData));
+
 	const templateId = getLatestTemplateId();
 	if (!templateId)
 	{
@@ -40,9 +44,19 @@ function generateOrderExcelBlob(orderData)
 			const cellValue = ids[i][0];
 			const articleId = normalizeArticleId(cellValue);
 			
-			if (articleId && orderData.articles[articleId])
+			if (articleId)
 			{
-				quantities.push([orderData.articles[articleId]]);
+				const qty = orderData.articles[articleId];
+				if (qty)
+				{
+					quantities.push([qty]);
+					logs.push('Matched Article ID ' + articleId + ' with Qty: ' + qty);
+				}
+				else
+				{
+					quantities.push(['']);
+					logs.push('Article ID ' + articleId + ' found in template, but no Qty provided.');
+				}
 			}
 			else
 			{
@@ -66,7 +80,10 @@ function generateOrderExcelBlob(orderData)
 		});
 
 		const fileName = 'Commande_' + orderData.codeVif + '_' + orderData.pickupDate + '.xlsx';
-		return response.getBlob().setName(fileName);
+		return {
+			blob: response.getBlob().setName(fileName),
+			logs: logs.join('\n')
+		};
 	}
 	finally
 	{
