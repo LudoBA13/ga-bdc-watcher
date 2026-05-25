@@ -277,17 +277,17 @@
 			{
 				const data = {
 					email: document.getElementById('email').value,
-					codeVif: document.getElementById('codeVif').value,
+					codeVif: parseInt(document.getElementById('codeVif').value, 10),
 					pickupDate: document.getElementById('pickupDate').value,
 					articles: {}
 				};
 				const inputs = document.querySelectorAll('#articleSections input[type="number"]');
 				for (const input of inputs)
 				{
-					if (input.value && input.value !== '0')
+					if (input.value && input.value !== '0' && input.value.trim() !== '')
 					{
 						const articleId = String(parseInt(input.dataset.articleId, 10));
-						data.articles[articleId] = input.value;
+						data.articles[articleId] = parseFloat(input.value);
 					}
 				}
 				return data;
