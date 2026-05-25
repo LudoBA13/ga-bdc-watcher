@@ -60,8 +60,7 @@
 			{
 				content: " kg";
 			}
-			table th:nth-child(n+2),
-			table td:nth-child(n+2)
+			.is-numeric
 			{
 				text-align: right;
 			}
@@ -239,7 +238,7 @@
 				
 				// Unit Weight
 				const tdWeight = document.createElement('td');
-				tdWeight.className = 'weight-col';
+				tdWeight.className = 'weight-col is-numeric';
 				const weight = parseFloat(product['Unit Weight']) || 0;
 				tdWeight.dataset.unitWeight = weight;
 				tdWeight.textContent = weight.toFixed(1);
@@ -247,11 +246,13 @@
 
 				// Qty Max
 				const tdMax = document.createElement('td');
+				tdMax.className = 'is-numeric';
 				tdMax.textContent = product['Max Qty'];
 				tr.appendChild(tdMax);
 
 				// Qty Input
 				const tdInput = document.createElement('td');
+				tdInput.className = 'is-numeric';
 				const input = document.createElement('input');
 				input.type = 'number';
 				input.min = '0';
@@ -262,7 +263,7 @@
 
 				// Total Kg
 				const tdTotal = document.createElement('td');
-				tdTotal.className = 'total-kg';
+				tdTotal.className = 'total-kg is-numeric';
 				tdTotal.textContent = '0';
 				tr.appendChild(tdTotal);
 
@@ -279,10 +280,10 @@
 					<thead>
 						<tr>
 							<th>Désignation</th>
-							<th>Poids du colis</th>
-							<th>Qté max</th>
-							<th>Qté souhaitée</th>
-							<th>Total kg</th>
+							<th class="is-numeric">Poids du colis</th>
+							<th class="is-numeric">Qté max</th>
+							<th class="is-numeric">Qté souhaitée</th>
+							<th class="is-numeric">Total kg</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
