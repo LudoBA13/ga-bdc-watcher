@@ -159,12 +159,23 @@ function processForm(formData)
 		const blob = result.blob;
 		const logs = result.logs;
 		
+		// Retrieve partner organization details
+		const orgData = lookupOrganization(formData.codeVif);
+		let orgInfo = 'Nom: Inconnu\n';
+		if (orgData)
+		{
+			orgInfo = Object.entries(orgData)
+				.map(([key, value]) => key + ': ' + value)
+				.join('\n');
+		}
+
 		const ownerEmail = Session.getEffectiveUser().getEmail();
 		const subject = 'Nouvelle commande - ' + formData.codeVif;
 		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + formData.codeVif + 
 			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate + 
 			'\nClient : ' + formData.email +
-			'\nCommentaires : ' + (formData.comments || 'Aucun') +
+			'\n\n--- Détails Partenaire ---\n' + orgInfo +
+			'\n\nCommentaires : ' + (formData.comments || 'Aucun') +
 			'\n\n--- Debug Logs ---\n' + (logs || 'No logs available.');
 
 		MailApp.sendEmail({
