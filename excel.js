@@ -115,7 +115,7 @@ function generateOrderExcelBlob(orderData)
 			}
 		});
 
-		const fileName = 'Commande_' + orderData.codeVif + '_' + orderData.pickupDate + '.xlsx';
+		const fileName = 'Commande_' + orderData.codeVif + '_' + (orgData ? orgData['Nom'] : 'Inconnu') + '_' + orderData.pickupDate + '.xlsx';
 		return {
 			blob: response.getBlob().setName(fileName),
 			logs: logs.join('\n')
