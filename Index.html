@@ -464,6 +464,18 @@
 			{
 				const inputs = document.querySelectorAll('#articleSections input[type="number"]');
 				inputs.forEach(input => validateQty(input));
+				updateGrandTotal();
+			}
+
+			function updateGrandTotal()
+			{
+				const totals = document.querySelectorAll('.col-total-weight');
+				let grandTotal = 0;
+				totals.forEach(td =>
+				{
+					grandTotal += parseFloat(td.dataset.totalKg) || 0;
+				});
+				document.getElementById('footerTotalWeight').textContent = grandTotal.toFixed(2);
 			}
 
 			function validateQty(input)
@@ -479,6 +491,7 @@
 					row.classList.remove('qty-exceeded');
 					tdTotal.dataset.totalKg = '0';
 					tdTotal.textContent = '';
+					updateGrandTotal();
 					return;
 				}
 
@@ -498,6 +511,7 @@
 				const totalKg = enteredQty * unitWeight;
 				tdTotal.dataset.totalKg = totalKg;
 				tdTotal.textContent = totalKg.toFixed(2);
+				updateGrandTotal();
 			}
 
 
