@@ -68,6 +68,18 @@
 			{
 				text-align: center;
 			}
+			.max-col
+			{
+				text-align: center;
+			}
+			.as_kg .max-col::after
+			{
+				content: " kg";
+			}
+			.as_colis .max-col::after
+			{
+				content: " colis";
+			}
 			.as_kg .weight-col,
 			.as_kg .weight-header
 			{
@@ -255,6 +267,7 @@
 
 				// Qty Max
 				const tdMax = document.createElement('td');
+				tdMax.className = 'max-col';
 				tdMax.textContent = product['Max Qty'];
 				tr.appendChild(tdMax);
 
