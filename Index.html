@@ -56,7 +56,7 @@
 			{
 				background-color: #ff000020;
 			}
-			.weight-col::after
+			.col-unit-weight::after
 			{
 				content: " kg";
 			}
@@ -68,20 +68,19 @@
 			{
 				text-align: center;
 			}
-			.max-col
+			.col-max-qty
 			{
 				text-align: center;
 			}
-			.as_kg .max-col::after
+			.as_kg .col-max-qty::after
 			{
 				content: " kg";
 			}
-			.as_colis .max-col::after
+			.as_colis .col-max-qty::after
 			{
 				content: " colis";
 			}
-			.as_kg .weight-col,
-			.as_kg .weight-header
+			.as_kg .col-unit-weight
 			{
 				display: none;
 			}
@@ -259,7 +258,7 @@
 				
 				// Unit Weight
 				const tdWeight = document.createElement('td');
-				tdWeight.className = 'weight-col is-numeric';
+				tdWeight.className = 'col-unit-weight is-numeric';
 				const weight = parseFloat(product['Unit Weight']) || 0;
 				tdWeight.dataset.unitWeight = weight;
 				tdWeight.textContent = weight.toFixed(1);
@@ -267,7 +266,7 @@
 
 				// Qty Max
 				const tdMax = document.createElement('td');
-				tdMax.className = 'max-col';
+				tdMax.className = 'col-max-qty';
 				tdMax.textContent = product['Max Qty'];
 				tr.appendChild(tdMax);
 
@@ -284,7 +283,7 @@
 
 				// Total Kg
 				const tdTotal = document.createElement('td');
-				tdTotal.className = 'total-kg is-numeric';
+				tdTotal.className = 'col-total-weight is-numeric';
 				tdTotal.textContent = '0';
 				tr.appendChild(tdTotal);
 
@@ -302,10 +301,10 @@
 					<thead>
 						<tr>
 							<th>Désignation</th>
-							<th class="weight-header">Poids du colis</th>
-							<th>Qté max</th>
-							<th>Qté souhaitée</th>
-							<th>Total kg</th>
+							<th class="col-unit-weight">Poids du colis</th>
+							<th class="col-max-qty">Qté max</th>
+							<th class="is-numeric">Qté souhaitée</th>
+							<th class="col-total-weight is-numeric">Total kg</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -393,7 +392,7 @@
 
 				// Update Total kg
 				const totalKg = enteredQty * unitWeight;
-				const tdTotal = row.querySelector('.total-kg');
+				const tdTotal = row.querySelector('.col-total-weight');
 				tdTotal.dataset.totalKg = totalKg;
 				tdTotal.textContent = totalKg.toFixed(2);
 			}
