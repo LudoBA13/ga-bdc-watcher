@@ -194,6 +194,7 @@
 				</div>
 				
 				<div id="articleSections"></div>
+				<input type="hidden" name="comments" id="hiddenComments">
 			</form>
 		</main>
 
@@ -207,6 +208,27 @@
 				</div>
 			</div>
 		</footer>
+
+		<dialog id="confirmModal">
+			<article>
+				<header>
+					<button aria-label="Close" rel="prev" onclick="closeModal()"></button>
+					<h3>Confirmer votre commande</h3>
+				</header>
+				<p>
+					<strong>Date d'enlèvement :</strong> <span id="summaryDate"></span><br>
+					<strong>Poids total :</strong> <span id="summaryWeight"></span> kg
+				</p>
+				<label for="orderComments">
+					Commentaires (optionnel)
+					<textarea id="orderComments" name="comments" placeholder="Ajoutez vos précisions ici..."></textarea>
+				</label>
+				<footer>
+					<button class="secondary" onclick="closeModal()">Retour</button>
+					<button id="confirmSendBtn" onclick="sendFinalOrder()">Envoyer la commande</button>
+				</footer>
+			</article>
+		</dialog>
 
 		<script>
 			const perfStart = performance.now();
@@ -580,7 +602,41 @@
 			function handleFormSubmit(form)
 			{
 				event.preventDefault();
-				google.script.run.withSuccessHandler(alert).processForm(form);
+				document.getElementById('summaryDate').textContent = document.getElementById('pickupDate').value;
+				document.getElementById('summaryWeight').textContent = document.getElementById('footerTotalWeight').textContent;
+				document.getElementById('confirmModal').showModal();
+			}
+
+			function closeModal()
+			{
+				document.getElementById('confirmModal').close();
+			}
+
+			function sendFinalOrder()
+			{
+				const form = document.getElementById('orderForm');
+				const btn = document.getElementById('confirmSendBtn');
+				const comments = document.getElementById('orderComments').value;
+				
+				document.getElementById('hiddenComments').value = comments;
+				
+				btn.ariaBusy = "true";
+				btn.disabled = true;
+
+				google.script.run
+					.withSuccessHandler(response => {
+						alert(response);
+						closeModal();
+						btn.ariaBusy = "false";
+						btn.disabled = false;
+						// Optional: Reset form?
+					})
+					.withFailureHandler(err => {
+						alert("Erreur: " + err);
+						btn.ariaBusy = "false";
+						btn.disabled = false;
+					})
+					.processForm(form);
 			}
 		</script>
 	</body>
