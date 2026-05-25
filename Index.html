@@ -290,7 +290,7 @@
 				input.type = 'number';
 				input.inputMode = 'numeric';
 				input.min = '0';
-				input.value = '0';
+				input.value = '';
 				input.oninput = function() { validateQty(this); };
 				tdInput.appendChild(input);
 				tr.appendChild(tdInput);
@@ -392,8 +392,18 @@
 				const row = input.closest('tr');
 				const maxQty = parseFloat(row.cells[2].textContent) || 0;
 				const unitWeight = parseFloat(row.cells[1].dataset.unitWeight) || 1;
+				const tdTotal = row.querySelector('.col-total-weight');
+
+				if (input.value === '')
+				{
+					row.classList.remove('qty-exceeded');
+					tdTotal.dataset.totalKg = '0';
+					tdTotal.textContent = '';
+					return;
+				}
+
 				const enteredQty = parseFloat(input.value) || 0;
-				
+
 				// Validate qty exceeded
 				if (enteredQty > maxQty)
 				{
@@ -404,12 +414,12 @@
 					row.classList.remove('qty-exceeded');
 				}
 
-				// Update Poids total
+				// Update Total kg
 				const totalKg = enteredQty * unitWeight;
-				const tdTotal = row.querySelector('.col-total-weight');
 				tdTotal.dataset.totalKg = totalKg;
 				tdTotal.textContent = totalKg.toFixed(2);
 			}
+
 
 			function checkCodeVif(val)
 			{
