@@ -57,26 +57,20 @@
 			{
 				background-color: #ff000020;
 			}
-			.col-unit-weight
-			{
-				text-align: right;
-			}
-			td.col-unit-weight::after
 			{
 				content: " kg";
 			}
-			.col-max-qty
+			td.col-max-qty
 			{
 				text-align: center;
 			}
-			.col-order-qty
+			td.col-order-qty,
+			td.col-total-weight,
+			td.col-unit-weight
 			{
 				text-align: right;
 			}
-			.col-total-weight
-			{
-				text-align: right;
-			}
+			td.col-unit-weight::after,
 			.as_kg td.col-max-qty::after
 			{
 				content: " kg";
