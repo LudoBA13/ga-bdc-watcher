@@ -100,7 +100,7 @@ function importExcelContent(blob, fileName, ss)
 		mimeType: MimeType.MICROSOFT_EXCEL,
 		parents: [{ id: CONFIG.DRIVE_FOLDER_ID }]
 	};
-	Drive.Files.insert(rawFileResource, blob, { convert: false });
+	const rawFile = Drive.Files.insert(rawFileResource, blob, { convert: false });
 
 	// 2. Save converted version to Drive (for processing)
 	const sheetFileResource = {
@@ -109,13 +109,14 @@ function importExcelContent(blob, fileName, ss)
 		parents: [{ id: CONFIG.DRIVE_FOLDER_ID }]
 	};
 	const sheetFile = Drive.Files.insert(sheetFileResource, blob, { convert: true });
-	
 	try
 	{
 		// 3. Import data from the converted file
 		const tempSs = SpreadsheetApp.openById(sheetFile.id);
 		const data = tempSs.getSheets()[0].getDataRange().getValues();
 		importDataToNewSheet(data, fileName, ss);
+		const sanitizedName = sanitizeSheetName(fileName);
+		logImport(fileName, sanitizedName, ss, rawFile.id);
 	}
 	finally
 	{
@@ -138,8 +139,6 @@ function importDataToNewSheet(data, fileName, ss)
 	
 	const newSheet = ss.insertSheet(sanitizedName);
 	newSheet.addDeveloperMetadata('originalFileName', fileName);
-
-	logImport(fileName, sanitizedName, ss);
 
 	newSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
 	trimSheet(newSheet);
@@ -198,7 +197,10 @@ function handleGoogleSheetUrlImport(url, ss, ui)
 	{
 		const sourceSs = SpreadsheetApp.openById(id);
 		const data = sourceSs.getSheets()[0].getDataRange().getValues();
-		importDataToNewSheet(data, sourceSs.getName(), ss);
+		const fileName = sourceSs.getName();
+		importDataToNewSheet(data, fileName, ss);
+		const sanitizedName = sanitizeSheetName(fileName);
+		logImport(fileName, sanitizedName, ss, id);
 	}
 	catch (e)
 	{
@@ -421,10 +423,10 @@ function deleteSheetIfExists(ss, name)
 	}
 }
 
-function logImport(fileName, sheetName, ss)
+function logImport(fileName, sheetName, ss, fileId)
 {
-	const sheet = getOrCreateSheet(ss, 'Files', ['Date', 'Filename', 'Sheet Name']);
-	sheet.appendRow([new Date, fileName, sheetName]);
+	const sheet = getOrCreateSheet(ss, 'Files', ['Date', 'Filename', 'Sheet Name', 'File ID']);
+	sheet.appendRow([new Date, fileName, sheetName, fileId]);
 }
 
 function trimSheet(sheet)
