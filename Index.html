@@ -87,7 +87,7 @@
 			}
 			.col-order-qty > input
 			{
-				width: 50px;
+				width: 5em;
 				direction: rtl;
 			}
 			.as_colis td.col-max-qty::after,
@@ -307,6 +307,7 @@
 				input.type = 'number';
 				input.inputMode = 'numeric';
 				input.min = '0';
+				input.placeholder = '0';
 				input.value = '';
 				input.oninput = function() { validateQty(this); };
 				input.onfocus = function() { this.select(); };
