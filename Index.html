@@ -145,7 +145,10 @@
 			}
 			td.col-unit-weight::after,
 			td.col-total-weight::after,
-			.as_kg td.col-max-qty::after,
+			.as_kg td.col-max-qty::after
+			{
+				content: " kg";
+			}
 			.as_kg td.col-order-qty::after
 			{
 				content: "kg";
@@ -155,7 +158,10 @@
 				width: 4rem;
 				text-align: right;
 			}
-			.as_colis td.col-max-qty::after,
+			.as_colis td.col-max-qty::after
+			{
+				content: " colis";
+			}
 			.as_colis td.col-order-qty::after
 			{
 				content: "colis";
