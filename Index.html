@@ -248,6 +248,78 @@
 				console.log(`Perf: ${message} took ${duration}ms`);
 			}
 
+			function debounce(func, wait)
+			{
+				let timeout;
+				return function executedFunction(...args)
+				{
+					const later = () =>
+					{
+						clearTimeout(timeout);
+						func(...args);
+					};
+					clearTimeout(timeout);
+					timeout = setTimeout(later, wait);
+				};
+			}
+
+			function collectFormData()
+			{
+				const data = {
+					email: document.getElementById('email').value,
+					codeVif: document.getElementById('codeVif').value,
+					pickupDate: document.getElementById('pickupDate').value,
+					articles: {}
+				};
+				const inputs = document.querySelectorAll('#articleSections input[type="number"]');
+				for (const input of inputs)
+				{
+					if (input.value && input.value !== '0')
+					{
+						data.articles[input.dataset.articleId] = input.value;
+					}
+				}
+				return data;
+			}
+
+			const autosave = debounce(() =>
+			{
+				const data = collectFormData();
+				localStorage.setItem('orderDraft', JSON.stringify(data));
+				localStorage.setItem('email', data.email);
+				localStorage.setItem('codeVif', data.codeVif);
+				console.log('Draft autosaved.');
+			}, 1000);
+
+			function restoreFormData()
+			{
+				const draftStr = localStorage.getItem('orderDraft');
+				if (!draftStr)
+				{
+					return;
+				}
+
+				const draft = JSON.parse(draftStr);
+				if (draft.pickupDate)
+				{
+					document.getElementById('pickupDate').value = draft.pickupDate;
+				}
+
+				if (draft.articles)
+				{
+					const inputs = document.querySelectorAll('#articleSections input[type="number"]');
+					for (const input of inputs)
+					{
+						const id = input.dataset.articleId;
+						if (draft.articles[id])
+						{
+							input.value = draft.articles[id];
+							validateQty(input);
+						}
+					}
+				}
+			}
+
 			function pruneCaches()
 			{
 				const attrStart = performance.now();
@@ -302,11 +374,15 @@
 				}
 
 				emailEl.addEventListener('input', (e) => {
-					localStorage.setItem('email', e.target.value);
+					autosave();
 				});
 
 				codeVifEl.addEventListener('input', (e) => {
-					localStorage.setItem('codeVif', e.target.value);
+					autosave();
+				});
+
+				document.getElementById('pickupDate').addEventListener('input', (e) => {
+					autosave();
 				});
 
 				const cachedData = localStorage.getItem('articlesData');
@@ -315,6 +391,7 @@
 				{
 					console.log('Loading articles from cache.');
 					renderArticles(JSON.parse(cachedData));
+					restoreFormData();
 					logPerformance('Initial render from cache');
 				}
 				else
@@ -328,6 +405,7 @@
 						const renderStart = performance.now();
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
 						renderArticles(response.articles);
+						restoreFormData();
 						const renderDuration = (performance.now() - renderStart).toFixed(2);
 						
 						const debug = document.getElementById('debug');
@@ -539,6 +617,7 @@
 				tdTotal.dataset.totalKg = totalKg;
 				tdTotal.textContent = totalKg.toFixed(2);
 				updateGrandTotal();
+				autosave();
 			}
 
 
@@ -634,7 +713,17 @@
 						closeModal();
 						btn.ariaBusy = "false";
 						btn.disabled = false;
-						// Optional: Reset form?
+						
+						// Clear draft and non-persistent fields
+						localStorage.removeItem('orderDraft');
+						document.getElementById('pickupDate').value = '';
+						document.getElementById('orderComments').value = '';
+						const inputs = document.querySelectorAll('#articleSections input[type="number"]');
+						for (const input of inputs)
+						{
+							input.value = '';
+							validateQty(input);
+						}
 					})
 					.withFailureHandler(err => {
 						alert("Erreur: " + err);
