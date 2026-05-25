@@ -71,6 +71,7 @@
 				text-align: right;
 			}
 			td.col-unit-weight::after,
+			td.col-total-weight::after,
 			.as_kg td.col-max-qty::after
 			{
 				content: " kg";
@@ -284,7 +285,7 @@
 				tdInput.appendChild(input);
 				tr.appendChild(tdInput);
 
-				// Total Kg
+				// Poids total
 				const tdTotal = document.createElement('td');
 				tdTotal.className = 'col-total-weight';
 				tdTotal.textContent = '0';
@@ -307,7 +308,7 @@
 							<th class="col-unit-weight">Poids du colis</th>
 							<th class="col-max-qty">Qté max</th>
 							<th class="col-order-qty">Qté souhaitée</th>
-							<th class="col-total-weight">Total kg</th>
+							<th class="col-total-weight">Poids total</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -393,7 +394,7 @@
 					row.classList.remove('qty-exceeded');
 				}
 
-				// Update Total kg
+				// Update Poids total
 				const totalKg = enteredQty * unitWeight;
 				const tdTotal = row.querySelector('.col-total-weight');
 				tdTotal.dataset.totalKg = totalKg;
