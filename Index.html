@@ -64,6 +64,10 @@
 			{
 				text-align: right;
 			}
+			table th
+			{
+				text-align: center;
+			}
 			#articleSections.filter-for_asso > .for_asso,
 			#articleSections.filter-for_es > .for_es
 			{
@@ -246,7 +250,6 @@
 
 				// Qty Max
 				const tdMax = document.createElement('td');
-				tdMax.className = 'is-numeric';
 				tdMax.textContent = product['Max Qty'];
 				tr.appendChild(tdMax);
 
@@ -281,7 +284,7 @@
 						<tr>
 							<th>Désignation</th>
 							<th class="is-numeric">Poids du colis</th>
-							<th class="is-numeric">Qté max</th>
+							<th>Qté max</th>
 							<th class="is-numeric">Qté souhaitée</th>
 							<th class="is-numeric">Total kg</th>
 						</tr>
