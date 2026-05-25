@@ -209,7 +209,6 @@
 				</div>
 				
 				<div id="articleSections"></div>
-				<input type="hidden" name="comments" id="hiddenComments">
 			</form>
 		</main>
 
@@ -722,11 +721,9 @@
 
 			function sendFinalOrder()
 			{
-				const form = document.getElementById('orderForm');
 				const btn = document.getElementById('confirmSendBtn');
-				const comments = document.getElementById('orderComments').value;
-				
-				document.getElementById('hiddenComments').value = comments;
+				const orderData = collectFormData();
+				orderData.comments = document.getElementById('orderComments').value;
 				
 				btn.ariaBusy = "true";
 				btn.disabled = true;
@@ -754,7 +751,7 @@
 						btn.ariaBusy = "false";
 						btn.disabled = false;
 					})
-					.processForm(form);
+					.processForm(orderData);
 			}
 		</script>
 	</body>

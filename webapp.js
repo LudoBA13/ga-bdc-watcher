@@ -153,6 +153,14 @@ function lookupOrganization(codeVif)
  */
 function processForm(formData)
 {
-	console.log('Form received:', formData);
-	return 'Commande reçue pour ' + formData.email;
+	try
+	{
+		sendExcelOrder(formData);
+		return 'Votre commande a été envoyée avec succès.';
+	}
+	catch (e)
+	{
+		console.error('Error processing form:', e);
+		throw new Error('Erreur lors de l\'envoi de la commande : ' + e.message);
+	}
 }
