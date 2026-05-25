@@ -68,6 +68,11 @@
 			{
 				text-align: center;
 			}
+			.as_kg .weight-col,
+			.as_kg .weight-header
+			{
+				display: none;
+			}
 			#articleSections.filter-for_asso > .for_asso,
 			#articleSections.filter-for_es > .for_es
 			{
@@ -279,14 +284,15 @@
 				unitSection.className = 'as_' + unit + ' ' + categoryClass;
 				unitSection.innerHTML = `<h3>${getUnitLabel(unit)}</h3>`;
 				const table = document.createElement('table');
+				table.className = 'as_' + unit;
 				table.innerHTML = `
 					<thead>
 						<tr>
 							<th>Désignation</th>
-							<th class="is-numeric">Poids du colis</th>
+							<th class="weight-header">Poids du colis</th>
 							<th>Qté max</th>
-							<th class="is-numeric">Qté souhaitée</th>
-							<th class="is-numeric">Total kg</th>
+							<th>Qté souhaitée</th>
+							<th>Total kg</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
