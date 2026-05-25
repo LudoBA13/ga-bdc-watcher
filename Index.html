@@ -359,6 +359,19 @@
 			{
 				pruneCaches();
 
+				// Set pickupDate range: today + 7 to today + 31
+				const pickupDateEl = document.getElementById('pickupDate');
+				const now = new Date();
+				const formatDate = (date) => date.toISOString().split('T')[0];
+				
+				const minDate = new Date(now);
+				minDate.setDate(now.getDate() + 7);
+				const maxDate = new Date(now);
+				maxDate.setDate(now.getDate() + 31);
+				
+				pickupDateEl.min = formatDate(minDate);
+				pickupDateEl.max = formatDate(maxDate);
+
 				const emailEl = document.getElementById('email');
 				const codeVifEl = document.getElementById('codeVif');
 
