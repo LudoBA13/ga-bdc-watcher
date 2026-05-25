@@ -112,7 +112,7 @@
 			<input type="email" id="email" name="email" required><br><br>
 
 			<label for="codeVif">Code VIF:</label><br>
-			<input type="text" id="codeVif" name="codeVif" required oninput="checkCodeVif(this.value)"><br><br>
+			<input type="text" id="codeVif" name="codeVif" pattern="^[1-9]0?13[0-9]{4}" required oninput="checkCodeVif(this.value)"><br><br>
 
 			<div id="orgSection" class="disabled">
 				<div id="orgSpinner" class="spinner"></div>
