@@ -19,7 +19,7 @@
 			{
 				max-width: 1050px;
 				background-color: #fff;
-				padding: 0 1em;
+				padding: 0.5rem;
 			}
 			main.container
 			{
@@ -48,12 +48,23 @@
 			{
 				display: none;
 			}
+			#orderDetails,
+			#orgSection
+			{
+				padding: .1rem .5rem;
+			}
+			#orderDetails
+			{
+				background-color: #ff820010;
+				border: solid 1px #ff820080;
+			}
 			#orgSection
 			{
 				position: relative;
 				display: inline-block;
 				min-height: 50px;
 				min-width: 50px;
+				border: solid 1px #00000010;
 			}
 			#orgSection.disabled,
 			#orgSection.loading
@@ -165,7 +176,7 @@
 			<div id="debug" style="font-family: monospace; font-size: 12px; background: #eee; padding: 5px; margin-bottom: 10px;"></div>
 			<h1>Formulaire de Commande</h1>
 			<form id="orderForm" onsubmit="handleFormSubmit(this)">
-				<fieldset>
+				<fieldset id="orderDetails">
 					<label for="email">
 						Email
 						<input type="email" id="email" name="email" required>
