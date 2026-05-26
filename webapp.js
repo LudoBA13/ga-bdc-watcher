@@ -158,16 +158,17 @@ function logOrder(formData)
 	if (!sheet)
 	{
 		sheet = ss.insertSheet('Orders');
-		sheet.appendRow(['Date', 'Email', 'Code VIF', 'Pickup Date', 'Comments', 'Articles']);
+		sheet.appendRow(['Date', 'Email', 'Code VIF', 'Pickup Date', 'Comments', 'Articles', 'User Key']);
 	}
-	
+
 	const row = [
 		new Date(),
 		formData.email,
 		formData.codeVif,
 		formData.pickupDate,
 		formData.comments,
-		JSON.stringify(formData.articles)
+		JSON.stringify(formData.articles),
+		Session.getTemporaryActiveUserKey()
 	];
 	sheet.appendRow(row);
 }
