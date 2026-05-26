@@ -313,7 +313,10 @@
 				const data = collectFormData();
 				localStorage.setItem('orderDraft', JSON.stringify(data));
 				localStorage.setItem('email', data.email);
-				localStorage.setItem('codeVif', data.codeVif);
+				if (!isNaN(data.codeVif))
+				{
+					localStorage.setItem('codeVif', data.codeVif);
+				}
 				console.log('Draft autosaved.');
 			}, 1000);
 
