@@ -403,14 +403,25 @@ function styleHeader(range)
 		.setFontColor('white');
 }
 
-function resizeSheet(sheet)
+function trimSheet(sheet) 
 {
+	const maxRows = sheet.getMaxRows();
 	const lastRow = sheet.getLastRow();
+	const maxCols = sheet.getMaxColumns();
 	const lastCol = sheet.getLastColumn();
-	if (lastRow > 0) sheet.autoResizeRows(1, lastRow);
-	for (let i = 1; i <= lastCol; i++)
+
+	// Remove empty rows at the bottom
+	if (maxRows > lastRow && lastRow > 0) 
 	{
-		sheet.autoResizeColumn(i);
+		const rowsToDelete = maxRows - lastRow;
+		sheet.deleteRows(lastRow + 1, rowsToDelete);
+	}
+
+	// Remove empty columns at the right
+	if (maxCols > lastCol && lastCol > 0) 
+	{
+		const colsToDelete = maxCols - lastCol;
+		sheet.deleteColumns(lastCol + 1, colsToDelete);
 	}
 }
 
@@ -489,7 +500,7 @@ function extractCurrentArticles()
 	currentArticlesSheet.clearContents();
 	currentArticlesSheet.appendRow(headers);
 	currentArticlesSheet.getRange(2, 1, filteredRows.length, headers.length).setValues(filteredRows);
-	resizeSheet(currentArticlesSheet);
+	trimSheet(currentArticlesSheet);
 
 	ss.toast('Extracted ' + filteredRows.length + ' current articles from ' + lastSheetName);
 }
@@ -516,7 +527,7 @@ function recomputeAllArticles()
 	const finalArticlesSheet = ss.getSheetByName('Articles');
 	if (finalArticlesSheet)
 	{
-		resizeSheet(finalArticlesSheet);
+		trimSheet(finalArticlesSheet);
 	}
 	
 	ss.toast('Recomputation complete.');
