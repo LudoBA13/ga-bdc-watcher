@@ -523,7 +523,7 @@
 				// Qty Max
 				const tdMax = document.createElement('td');
 				tdMax.className = 'col-max-qty';
-				tdMax.textContent = product['Max Qty'];
+				tdMax.dataset.baseQty = product['Max Qty'];
 				tr.appendChild(tdMax);
 
 				// Qty Input
@@ -683,6 +683,21 @@
 			}
 
 
+			function updateMaxQtys(orgData)
+			{
+				const ud = parseFloat(orgData['UD']) || 0;
+				const passages = Math.max(1, parseInt(orgData['Passages Sec'], 10) || 0);
+				const coef = Math.max(1, (ud / 100) / passages);
+
+				const maxQtyElements = document.querySelectorAll('.col-max-qty[data-base-qty]');
+				maxQtyElements.forEach(td =>
+				{
+					const baseQty = parseInt(td.dataset.baseQty, 10) || 0;
+					const newQty = Math.floor(baseQty * coef);
+					td.textContent = newQty;
+				});
+			}
+
 			function checkCodeVif(val)
 			{
 				const regex = /^[1-9]0?13[0-9]{4}/;
@@ -722,7 +737,7 @@
 					return;
 				}
 
-				console.log('Applying data to UI:', data);
+				// Apply data to UI
 				for (const key in data)
 				{
 					const el = section.querySelector(`[data-structure-info="${key}"]`);
@@ -731,6 +746,8 @@
 						el.textContent = data[key];
 					}
 				}
+				
+				updateMaxQtys(data);
 				section.className = 'loaded';
 
 				const container = document.getElementById('articleSections');
