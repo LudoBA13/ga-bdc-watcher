@@ -129,7 +129,7 @@ function lookupOrganization(codeVif)
 	const data = sheet.getDataRange().getValues();
 	const headers = data[0];
 	const codeIndex = headers.indexOf('Code VIF');
-	const requestedFields = ['Nom', 'UD', 'Planning', 'Modes de distribution de l\'aide alimentaire'];
+	const requestedFields = ['Nom', 'UD', 'Planning', 'Modes de distribution de l\'aide alimentaire', 'Entrepôt d\'enlèvement', 'Passages Sec'];
 
 	for (let i = 1; i < data.length; i++)
 	{
@@ -143,6 +143,7 @@ function lookupOrganization(codeVif)
 		{
 			result[field] = data[i][headers.indexOf(field)];
 		}
+		result['Passages Sec'] = parseInt(result['Passages Sec'], 10) || 1;
 		return result;
 	}
 	return null;
