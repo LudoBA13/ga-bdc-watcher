@@ -624,6 +624,12 @@
 					logPerformance(`Category ${category}`);
 				});
 				logPerformance('Total renderArticles');
+				
+				if (window.currentOrgData)
+				{
+					updateMaxQtys(window.currentOrgData);
+				}
+				
 				validateAllQtys();
 			}
 
