@@ -568,8 +568,10 @@
 					return;
 				}
 
-				// Default: Simply append the text
-				root.textContent = text;
+				// Default: Simply append the text wrapped in <b>
+				const b = document.createElement('b');
+				b.textContent = text;
+				root.appendChild(b);
 			}
 
 			function createProductElement(product)
