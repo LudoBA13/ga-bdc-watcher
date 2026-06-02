@@ -7,7 +7,7 @@
 			:root
 			{
 				--pico-spacing: 0.25rem;
-				--pico-form-element-spacing-vertical: .1rem;
+				--pico-form-element-spacing-vertical: .01rem;
 				--pico-form-element-spacing-horizontal: .25rem;
 				--pico-primary-background: #ff8200;
 			}
@@ -143,18 +143,24 @@
 			{
 				vertical-align: baseline;
 			}
+			.cell-unit-kg::after,
+			.cell-unit-colis::after
+			{
+				content: " colis";
+			}
 			.cell-unit-kg::after
 			{
 				content: " kg";
 			}
-			.cell-unit-colis::before
-			{
-				content: "colis ";
-			}
 			@media (max-width: 600px)
 			{
+				.cell-unit-kg,
+				.cell-unit-colis
+				{
+					font-size: 80%;
+				}
 				.cell-unit-kg::after,
-				.cell-unit-colis::before
+				.cell-unit-colis::after
 				{
 					display: block;
 				}
