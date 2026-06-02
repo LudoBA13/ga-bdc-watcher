@@ -3,9 +3,12 @@
 	<head>
 		<base target="_top">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.pumpkin.min.css">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 		<style>
 			:root
 			{
+				--pico-font-family: 'Open Sans', sans-serif;
 				--pico-spacing: 0.25rem;
 				--pico-form-element-spacing-vertical: .1rem;
 				--pico-form-element-spacing-horizontal: 0;
@@ -14,6 +17,7 @@
 			body
 			{
 				background-color: #f0f0f0;
+				font-family: var(--pico-font-family);
 			}
 			.container
 			{
