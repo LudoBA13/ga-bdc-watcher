@@ -465,8 +465,59 @@ function onOpen()
 		.addItem('Extract Current Articles', 'extractCurrentArticles')
 		.addItem('Import from Spreadsheet URL', 'importFromSpreadsheetUrl')
 		.addSeparator()
+		.addItem('Redeploy Web App', 'redeployWebApp')
+		.addSeparator()
 		.addItem('Test Email Notification', 'testEmailNotification')
 		.addToUi();
+}
+
+/**
+ * Redeploys the web app using the Apps Script REST API.
+ */
+function redeployWebApp()
+{
+	const ui = SpreadsheetApp.getUi();
+	const scriptId = ScriptApp.getScriptId();
+	const deploymentId = 'AKfycbz05TREq9zCqEhyAFxhdm3UahkCrnpVk2nGzGlbnU_EjXYW6MDGJ173fQ77Ot-Meh69';
+
+	try
+	{
+		ui.alert('Creating new version and redeploying...');
+		const token = ScriptApp.getOAuthToken();
+		const baseUrl = 'https://script.googleapis.com/v1/projects/' + scriptId;
+
+		// 1. Create new version
+		const versionResponse = UrlFetchApp.fetch(baseUrl + '/versions', {
+			method: 'post',
+			headers: { 'Authorization': 'Bearer ' + token },
+			contentType: 'application/json',
+			payload: JSON.stringify({ description: 'Automated redeploy from menu' }),
+			muteHttpExceptions: true
+		});
+		if (versionResponse.getResponseCode() !== 200) {
+			throw new Error('Version creation failed: ' + versionResponse.getContentText());
+		}
+		const version = JSON.parse(versionResponse.getContentText());
+		const versionNumber = version.versionNumber;
+
+		// 2. Update deployment
+		const deployResponse = UrlFetchApp.fetch(baseUrl + '/deployments/' + deploymentId, {
+			method: 'patch',
+			headers: { 'Authorization': 'Bearer ' + token },
+			contentType: 'application/json',
+			payload: JSON.stringify({ versionNumber: versionNumber }),
+			muteHttpExceptions: true
+		});
+		if (deployResponse.getResponseCode() !== 200) {
+			throw new Error('Deployment update failed: ' + deployResponse.getContentText());
+		}
+
+		ui.alert('Redeploy successful! Version: ' + versionNumber);
+	}
+	catch (e)
+	{
+		ui.alert('Error redeploying: ' + e.message);
+	}
 }
 
 function extractCurrentArticles()
