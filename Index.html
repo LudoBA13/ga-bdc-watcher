@@ -52,10 +52,6 @@
 					font-size: 80%;
 				}
 			}
-			#debug
-			{
-				display: none;
-			}
 			.hidden
 			{
 				display: none;
@@ -188,7 +184,6 @@
 	</head>
 	<body>
 		<main class="container">
-			<div id="debug" style="font-family: monospace; font-size: 12px; background: #eee; padding: 5px; margin-bottom: 10px;"></div>
 			<h1>Formulaire de Commande</h1>
 			<form id="orderForm" onsubmit="handleFormSubmit(this)">
 				<fieldset id="orderDetails">
@@ -264,19 +259,6 @@
 		</dialog>
 
 		<script>
-			const perfStart = performance.now();
-			const serverPerf = <?!= JSON.stringify(serverPerf) ?>;
-			const debug = document.getElementById('debug');
-			debug.innerHTML += `<div>Perf: Server computation total=${serverPerf.total}ms (maxDate=${serverPerf.maxDate}ms, menuId=${serverPerf.menuId}ms)</div>`;
-
-			function logPerformance(message)
-			{
-				const duration = (performance.now() - perfStart).toFixed(2);
-				const debug = document.getElementById('debug');
-				debug.innerHTML += `<div>Perf: ${message} took ${duration}ms</div>`;
-				console.log(`Perf: ${message} took ${duration}ms`);
-			}
-
 			function debounce(func, wait)
 			{
 				let timeout;
@@ -371,13 +353,9 @@
 
 			function pruneCaches()
 			{
-				const attrStart = performance.now();
 				const html = document.documentElement;
 				const currentMenuId = html.dataset.cacheMenuId;
 				const currentOrgDate = html.dataset.cacheOrg;
-				const attrDuration = (performance.now() - attrStart).toFixed(2);
-				const debug = document.getElementById('debug');
-				debug.innerHTML += `<div>Perf: Data attribute retrieval took ${attrDuration}ms</div>`;
 
 				const cachedMenuId = localStorage.getItem('menuId');
 				const cachedOrgDate = localStorage.getItem('orgMaxDate');
@@ -454,25 +432,15 @@
 					console.log('Loading articles from cache.');
 					renderArticles(JSON.parse(cachedData));
 					restoreFormData();
-					logPerformance('Initial render from cache');
 				}
 				else
 				{
 					console.log('Cache miss. Fetching fresh data.');
-					const fetchStart = performance.now();
 					google.script.run.withSuccessHandler(response =>
 					{
-						const fetchDuration = (performance.now() - fetchStart).toFixed(2);
-						
-						const renderStart = performance.now();
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
 						renderArticles(response.articles);
 						restoreFormData();
-						const renderDuration = (performance.now() - renderStart).toFixed(2);
-						
-						const debug = document.getElementById('debug');
-						debug.innerHTML += `<div>Perf: Cache miss - Fetch took ${fetchDuration}ms, Render took ${renderDuration}ms</div>`;
-						console.log(`Perf: Cache miss - Fetch took ${fetchDuration}ms, Render took ${renderDuration}ms`);
 					}).getCurrentArticles();
 				}
 			};
@@ -590,7 +558,6 @@
 
 			function renderArticles(articles)
 			{
-				const renderStart = performance.now();
 				const container = document.getElementById('articleSections');
 				const categories = ['ES', 'Asso', 'Asso|ES'];
 				const units = ['colis', 'kg'];
@@ -603,7 +570,6 @@
 						return;
 					}
 
-					const catStart = performance.now();
 					const categoryClass = category.toLowerCase().split('|').map(c => 'for_' + c).join(' ');
 					const categorySection = createCategorySection(category, categoryClass);
 					
@@ -615,15 +581,11 @@
 							return;
 						}
 
-						const unitStart = performance.now();
 						const unitSection = createUnitSection(unit, filtered, categoryClass);
-						unitSection.dataset.perf = (performance.now() - unitStart).toFixed(2);
 						categorySection.appendChild(unitSection);
 					});
 					container.appendChild(categorySection);
-					logPerformance(`Category ${category}`);
 				});
-				logPerformance('Total renderArticles');
 				
 				if (window.currentOrgData)
 				{

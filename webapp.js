@@ -43,11 +43,6 @@ function doGet()
 	const template = HtmlService.createTemplateFromFile('Index');
 	template.maxDate = maxDate;
 	template.menuId = menuId;
-	template.serverPerf = {
-		total: endTotal - startTotal,
-		maxDate: endMaxDate - startMaxDate,
-		menuId: endMenuId - startMenuId
-	};
 	return template.evaluate()
 		.setTitle('Formulaire de Commande BDC')
 		.addMetaTag('viewport', 'width=device-width, initial-scale=1');
