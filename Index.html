@@ -173,42 +173,36 @@
 			{
 				vertical-align: baseline;
 			}
-			.cell-unit-kg::after,
-			.cell-unit-colis::after
+			td.cell-unit-kg::after,
+			td.cell-unit-colis::after
 			{
 				color: #888;
 				font-stretch: semi-condensed;
+			}
+			td.cell-unit-colis::after
+			{
+				content: " colis";
 			}
 			td.cell-unit-kg::after
 			{
 				content: " kg";
 			}
-			td.col-unit-weight::after
+			td.col-order-qty::after
 			{
-				content: " kg";
-				margin-left: -0.15rem;
-			}
-			.cell-unit-colis::after
-			{
-				content: " colis";
+				margin-left: -0.2rem;
 			}
 			@media (max-width: 600px)
 			{
-				.cell-unit-kg::after,
-				.cell-unit-colis::after
+				td.cell-unit-kg::after,
+				td.cell-unit-colis::after
 				{
 					font-size: 80%;
-					display: block;
-				}
-				td.col-total-weight::after
-				{
 					display: block;
 				}
 			}
 			td.col-total-weight:not([data-total-kg])
 			{
 				text-align: center;
-				color: #888;
 			}
 			td.col-total-weight:not([data-total-kg])::after
 			{
@@ -216,6 +210,7 @@
 			}
 			.col-order-qty > input
 			{
+				margin: 0;
 				width: 3.5rem;
 				text-align: right;
 			}
@@ -535,8 +530,8 @@
 			{
 				text = text.replace(/\s+/g, ' ');
 
-				// Case 1: /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)/s
-				const regex = /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)/s;
+				// Case 1: /(.*?) ((FSE|CNES) ?\d+)( 1 ?col.*)/s
+				const regex = /(.*?) ((FSE|CNES) ?\d+)( 1 ?col.*)/s;
 				const match = text.match(regex);
 				if (match)
 				{
@@ -556,8 +551,8 @@
 					return;
 				}
 
-				// Case 3: /(.*?)(1 col.*)/s
-				const colRegex = /(.*?)(1 col.*)/s;
+				// Case 3: /(.*?)(1 ?col.*)/s
+				const colRegex = /(.*?)(1 ?col.*)/s;
 				const matchCol = text.match(colRegex);
 				if (matchCol)
 				{
