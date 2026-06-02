@@ -540,6 +540,21 @@
 					return;
 				}
 
+				// Case 3: /(.*?)(1 col.*)/s
+				const colRegex = /(.*?)(1 col.*)/s;
+				const matchCol = text.match(colRegex);
+				if (matchCol)
+				{
+					const b = document.createElement('b');
+					b.textContent = matchCol[1];
+					root.appendChild(b);
+
+					const i = document.createElement('i');
+					i.textContent = matchCol[2];
+					root.appendChild(i);
+					return;
+				}
+
 				// Case 2: /(.*)(:.*)/s
 				const colonRegex = /(.*)(:.*)/s;
 				const matchColon = text.match(colonRegex);
