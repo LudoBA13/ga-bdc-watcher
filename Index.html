@@ -143,11 +143,25 @@
 			{
 				vertical-align: baseline;
 			}
-			td.col-unit-weight::after,
-			td.col-total-weight::after,
-			.as_kg td.col-max-qty::after
+			.cell-unit-kg::after
 			{
 				content: " kg";
+			}
+			.cell-unit-colis::before
+			{
+				content: "colis ";
+			}
+			@media (max-width: 600px)
+			{
+				.cell-unit-kg::after,
+				.cell-unit-colis::before
+				{
+					display: block;
+				}
+				td.col-total-weight::after
+				{
+					display: block;
+				}
 			}
 			td.col-total-weight:not([data-total-kg])
 			{
@@ -158,22 +172,10 @@
 			{
 				content: "\2014";
 			}
-			.as_kg td.col-order-qty::after
-			{
-				content: "kg";
-			}
 			.col-order-qty > input
 			{
 				width: 3.5rem;
 				text-align: right;
-			}
-			.as_colis td.col-max-qty::after
-			{
-				content: " colis";
-			}
-			.as_colis td.col-order-qty::after
-			{
-				content: "colis";
 			}
 			.as_kg .col-unit-weight
 			{
@@ -495,7 +497,7 @@
 				
 				// Unit Weight
 				const tdWeight = document.createElement('td');
-				tdWeight.className = 'col-unit-weight';
+				tdWeight.className = 'col-unit-weight cell-unit-kg';
 				const weight = parseFloat(product['Unit Weight']) || 0;
 				tdWeight.dataset.unitWeight = weight;
 				tdWeight.textContent = weight.toFixed(1);
@@ -503,13 +505,13 @@
 
 				// Qty Max
 				const tdMax = document.createElement('td');
-				tdMax.className = 'col-max-qty';
+				tdMax.className = 'col-max-qty ' + (product['Unit'] === 'colis' ? 'cell-unit-colis' : 'cell-unit-kg');
 				tdMax.dataset.baseQty = product['Max Qty'];
 				tr.appendChild(tdMax);
 
 				// Qty Input
 				const tdInput = document.createElement('td');
-				tdInput.className = 'col-order-qty';
+				tdInput.className = 'col-order-qty ' + (product['Unit'] === 'colis' ? 'cell-unit-colis' : 'cell-unit-kg');
 				const input = document.createElement('input');
 				input.type = 'number';
 				input.inputMode = 'numeric';
@@ -524,7 +526,7 @@
 
 				// Poids total
 				const tdTotal = document.createElement('td');
-				tdTotal.className = 'col-total-weight';
+				tdTotal.className = 'col-total-weight cell-unit-kg';
 				tdTotal.textContent = '0';
 				tr.appendChild(tdTotal);
 
