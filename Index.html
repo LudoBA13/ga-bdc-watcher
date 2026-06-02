@@ -129,6 +129,10 @@
 				font-size: 0.9em;
 				white-space: nowrap;
 			}
+			.col-label > i
+			{
+				font-size: 0.9em;
+			}
 
 			.article-section
 			{
@@ -578,6 +582,7 @@
 				
 				// Label
 				const tdLabel = document.createElement('td');
+				tdLabel.className = 'col-label';
 				formatLabel(tdLabel, product['Label']);
 				tr.appendChild(tdLabel);
 				
