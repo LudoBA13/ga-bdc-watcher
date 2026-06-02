@@ -511,8 +511,8 @@
 			 */
 			function formatLabel(root, text)
 			{
-				// Case 1: /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)?(.*)/s
-				const regex = /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)?(.*)/s;
+				// Case 1: /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)/s
+				const regex = /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)/s;
 				const match = text.match(regex);
 				if (match)
 				{
@@ -526,17 +526,9 @@
 					span.textContent = ' ' + match[2];
 					root.appendChild(span);
 
-					if (match[4])
-					{
-						const i = document.createElement('i');
-						i.textContent = match[4];
-						root.appendChild(i);
-					}
-
-					if (match[5])
-					{
-						root.appendChild(document.createTextNode(match[5]));
-					}
+					const i = document.createElement('i');
+					i.textContent = match[4];
+					root.appendChild(i);
 					return;
 				}
 
