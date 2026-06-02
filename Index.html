@@ -51,6 +51,10 @@
 				{
 					font-size: 80%;
 				}
+				td.col-total-weight::after
+				{
+					display: block;
+				}
 			}
 			.hidden
 			{
@@ -144,6 +148,15 @@
 			.as_kg td.col-max-qty::after
 			{
 				content: " kg";
+			}
+			td.col-total-weight:not([data-total-kg])
+			{
+				text-align: center;
+				color: #888;
+			}
+			td.col-total-weight:not([data-total-kg])::after
+			{
+				content: "\2014";
 			}
 			.as_kg td.col-order-qty::after
 			{
@@ -620,15 +633,6 @@
 				const unitWeight = parseFloat(row.cells[1].dataset.unitWeight) || 1;
 				const tdTotal = row.querySelector('.col-total-weight');
 				const trimmedValue = input.value.trim();
-				
-				if (trimmedValue === '')
-				{
-					row.classList.remove('qty-exceeded');
-					tdTotal.dataset.totalKg = '0';
-					tdTotal.textContent = '';
-					updateGrandTotal();
-					return;
-				}
 
 				const enteredQty = parseFloat(trimmedValue) || 0;
 
@@ -644,8 +648,16 @@
 
 				// Update Total kg
 				const totalKg = enteredQty * unitWeight;
-				tdTotal.dataset.totalKg = totalKg;
-				tdTotal.textContent = totalKg.toFixed(2);
+				if (totalKg === 0)
+				{
+					delete tdTotal.dataset.totalKg;
+					tdTotal.textContent = '';
+				}
+				else
+				{
+					tdTotal.dataset.totalKg = totalKg;
+					tdTotal.textContent = totalKg.toFixed(2);
+				}
 				updateGrandTotal();
 				autosave();
 			}
