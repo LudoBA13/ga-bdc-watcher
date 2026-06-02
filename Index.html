@@ -511,6 +511,8 @@
 			 */
 			function formatLabel(root, text)
 			{
+				text = text.replace(/\s+/g, ' ');
+
 				// Case 1: /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)/s
 				const regex = /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)/s;
 				const match = text.match(regex);
