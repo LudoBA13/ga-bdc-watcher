@@ -118,6 +118,11 @@
 				color: #800;
 				font-size: 0.9em;
 			}
+			.label-cnes
+			{
+				color: #880;
+				font-size: 0.9em;
+			}
 
 			.article-section
 			{
@@ -504,30 +509,31 @@
 			 */
 			function formatLabel(root, text)
 			{
-				// Case 1: /(.*?) (FSE ?\d+)( 1 col.*)?(.*)/s
-				const fseRegex = /(.*?) (FSE ?\d+)( 1 col.*)?(.*)/s;
-				const matchFse = text.match(fseRegex);
-				if (matchFse)
+				// Case 1: /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)?(.*)/s
+				const regex = /(.*?) ((FSE|CNES) ?\d+)( 1 col.*)?(.*)/s;
+				const match = text.match(regex);
+				if (match)
 				{
 					const b = document.createElement('b');
-					b.textContent = matchFse[1];
+					b.textContent = match[1];
 					root.appendChild(b);
 
+					const type = match[3]; // FSE or CNES
 					const span = document.createElement('span');
-					span.className = 'label-fse';
-					span.textContent = ' ' + matchFse[2];
+					span.className = 'label-' + type.toLowerCase();
+					span.textContent = ' ' + match[2];
 					root.appendChild(span);
 
-					if (matchFse[3])
+					if (match[4])
 					{
 						const i = document.createElement('i');
-						i.textContent = matchFse[3];
+						i.textContent = match[4];
 						root.appendChild(i);
 					}
 
-					if (matchFse[4])
+					if (match[5])
 					{
-						root.appendChild(document.createTextNode(matchFse[4]));
+						root.appendChild(document.createTextNode(match[5]));
 					}
 					return;
 				}
