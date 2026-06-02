@@ -112,6 +112,13 @@
 				animation: spin 1s linear infinite;
 			}
 			@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+			
+			.label-fse
+			{
+				color: #555;
+				font-size: 0.9em;
+			}
+
 			.article-section
 			{
 				display: none;
@@ -146,22 +153,22 @@
 			.cell-unit-kg::after,
 			.cell-unit-colis::after
 			{
-				content: " colis";
+				color: #888;
 			}
 			.cell-unit-kg::after
 			{
 				content: " kg";
 			}
+			.cell-unit-colis::after
+			{
+				content: " colis";
+			}
 			@media (max-width: 600px)
 			{
-				.cell-unit-kg,
-				.cell-unit-colis
-				{
-					font-size: 80%;
-				}
 				.cell-unit-kg::after,
 				.cell-unit-colis::after
 				{
+					font-size: 80%;
 					display: block;
 				}
 				td.col-total-weight::after
@@ -492,13 +499,63 @@
 				return '';
 			}
 
+			/**
+			 * Formats a label as rich content and appends it to the root element based on known patterns.
+			 */
+			function formatLabel(root, text)
+			{
+				// Case 1: /(.*?) (FSE ?\d+)( 1 col.*)?(.*)/s
+				const fseRegex = /(.*?) (FSE ?\d+)( 1 col.*)?(.*)/s;
+				const matchFse = text.match(fseRegex);
+				if (matchFse)
+				{
+					const b = document.createElement('b');
+					b.textContent = matchFse[1];
+					root.appendChild(b);
+
+					const span = document.createElement('span');
+					span.className = 'label-fse';
+					span.textContent = ' ' + matchFse[2];
+					root.appendChild(span);
+
+					if (matchFse[3])
+					{
+						const i = document.createElement('i');
+						i.textContent = matchFse[3];
+						root.appendChild(i);
+					}
+
+					if (matchFse[4])
+					{
+						root.appendChild(document.createTextNode(matchFse[4]));
+					}
+					return;
+				}
+
+				// Case 2: /(.*):(.*)/s
+				const colonRegex = /(.*):(.*)/s;
+				const matchColon = text.match(colonRegex);
+				if (matchColon)
+				{
+					const b = document.createElement('b');
+					b.textContent = matchColon[1];
+					root.appendChild(b);
+
+					root.appendChild(document.createTextNode(matchColon[2]));
+					return;
+				}
+
+				// Default: Simply append the text
+				root.textContent = text;
+			}
+
 			function createProductElement(product)
 			{
 				const tr = document.createElement('tr');
 				
 				// Label
 				const tdLabel = document.createElement('td');
-				tdLabel.textContent = product['Label'];
+				formatLabel(tdLabel, product['Label']);
 				tr.appendChild(tdLabel);
 				
 				// Unit Weight
@@ -506,13 +563,14 @@
 				tdWeight.className = 'col-unit-weight cell-unit-kg';
 				const weight = parseFloat(product['Unit Weight']) || 0;
 				tdWeight.dataset.unitWeight = weight;
-				tdWeight.textContent = weight.toFixed(1);
+				tdWeight.textContent = weight.toLocaleString('fr-FR', {minimumFractionDigits: 1, maximumFractionDigits: 1});
 				tr.appendChild(tdWeight);
 
 				// Qty Max
 				const tdMax = document.createElement('td');
 				tdMax.className = 'col-max-qty ' + (product['Unit'] === 'colis' ? 'cell-unit-colis' : 'cell-unit-kg');
 				tdMax.dataset.baseQty = product['Max Qty'];
+				tdMax.textContent = product['Max Qty']; // Will be updated by updateMaxQtys
 				tr.appendChild(tdMax);
 
 				// Qty Input
@@ -520,7 +578,7 @@
 				tdInput.className = 'col-order-qty ' + (product['Unit'] === 'colis' ? 'cell-unit-colis' : 'cell-unit-kg');
 				const input = document.createElement('input');
 				input.type = 'number';
-				input.inputMode = 'numeric';
+				input.inputMode = 'decimal';
 				input.dataset.articleId = product['Article ID'];
 				input.min = '0';
 				input.placeholder = '0';
@@ -631,16 +689,16 @@
 				{
 					grandTotal += parseFloat(td.dataset.totalKg) || 0;
 				});
-				document.getElementById('footerTotalWeight').textContent = grandTotal.toFixed(2);
+				document.getElementById('footerTotalWeight').textContent = grandTotal.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 			}
 
 			function validateQty(input)
 			{
 				const row = input.closest('tr');
-				const maxQty = parseFloat(row.cells[2].textContent) || 0;
+				const maxQty = parseFloat(row.cells[2].textContent.replace(',', '.')) || 0;
 				const unitWeight = parseFloat(row.cells[1].dataset.unitWeight) || 1;
 				const tdTotal = row.querySelector('.col-total-weight');
-				const trimmedValue = input.value.trim();
+				const trimmedValue = input.value.replace(',', '.');
 
 				const enteredQty = parseFloat(trimmedValue) || 0;
 
@@ -664,7 +722,7 @@
 				else
 				{
 					tdTotal.dataset.totalKg = totalKg;
-					tdTotal.textContent = totalKg.toFixed(2);
+					tdTotal.textContent = totalKg.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 				}
 				updateGrandTotal();
 				autosave();
@@ -682,7 +740,7 @@
 				{
 					const baseQty = parseInt(td.dataset.baseQty, 10) || 0;
 					const newQty = Math.floor(baseQty * coef);
-					td.textContent = newQty;
+					td.textContent = newQty.toLocaleString('fr-FR');
 				});
 			}
 
