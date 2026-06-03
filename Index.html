@@ -9,10 +9,15 @@
 			:root
 			{
 				--pico-font-family: 'Open Sans', sans-serif;
+				--pico-form-element-spacing-horizontal: .75rem;
+				--pico-form-element-spacing-vertical: .5rem;
 				--pico-spacing: 0.25rem;
+				--pico-primary-background: #ff8200;
+			}
+			.col-order-qty
+			{
 				--pico-form-element-spacing-vertical: .1rem;
 				--pico-form-element-spacing-horizontal: 0;
-				--pico-primary-background: #ff8200;
 			}
 			body
 			{
@@ -59,8 +64,10 @@
 				{
 					font-size: 80%;
 				}
-				td.col-total-weight::after
+				td.cell-unit-kg::after,
+				td.cell-unit-colis::after
 				{
+					font-size: 80%;
 					display: block;
 				}
 			}
@@ -122,27 +129,39 @@
 			}
 			@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 			
+			.col-label > b,
+			.col-label > i,
+			.col-label > span,
+			.label-cnes,
 			.label-fse
 			{
+				border-radius: .2rem;
+				display: inline-block;
+			}
+			.label-fse
+			{
+				background-color: #ff000008;
 				color: #800;
-				font-size: 0.9em;
-				white-space: nowrap;
 			}
 			.label-cnes
 			{
+				background-color: #ffff0008;
 				color: #880;
-				font-size: 0.9em;
-				white-space: nowrap;
+			}
+			.col-label
+			{
+				font-size: .9rem;
+				font-stretch: 92%;
 			}
 			.col-label > i
 			{
-				font-size: 0.9em;
+				font-stretch: 88%;
 			}
 			.col-label > b
 			{
+				font-size: 1rem;
 				font-weight: 600;
 			}
-
 			.article-section
 			{
 				display: none;
@@ -152,8 +171,7 @@
 				white-space: pre-line;
 			}
 			tr.qty-exceeded > .col-max-qty,
-			tr.qty-exceeded > .col-order-qty
-,
+			tr.qty-exceeded > .col-order-qty,
 			tr.qty-exceeded > .col-order-qty > input
 			{
 				background-color: #ff000020;
@@ -169,16 +187,12 @@
 			{
 				text-align: right;
 			}
-			td,
-			td::after
-			{
-				vertical-align: baseline;
-			}
 			td.cell-unit-kg::after,
 			td.cell-unit-colis::after
 			{
 				color: #888;
 				font-stretch: semi-condensed;
+				vertical-align: baseline;
 			}
 			td.cell-unit-colis::after
 			{
@@ -191,15 +205,6 @@
 			td.col-order-qty::after
 			{
 				margin-left: -0.2rem;
-			}
-			@media (max-width: 600px)
-			{
-				td.cell-unit-kg::after,
-				td.cell-unit-colis::after
-				{
-					font-size: 80%;
-					display: block;
-				}
 			}
 			td.col-total-weight:not([data-total-kg])
 			{
@@ -224,6 +229,7 @@
 				text-align: center;
 				background: var(--pico-primary-background);
 			}
+			th.col-order-qty,
 			th.col-unit-weight
 			{
 				font-stretch: condensed;
@@ -237,10 +243,6 @@
 			{
 				color: #fff;
 				font-weight: bold;
-			}
-			button
-			{
-				padding-inline: 1em;
 			}
 			#articleSections.filter-for_asso > .for_asso,
 			#articleSections.filter-for_es > .for_es
@@ -545,39 +547,36 @@
 			{
 				text = text.replace(/\s+/g, ' ');
 
-				// Case 1: /(.*?) ((FSE|CNES) ?\d+)( 1 ?col.*)/s
-				const regex = /(.*?) ((FSE|CNES) ?\d+)( 1 ?col.*)/s;
+				// Case 1: FSE/CNES with parcel description
+				const regex = /(.*?) ((FSE|CNES) ?\d+) (1 ?col.*)/s;
 				const match = text.match(regex);
 				if (match)
 				{
 					const b = document.createElement('b');
 					b.textContent = match[1];
-					root.appendChild(b);
 
 					const type = match[3]; // FSE or CNES
 					const span = document.createElement('span');
 					span.className = 'label-' + type.toLowerCase();
 					span.textContent = ' ' + match[2];
-					root.appendChild(span);
 
 					const i = document.createElement('i');
 					i.textContent = match[4];
-					root.appendChild(i);
+					root.append(b, ' ', span, ' ', i);
 					return;
 				}
 
-				// Case 3: /(.*?)(1 ?col.*)/s
-				const colRegex = /(.*?)(1 ?col.*)/s;
+				// Case 3: /(.*?) (1 ?col.*)/s
+				const colRegex = /(.*?) (1 ?col.*)/s;
 				const matchCol = text.match(colRegex);
 				if (matchCol)
 				{
 					const b = document.createElement('b');
 					b.textContent = matchCol[1];
-					root.appendChild(b);
 
 					const i = document.createElement('i');
 					i.textContent = matchCol[2];
-					root.appendChild(i);
+					root.append(b, ' ', i);
 					return;
 				}
 
@@ -587,10 +586,8 @@
 				if (matchColon)
 				{
 					const b = document.createElement('b');
-					b.textContent = matchColon[1];
-					root.appendChild(b);
-
-					root.appendChild(document.createTextNode(matchColon[2]));
+					b.textContent = matchColon[1].trim();
+					root.append(b, ' ', document.createTextNode(matchColon[2]));
 					return;
 				}
 
