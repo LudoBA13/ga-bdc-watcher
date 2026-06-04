@@ -202,6 +202,7 @@
 			}
 			td.col-order-qty::after
 			{
+				color: #444;
 				margin-left: -0.2rem;
 			}
 			td.col-total-weight:not([data-total-kg])
@@ -214,18 +215,21 @@
 			}
 			.col-order-qty > input
 			{
+				font-size: 110%;
+				font-weight: 600;
 				margin: 0;
-				width: 3.5rem;
 				text-align: right;
+				width: 3.5rem;
 			}
 			.as_kg .col-unit-weight
 			{
 				display: none;
 			}
-			table th
+			th
 			{
+				background-color: var(--pico-table-border-color);
+				color: var(--pico-muted-color);
 				text-align: center;
-				background: var(--pico-primary-background);
 			}
 			th.col-order-qty,
 			th.col-unit-weight
