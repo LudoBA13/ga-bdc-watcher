@@ -143,6 +143,72 @@ function importDataToNewSheet(data, fileName, ss)
 	newSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
 	trimSheet(newSheet);
 	extractArticles(newSheet);
+	logMenuData(newSheet, ss);
+}
+
+/**
+ * Extracts specific menu data from the designated cells of a given sheet.
+ * 
+ * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract data from.
+ * @returns {{name: string, pickupDateStart: Date|string, pickupDateEnd: Date|string}|null} The extracted data map or null if sheet is invalid.
+ */
+function extractMenuData(sheet)
+{
+	if (!sheet)
+	{
+		return null;
+	}
+	
+	// Assume H2, H3, H4 based on requirements
+	const range = sheet.getRange('H2:H4');
+	const values = range.getValues();
+	
+	return {
+		name: values[0][0],
+		pickupDateStart: values[1][0],
+		pickupDateEnd: values[2][0]
+	};
+}
+
+/**
+ * Logs menu data into the 'Menus' sheet.
+ * 
+ * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract data from.
+ * @param {GoogleAppsScript.Spreadsheet.Spreadsheet} ss The active spreadsheet.
+ * @param {GoogleAppsScript.Spreadsheet.Sheet} [targetSheet] Optional target sheet to log to.
+ */
+function logMenuData(sheet, ss, targetSheet = null)
+{
+	const data = extractMenuData(sheet);
+	if (!data)
+	{
+		return;
+	}
+	
+	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd']);
+	menusSheet.appendRow([sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd]);
+}
+
+/**
+ * Recomputes all menu data in the 'Menus' sheet.
+ */
+function recomputeAllMenuData()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const headers = ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd'];
+	const menusSheet = getOrCreateSheet(ss, 'Menus', headers);
+	
+	menusSheet.clearContents();
+	menusSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+	
+	const sheets = ss.getSheets().filter(s => /^Menu\d/.test(s.getName()));
+	sheets.forEach(sheet =>
+	{
+		logMenuData(sheet, ss, menusSheet);
+	});
+	
+	trimSheet(menusSheet);
+	ss.toast('Recomputation complete.');
 }
 
 /**
@@ -462,6 +528,7 @@ function onOpen()
 	SpreadsheetApp.getUi().createMenu('BA Tools')
 		.addItem('Extract Articles from Current Sheet', 'extractArticlesFromActiveSheet')
 		.addItem('Recompute all articles', 'recomputeAllArticles')
+		.addItem('Extract all menu data', 'recomputeAllMenuData')
 		.addItem('Extract Current Articles', 'extractCurrentArticles')
 		.addItem('Import from Spreadsheet URL', 'importFromSpreadsheetUrl')
 		.addSeparator()
