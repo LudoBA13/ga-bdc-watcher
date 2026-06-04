@@ -27,22 +27,23 @@ function doGet()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
 	
-	const startTotal = new Date().getTime();
+	// Get menu metadata from CurrentMenu sheet
+	const menuSheet = ss.getSheetByName('CurrentMenu');
+	const menuData = {};
+	if (menuSheet)
+	{
+		const data = menuSheet.getDataRange().getValues();
+		for (let i = 1; i < data.length; i++)
+		{
+			menuData[data[i][0]] = data[i][1];
+		}
+	}
 
-	// Get maxDate from ScriptProperties
-	const startMaxDate = new Date().getTime();
-	let maxDate = PropertiesService.getScriptProperties().getProperty('maxDate') || '';
-	const endMaxDate = new Date().getTime();
-
-	// Get menuId from Articles
-	const startMenuId = new Date().getTime();
-	let menuId = PropertiesService.getScriptProperties().getProperty('menuId') || '';
-	const endMenuId = new Date().getTime();
-
-	const endTotal = new Date().getTime();
 	const template = HtmlService.createTemplateFromFile('Index');
-	template.maxDate = maxDate;
-	template.menuId = menuId;
+	template.menuName = menuData.menuName || 'Inconnu';
+	template.pickupDateStart = menuData.pickupDateStart || 'N/A';
+	template.pickupDateEnd = menuData.pickupDateEnd || 'N/A';
+	
 	return template.evaluate()
 		.setTitle('Formulaire de Commande BDC')
 		.addMetaTag('viewport', 'width=device-width, initial-scale=1');

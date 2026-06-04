@@ -125,6 +125,29 @@ function importExcelContent(blob, fileName, ss)
 }
 
 /**
+ * Updates the 'CurrentMenu' sheet with data from the given sheet.
+ * 
+ * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract data from.
+ */
+function updateCurrentMenuSheet(sheet)
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const menuData = extractMenuData(sheet);
+	
+	const currentMenuSheet = getOrCreateSheet(ss, 'CurrentMenu', ['Property', 'Value']);
+	currentMenuSheet.clearContents();
+	currentMenuSheet.appendRow(['Property', 'Value']);
+	
+	if (menuData)
+	{
+		currentMenuSheet.appendRow(['menuName', menuData.name]);
+		currentMenuSheet.appendRow(['pickupDateStart', menuData.pickupDateStart]);
+		currentMenuSheet.appendRow(['pickupDateEnd', menuData.pickupDateEnd]);
+	}
+	trimSheet(currentMenuSheet);
+}
+
+/**
  * Logic to import raw data into a newly created (and sanitized) sheet.
  */
 function importDataToNewSheet(data, fileName, ss)
@@ -144,6 +167,7 @@ function importDataToNewSheet(data, fileName, ss)
 	trimSheet(newSheet);
 	extractArticles(newSheet);
 	logMenuData(newSheet, ss);
+	updateCurrentMenuSheet(newSheet);
 }
 
 /**

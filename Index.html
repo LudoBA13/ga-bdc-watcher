@@ -251,11 +251,18 @@
 			{
 				display: unset;
 			}
+			 #banner
+			 {
+				margin-bottom: .4em;
+			 }
 		</style>
 	</head>
 	<body>
 		<main class="container">
-			<h1>Formulaire de Commande</h1>
+			<img id="banner" src="https://ba13.banquealimentaire.org/sites/default/files/styles/local_homepage_logo/public/2019-02/Logo%20Banque%20Alimentaire%2013%20%28fond%20transparent%29.png?itok=bUdwF67d" alt="Banque Alimentaire des Bouches-du-Rhône">
+			<h1>Formulaire de commande</h1>
+			<h3>Menu <?= menuName ?></h3>
+			<h5>Enlèvements du <?= pickupDateStart ?> au <?= pickupDateEnd ?></h5>
 			<form id="orderForm" onsubmit="handleFormSubmit(this)">
 				<fieldset id="orderDetails">
 					<label for="email">
