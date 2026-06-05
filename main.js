@@ -125,6 +125,25 @@ function importExcelContent(blob, fileName, ss)
 }
 
 /**
+ * Updates the 'CurrentMenu' sheet based on the sheet with the highest menuId (sorted lexicographically).
+ */
+function recomputeCurrentMenu()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheets = ss.getSheets().filter(s => /^Menu\d/.test(s.getName()));
+	
+	if (sheets.length === 0)
+	{
+		return;
+	}
+
+	// Sort sheets lexicographically in descending order and pick the first one
+	sheets.sort((a, b) => b.getName().localeCompare(a.getName()));
+	
+	updateCurrentMenuSheet(sheets[0]);
+}
+
+/**
  * Updates the 'CurrentMenu' sheet with data from the given sheet.
  * 
  * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract data from.
@@ -143,6 +162,7 @@ function updateCurrentMenuSheet(sheet)
 		currentMenuSheet.appendRow(['menuName', menuData.name]);
 		currentMenuSheet.appendRow(['pickupDateStart', menuData.pickupDateStart]);
 		currentMenuSheet.appendRow(['pickupDateEnd', menuData.pickupDateEnd]);
+		currentMenuSheet.appendRow(['menuId', sheet.getName()]);
 	}
 	trimSheet(currentMenuSheet);
 }
@@ -167,7 +187,7 @@ function importDataToNewSheet(data, fileName, ss)
 	trimSheet(newSheet);
 	extractArticles(newSheet);
 	logMenuData(newSheet, ss);
-	updateCurrentMenuSheet(newSheet);
+	recomputeCurrentMenu();
 }
 
 /**
@@ -232,6 +252,7 @@ function recomputeAllMenuData()
 	});
 	
 	trimSheet(menusSheet);
+	recomputeCurrentMenu();
 	ss.toast('Recomputation complete.');
 }
 

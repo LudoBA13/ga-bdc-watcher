@@ -39,10 +39,26 @@ function doGet()
 		}
 	}
 
+	// Retrieve maxDate from script properties
+	const maxDate = PropertiesService.getScriptProperties().getProperty('maxDate') || '';
+
 	const template = HtmlService.createTemplateFromFile('Index');
+	template.maxDate = maxDate;
 	template.menuName = menuData.menuName || 'Inconnu';
-	template.pickupDateStart = menuData.pickupDateStart || 'N/A';
-	template.pickupDateEnd = menuData.pickupDateEnd || 'N/A';
+	
+	const formatDate = (date) => 
+	{
+		if (!(date instanceof Date))
+		{
+			return date;
+		}
+		const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+		return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
+	};
+	
+	template.pickupDateStart = formatDate(menuData.pickupDateStart);
+	template.pickupDateEnd = formatDate(menuData.pickupDateEnd);
+	template.menuId = menuData.menuId || '';
 	
 	return template.evaluate()
 		.setTitle('Formulaire de Commande BDC')
