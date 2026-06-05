@@ -876,7 +876,12 @@
 			function handleFormSubmit(form)
 			{
 				event.preventDefault();
-				document.getElementById('summaryDate').textContent = document.getElementById('pickupDate').value;
+				const pickupDateValue = document.getElementById('pickupDate').value;
+				const parts = pickupDateValue.split('-');
+				const date = new Date(parts[0], parts[1] - 1, parts[2]);
+				const formattedDate = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+				document.getElementById('summaryDate').textContent = formattedDate;
 				document.getElementById('summaryWeight').textContent = document.getElementById('footerTotalWeight').textContent;
 				document.getElementById('confirmModal').showModal();
 			}
