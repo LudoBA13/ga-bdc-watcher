@@ -26,7 +26,7 @@ function getCurrentArticles()
 function doGet()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	
+
 	// Get menu metadata from CurrentMenu sheet
 	const menuSheet = ss.getSheetByName('CurrentMenu');
 	const menuData = {};
@@ -45,8 +45,8 @@ function doGet()
 	const template = HtmlService.createTemplateFromFile('Index');
 	template.maxDate = maxDate;
 	template.menuName = menuData.menuName || 'Inconnu';
-	
-	const formatDate = (date) => 
+
+	const formatDate = (date) =>
 	{
 		if (!(date instanceof Date))
 		{
@@ -55,11 +55,11 @@ function doGet()
 		const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 		return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
 	};
-	
+
 	template.pickupDateStart = formatDate(menuData.pickupDateStart);
 	template.pickupDateEnd = formatDate(menuData.pickupDateEnd);
 	template.menuId = menuData.menuId || '';
-	
+
 	return template.evaluate()
 		.setTitle('Formulaire de Commande BDC')
 		.addMetaTag('viewport', 'width=device-width, initial-scale=1');
@@ -197,7 +197,7 @@ function processForm(formData)
 		const result = generateOrderExcelBlob(formData);
 		const blob = result.blob;
 		const logs = result.logs;
-		
+
 		// Retrieve partner organization details
 		const orgData = lookupOrganization(formData.codeVif);
 		let orgInfo = 'Nom: Inconnu\n';
@@ -211,8 +211,8 @@ function processForm(formData)
 		const ownerEmail = Session.getEffectiveUser().getEmail();
 		const orgName = orgData ? orgData['Nom'] : 'Inconnu';
 		const subject = 'Nouvelle commande - ' + orgName + ' (' + formData.codeVif + ')';
-		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + orgName + ' (' + formData.codeVif + ')' + 
-			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate + 
+		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + orgName + ' (' + formData.codeVif + ')' +
+			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate +
 			'\nClient : ' + formData.email +
 			'\n\n--- Détails Partenaire ---\n' + orgInfo +
 			'\n\nCommentaires : ' + (formData.comments || 'Aucun') +

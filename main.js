@@ -131,7 +131,7 @@ function recomputeCurrentMenu()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
 	const sheets = ss.getSheets().filter(s => /^Menu\d/.test(s.getName()));
-	
+
 	if (sheets.length === 0)
 	{
 		return;
@@ -139,24 +139,24 @@ function recomputeCurrentMenu()
 
 	// Sort sheets lexicographically in descending order and pick the first one
 	sheets.sort((a, b) => b.getName().localeCompare(a.getName()));
-	
+
 	updateCurrentMenuSheet(sheets[0]);
 }
 
 /**
  * Updates the 'CurrentMenu' sheet with data from the given sheet.
- * 
+ *
  * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract data from.
  */
 function updateCurrentMenuSheet(sheet)
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
 	const menuData = extractMenuData(sheet);
-	
+
 	const currentMenuSheet = getOrCreateSheet(ss, 'CurrentMenu', ['Property', 'Value']);
 	currentMenuSheet.clearContents();
 	currentMenuSheet.appendRow(['Property', 'Value']);
-	
+
 	if (menuData)
 	{
 		currentMenuSheet.appendRow(['menuName', menuData.name]);
@@ -179,7 +179,7 @@ function importDataToNewSheet(data, fileName, ss)
 
 	const sanitizedName = sanitizeSheetName(fileName);
 	deleteSheetIfExists(ss, sanitizedName);
-	
+
 	const newSheet = ss.insertSheet(sanitizedName);
 	newSheet.addDeveloperMetadata('originalFileName', fileName);
 
@@ -192,7 +192,7 @@ function importDataToNewSheet(data, fileName, ss)
 
 /**
  * Extracts specific menu data from the designated cells of a given sheet.
- * 
+ *
  * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract data from.
  * @returns {{name: string, pickupDateStart: Date|string, pickupDateEnd: Date|string}|null} The extracted data map or null if sheet is invalid.
  */
@@ -202,11 +202,11 @@ function extractMenuData(sheet)
 	{
 		return null;
 	}
-	
+
 	// Assume H2, H3, H4 based on requirements
 	const range = sheet.getRange('H2:H4');
 	const values = range.getValues();
-	
+
 	return {
 		name: values[0][0],
 		pickupDateStart: values[1][0],
@@ -216,7 +216,7 @@ function extractMenuData(sheet)
 
 /**
  * Logs menu data into the 'Menus' sheet.
- * 
+ *
  * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract data from.
  * @param {GoogleAppsScript.Spreadsheet.Spreadsheet} ss The active spreadsheet.
  * @param {GoogleAppsScript.Spreadsheet.Sheet} [targetSheet] Optional target sheet to log to.
@@ -228,7 +228,7 @@ function logMenuData(sheet, ss, targetSheet = null)
 	{
 		return;
 	}
-	
+
 	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd']);
 	menusSheet.appendRow([sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd]);
 }
@@ -241,16 +241,16 @@ function recomputeAllMenuData()
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
 	const headers = ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd'];
 	const menusSheet = getOrCreateSheet(ss, 'Menus', headers);
-	
+
 	menusSheet.clearContents();
 	menusSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-	
+
 	const sheets = ss.getSheets().filter(s => /^Menu\d/.test(s.getName()));
 	sheets.forEach(sheet =>
 	{
 		logMenuData(sheet, ss, menusSheet);
 	});
-	
+
 	trimSheet(menusSheet);
 	recomputeCurrentMenu();
 	ss.toast('Recomputation complete.');
@@ -382,7 +382,7 @@ function setupSection(state, header, data, currentIndex, sheetName)
 	state.isRecording = true;
 	state.unit = header.unit;
 	state.category = mapCategory(header.typeKey);
-	
+
 	const columnRow = data[currentIndex + 1];
 	if (!columnRow)
 	{
@@ -391,7 +391,7 @@ function setupSection(state, header, data, currentIndex, sheetName)
 
 	state.headerMap = mapColumns(columnRow);
 	validateHeaders(state.headerMap, state.unit, sheetName);
-	
+
 	return currentIndex + 1; // Skip the header row
 }
 
@@ -417,7 +417,7 @@ function calculateUnitWeight(row, state)
 	{
 		return 1;
 	}
-	
+
 	const val = row[state.headerMap['Poids brut du colis']];
 	return val ? parseFloat(String(val).replace(',', '.')) : 1;
 }
@@ -514,7 +514,7 @@ function styleHeader(range)
 		.setFontColor('white');
 }
 
-function trimSheet(sheet) 
+function trimSheet(sheet)
 {
 	const maxRows = sheet.getMaxRows();
 	const lastRow = sheet.getLastRow();
@@ -522,14 +522,14 @@ function trimSheet(sheet)
 	const lastCol = sheet.getLastColumn();
 
 	// Remove empty rows at the bottom
-	if (maxRows > lastRow && lastRow > 0) 
+	if (maxRows > lastRow && lastRow > 0)
 	{
 		const rowsToDelete = maxRows - lastRow;
 		sheet.deleteRows(lastRow + 1, rowsToDelete);
 	}
 
 	// Remove empty columns at the right
-	if (maxCols > lastCol && lastCol > 0) 
+	if (maxCols > lastCol && lastCol > 0)
 	{
 		const colsToDelete = maxCols - lastCol;
 		sheet.deleteColumns(lastCol + 1, colsToDelete);
@@ -676,23 +676,23 @@ function recomputeAllArticles()
 	{
 		ss.deleteSheet(articlesSheet);
 	}
-	
+
 	getOrCreateSheet(ss, 'Articles', ['Sheet Name', 'Category', 'Article ID', 'Label', 'Unit', 'Unit Weight', 'Max Qty']);
-	
+
 	const sheets = ss.getSheets().filter(s => /^Menu\d/.test(s.getName())).sort((a, b) => a.getName().localeCompare(b.getName()));
-	
+
 	sheets.forEach(sheet =>
 	{
 		ss.toast('Processing ' + sheet.getName() + '...');
 		extractArticles(sheet);
 	});
-	
+
 	const finalArticlesSheet = ss.getSheetByName('Articles');
 	if (finalArticlesSheet)
 	{
 		trimSheet(finalArticlesSheet);
 	}
-	
+
 	ss.toast('Recomputation complete.');
 }
 

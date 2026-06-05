@@ -1,6 +1,6 @@
 /**
  * Generates an Excel order from a template and returns it as a blob.
- * 
+ *
  * @param {Object} orderData The order details.
  * @param {string} orderData.codeVif The partner code.
  * @param {string} orderData.pickupDate The pickup date (YYYY-MM-DD).
@@ -86,7 +86,7 @@ function generateOrderExcelBlob(orderData)
 					}
 				}
 			}
-			
+
 			if (!found)
 			{
 				const msg = 'WARNING: Article ID ' + articleId + ' provided in order, but not found in template range (A40:A110).';
@@ -157,7 +157,7 @@ function createTemporarySheetFromExcel(excelFileId, title)
 {
 	const file = DriveApp.getFileById(excelFileId);
 	const blob = file.getBlob();
-	
+
 	const resource = {
 		title: title,
 		mimeType: MimeType.GOOGLE_SHEETS
@@ -176,7 +176,7 @@ function normalizeArticleId(value)
 	{
 		return null;
 	}
-	
+
 	// Convert to string and strip non-numeric characters for potential hidden issues
 	const str = String(value).trim();
 	const num = parseInt(str.replace(/\D/g, ''), 10);
