@@ -21,11 +21,9 @@ function scheduledCheck()
 
 	if (hour < CONFIG.OPERATING_HOURS.START || hour > CONFIG.OPERATING_HOURS.END)
 	{
-		console.log('Outside of operating hours. Current hour: ' + hour);
 		return;
 	}
 
-	console.log('Running scheduled check at hour: ' + hour);
 	checkAndDownload();
 }
 
@@ -49,11 +47,9 @@ function checkAndDownload()
 
 	if (isAlreadyProcessed(fileName, ss))
 	{
-		console.log('No change detected or file already processed: ' + fileName);
 		return;
 	}
 
-	console.log('New file detected: ' + fileName);
 	const blob = UrlFetchApp.fetch(fullUrl).getBlob();
 	importExcelContent(blob, fileName, ss);
 	sendNotificationEmail(fileName, ss);
@@ -72,7 +68,6 @@ function sendNotificationEmail(fileName, ss)
 		'This is an automated message.';
 
 	MailApp.sendEmail(recipient, subject, body);
-	console.log('Notification email sent to ' + recipient);
 }
 
 /**
@@ -726,9 +721,7 @@ function setupTrigger()
 	const triggers = ScriptApp.getProjectTriggers();
 	if (triggers.some(t => t.getHandlerFunction() === 'scheduledCheck'))
 	{
-		console.log('Trigger already exists.');
 		return;
 	}
 	ScriptApp.newTrigger('scheduledCheck').timeBased().everyHours(1).create();
-	console.log('Trigger created.');
 }

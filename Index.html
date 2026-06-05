@@ -381,7 +381,6 @@
 				{
 					localStorage.setItem('codeVif', data.codeVif);
 				}
-				console.log('Draft autosaved.');
 			}, 1000);
 
 			function restoreFormData()
@@ -440,14 +439,12 @@
 
 				if (currentMenuId !== cachedMenuId)
 				{
-					console.log('Menu cache outdated. Clearing.');
 					localStorage.removeItem('articlesData');
 					localStorage.setItem('menuId', currentMenuId);
 				}
 
 				if (currentOrgDate !== cachedOrgDate)
 				{
-					console.log('Org cache outdated. Clearing.');
 					for (let i = localStorage.length - 1; i >= 0; i--)
 					{
 						const key = localStorage.key(i);
@@ -522,13 +519,11 @@
 
 				if (cachedData)
 				{
-					console.log('Loading articles from cache.');
 					renderArticles(JSON.parse(cachedData));
 					restoreFormData();
 				}
 				else
 				{
-					console.log('Cache miss. Fetching fresh data.');
 					google.script.run.withSuccessHandler(response =>
 					{
 						localStorage.setItem('articlesData', JSON.stringify(response.articles));
@@ -830,12 +825,10 @@
 				const cachedData = localStorage.getItem('orgData_' + val);
 				if (cachedData)
 				{
-					console.log('Loading org data from cache for:', val);
 					showOrg(JSON.parse(cachedData), val);
 				}
 				else
 				{
-					console.log('No cache found for org:', val, '. Fetching fresh data.');
 					section.className = 'loading';
 					google.script.run.withSuccessHandler(response =>
 					{
@@ -851,7 +844,6 @@
 				const section = document.getElementById('orgSection');
 				if (!data)
 				{
-					console.log('No data received for org:', codeVif);
 					section.className = 'disabled';
 					return;
 				}
@@ -871,7 +863,6 @@
 
 				const container = document.getElementById('articleSections');
 				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
-				console.log('Determining visibility filter for:', dist);
 				if (dist.includes('picerie'))
 				{
 					container.className = 'filter-for_es';
