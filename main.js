@@ -75,7 +75,7 @@ function sendNotificationEmail(fileName, ss)
  */
 function isAlreadyProcessed(fileName, ss)
 {
-	const filesSheet = getOrCreateSheet(ss, 'Files', ['Date', 'Filename', 'Sheet Name']);
+	const filesSheet = getOrCreateSheet(ss, 'Files', ['Date', 'Filename', 'Sheet Name', 'File ID']);
 	const lastRow = filesSheet.getLastRow();
 	if (lastRow <= 1)
 	{
@@ -154,10 +154,12 @@ function updateCurrentMenuSheet(sheet)
 
 	if (menuData)
 	{
+		currentMenuSheet.appendRow(['menuId', sheet.getName()]);
+		currentMenuSheet.appendRow(['sheetName', sheet.getName()]);
 		currentMenuSheet.appendRow(['menuName', menuData.name]);
 		currentMenuSheet.appendRow(['pickupDateStart', menuData.pickupDateStart]);
 		currentMenuSheet.appendRow(['pickupDateEnd', menuData.pickupDateEnd]);
-		currentMenuSheet.appendRow(['menuId', sheet.getName()]);
+		currentMenuSheet.appendRow(['articles', JSON.stringify(getMenuArticles(sheet))]);
 	}
 	trimSheet(currentMenuSheet);
 }
@@ -224,8 +226,8 @@ function logMenuData(sheet, ss, targetSheet = null)
 		return;
 	}
 
-	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articlesJson']);
-	menusSheet.appendRow([sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd, JSON.stringify(getMenuArticles(sheet))]);
+	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles']);
+	menusSheet.appendRow([sheet.getName(), sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd, JSON.stringify(getMenuArticles(sheet))]);
 }
 /**
  * Recomputes all menu data in the 'Menus' sheet.
@@ -233,7 +235,7 @@ function logMenuData(sheet, ss, targetSheet = null)
 function recomputeAllMenuData()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const headers = ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articlesJson'];
+	const headers = ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles'];
 	const menusSheet = getOrCreateSheet(ss, 'Menus', headers);
 
 	menusSheet.clearContents();
