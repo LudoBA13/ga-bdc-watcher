@@ -338,7 +338,6 @@
 
 		<script>
 			// Embedded data from the server
-			window.embeddedArticles = <?!= embeddedArticles ?>;
 			window.embeddedMenuData = <?!= embeddedMenuData ?>;
 
 			function debounce(func, wait)
@@ -511,7 +510,7 @@
 				});
 
 				// Render articles immediately from embedded data
-				renderArticles(window.embeddedArticles);
+				renderArticles(window.embeddedMenuData.articles);
 				restoreFormData();
 			};
 

@@ -7,7 +7,7 @@ function doGet()
 	const menuId = menuData.menuId || '';
 	PropertiesService.getScriptProperties().setProperty('menuId', menuId);
 
-	const mappedArticles = (menuData.articles || []).map(a =>
+	menuData.articles = (menuData.articles || []).map(a =>
 	{
 		return {
 			'Category': a.category,
@@ -42,7 +42,6 @@ function doGet()
 	template.menuId = menuId;
 
 	// Embed raw data for immediate client-side rendering
-	template.embeddedArticles = JSON.stringify(mappedArticles);
 	template.embeddedMenuData = JSON.stringify(menuData);
 
 	return template.evaluate()
