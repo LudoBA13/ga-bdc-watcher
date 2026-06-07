@@ -280,10 +280,21 @@ function logMenuData(sheet, ss, targetSheet = null)
 	}
 
 	const period = getPlanningPeriod(data.pickupDateStart, data.pickupDateEnd);
+	const planningDates = computePlanningDates(data.pickupDateStart, data.pickupDateEnd);
 
-	const headers = ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles', 'planningYear', 'planningMonth'];
+	const headers = ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles', 'planningYear', 'planningMonth', 'planningDates'];
 	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', headers);
-	menusSheet.appendRow([sheet.getName(), sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd, JSON.stringify(getMenuArticles(sheet)), period.year, period.month]);
+	menusSheet.appendRow([
+		sheet.getName(),
+		sheet.getName(),
+		data.name,
+		data.pickupDateStart,
+		data.pickupDateEnd,
+		JSON.stringify(getMenuArticles(sheet)),
+		period.year,
+		period.month,
+		JSON.stringify(planningDates)
+	]);
 }
 
 /**
@@ -319,12 +330,47 @@ function getPlanningPeriod(start, end)
 }
 
 /**
+ * Computes a map of planning codes to dates for a given range.
+ *
+ * @param {Date|string} start The start of the range.
+ * @param {Date|string} end The end of the range.
+ * @returns {Object<string, Date>} A map of planning codes to dates.
+ */
+function computePlanningDates(start, end)
+{
+	const startDate = start instanceof Date ? start : new Date(start);
+	const endDate = end instanceof Date ? end : new Date(end);
+	const result = {};
+
+	if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()))
+	{
+		return result;
+	}
+
+	let current = new Date(startDate.getTime());
+	while (current <= endDate)
+	{
+		const code = dateToPlanning(current);
+		if (code)
+		{
+			const yyyy = current.getFullYear();
+			const mm = String(current.getMonth() + 1).padStart(2, '0');
+			const dd = String(current.getDate()).padStart(2, '0');
+			result[code] = yyyy + '-' + mm + '-' + dd;
+		}
+		current.setDate(current.getDate() + 1);
+	}
+
+	return result;
+}
+
+/**
  * Recomputes all menu data in the 'Menus' sheet.
  */
 function recomputeAllMenuData()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const headers = ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles', 'planningYear', 'planningMonth'];
+	const headers = ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles', 'planningYear', 'planningMonth', 'planningDates'];
 	const menusSheet = getOrCreateSheet(ss, 'Menus', headers);
 
 	menusSheet.clearContents();
