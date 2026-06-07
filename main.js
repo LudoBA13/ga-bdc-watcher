@@ -224,17 +224,16 @@ function logMenuData(sheet, ss, targetSheet = null)
 		return;
 	}
 
-	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd']);
-	menusSheet.appendRow([sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd]);
+	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articlesJson']);
+	menusSheet.appendRow([sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd, JSON.stringify(getMenuArticles(sheet))]);
 }
-
 /**
  * Recomputes all menu data in the 'Menus' sheet.
  */
 function recomputeAllMenuData()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const headers = ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd'];
+	const headers = ['sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articlesJson'];
 	const menusSheet = getOrCreateSheet(ss, 'Menus', headers);
 
 	menusSheet.clearContents();
@@ -248,7 +247,6 @@ function recomputeAllMenuData()
 
 	trimSheet(menusSheet);
 	recomputeCurrentMenu();
-	ss.toast('Recomputation complete.');
 }
 
 /**
@@ -312,6 +310,62 @@ function handleGoogleSheetUrlImport(url, ss, ui)
 	{
 		ui.alert('Error opening Google Sheet: ' + e.message);
 	}
+}
+
+/**
+ * Extracts menu articles into a structured array.
+ *
+ * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract articles from.
+ * @returns {Array<Object>} The list of articles.
+ */
+function getMenuArticles(sheet)
+{
+	const data = sheet.getDataRange().getValues();
+	const displayName = getDisplayName(sheet);
+
+	let extractionState = {
+		isRecording: false,
+		unit: '',
+		category: '',
+		headerMap: {},
+		results: []
+	};
+
+	for (let i = 0; i < data.length; i++)
+	{
+		const row = data[i];
+		const sectionHeader = detectSectionHeader(row[0]);
+
+		if (sectionHeader)
+		{
+			i = setupSection(extractionState, sectionHeader, data, i, displayName);
+			continue;
+		}
+
+		if (extractionState.isRecording)
+		{
+			const idVal = row[extractionState.headerMap.ARTICLE];
+			if (!idVal || isNaN(idVal) || String(idVal).trim() === '')
+			{
+				extractionState.isRecording = false;
+				continue;
+			}
+
+			const labelVal = row[extractionState.headerMap.DESIGNATION];
+			const quantity = row[extractionState.headerMap.MAX_QTY];
+			const unitWeight = calculateUnitWeight(row, extractionState);
+
+			extractionState.results.push({
+				category: extractionState.category,
+				id: idVal,
+				label: labelVal,
+				unit: extractionState.unit,
+				unitWeight: unitWeight,
+				maxQty: quantity
+			});
+		}
+	}
+	return extractionState.results;
 }
 
 /**
