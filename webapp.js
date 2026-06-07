@@ -5,17 +5,7 @@ function doGet()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-	// Get menu metadata from CurrentMenu sheet
-	const menuSheet = ss.getSheetByName('CurrentMenu');
-	const menuData = {};
-	if (menuSheet)
-	{
-		const data = menuSheet.getDataRange().getValues();
-		for (let i = 1; i < data.length; i++)
-		{
-			menuData[data[i][0]] = data[i][1];
-		}
-	}
+	const menuData = getCurrentMenu();
 
 	// Retrieve maxDate from script properties
 	const maxDate = PropertiesService.getScriptProperties().getProperty('maxDate') || '';
@@ -73,30 +63,9 @@ function getCurrentMenu()
  */
 function getCurrentArticles()
 {
-	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const sheet = ss.getSheetByName('CurrentMenu');
-	if (!sheet)
-	{
-		return { articles: [], menuId: '' };
-	}
-
-	const data = sheet.getDataRange().getValues();
-	let articlesJson = '';
-	let menuId = '';
-
-	for (let i = 1; i < data.length; i++)
-	{
-		const prop = data[i][0];
-		const val = data[i][1];
-		if (prop === 'articles')
-		{
-			articlesJson = val;
-		}
-		else if (prop === 'menuId')
-		{
-			menuId = val;
-		}
-	}
+	const menuData = getCurrentMenu();
+	const articlesJson = menuData.articles;
+	const menuId = menuData.menuId || '';
 
 	if (!articlesJson)
 	{
