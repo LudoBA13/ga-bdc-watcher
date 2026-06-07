@@ -44,6 +44,31 @@ function doGet()
 }
 
 /**
+ * Returns the data from the 'CurrentMenu' sheet as an object.
+ *
+ * @returns {Object} The current menu data.
+ */
+function getCurrentMenu()
+{
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	const sheet = ss.getSheetByName('CurrentMenu');
+	if (!sheet)
+	{
+		return {};
+	}
+
+	const data = sheet.getDataRange().getValues();
+	const result = {};
+
+	for (let i = 1; i < data.length; i++)
+	{
+		result[data[i][0]] = data[i][1];
+	}
+
+	return result;
+}
+
+/**
  * Returns data from CurrentArticles sheet as objects, with a cache-buster value.
  */
 function getCurrentArticles()
