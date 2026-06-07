@@ -49,34 +49,51 @@ function doGet()
 function getCurrentArticles()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const sheet = ss.getSheetByName('CurrentArticles');
+	const sheet = ss.getSheetByName('CurrentMenu');
 	if (!sheet)
 	{
 		return { articles: [], menuId: '' };
 	}
 
 	const data = sheet.getDataRange().getValues();
-	if (data.length <= 1)
-	{
-		return { articles: [], menuId: '' };
-	}
+	let articlesJson = '';
+	let menuId = '';
 
-	const headers = data[0];
-	const result = [];
 	for (let i = 1; i < data.length; i++)
 	{
-		const row = data[i];
-		const obj = {};
-		for (const [index, header] of headers.entries())
+		const prop = data[i][0];
+		const val = data[i][1];
+		if (prop === 'articles')
 		{
-			obj[header] = row[index];
+			articlesJson = val;
 		}
-		result.push(obj);
+		else if (prop === 'menuId')
+		{
+			menuId = val;
+		}
 	}
 
-	const menuId = result.length > 0 ? result[result.length - 1]['Sheet Name'] : '';
+	if (!articlesJson)
+	{
+		return { articles: [], menuId: menuId };
+	}
+
+	const parsedArticles = JSON.parse(articlesJson);
+	const mappedArticles = parsedArticles.map(a =>
+	{
+		return {
+			'Category': a.category,
+			'Article ID': a.id,
+			'Label': a.label,
+			'Unit': a.unit,
+			'Unit Weight': a.unitWeight,
+			'Max Qty': a.maxQty,
+			'Sheet Name': menuId
+		};
+	});
+
 	PropertiesService.getScriptProperties().setProperty('menuId', menuId);
-	return { articles: result, menuId: menuId };
+	return { articles: mappedArticles, menuId: menuId };
 }
 
 /**

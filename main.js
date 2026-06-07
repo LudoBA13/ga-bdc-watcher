@@ -462,7 +462,6 @@ function extractArticles(sheet)
 	{
 		articlesSheet.getRange(articlesSheet.getLastRow() + 1, 1, extractionState.results.length, 7).setValues(extractionState.results);
 		ss.toast('Extracted ' + extractionState.results.length + ' articles.');
-		extractCurrentArticles();
 	}
 }
 
@@ -653,46 +652,9 @@ function onOpen()
 {
 	SpreadsheetApp.getUi().createMenu('BA Tools')
 		.addItem('Extract all menu data', 'recomputeAllMenuData')
-		.addItem('Extract Current Articles', 'extractCurrentArticles')
 		.addSeparator()
 		.addItem('Setup Trigger', 'setupTrigger')
 		.addToUi();
-}
-
-function extractCurrentArticles()
-{
-	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const articlesSheet = ss.getSheetByName('Articles');
-	if (!articlesSheet)
-	{
-		ss.toast('Articles sheet not found.');
-		return;
-	}
-
-	const data = articlesSheet.getDataRange().getValues();
-	if (data.length <= 1)
-	{
-		ss.toast('No articles found.');
-		return;
-	}
-
-	const lastSheetName = data[data.length - 1][0];
-	const filteredRows = data.filter((row, index) => index > 0 && row[0] === lastSheetName);
-
-	if (filteredRows.length === 0)
-	{
-		ss.toast('No matching articles found.');
-		return;
-	}
-
-	const headers = data[0];
-	const currentArticlesSheet = getOrCreateSheet(ss, 'CurrentArticles', headers);
-	currentArticlesSheet.clearContents();
-	currentArticlesSheet.appendRow(headers);
-	currentArticlesSheet.getRange(2, 1, filteredRows.length, headers.length).setValues(filteredRows);
-	trimSheet(currentArticlesSheet);
-
-	ss.toast('Extracted ' + filteredRows.length + ' current articles from ' + lastSheetName);
 }
 
 function setupTrigger()
