@@ -279,16 +279,52 @@ function logMenuData(sheet, ss, targetSheet = null)
 		return;
 	}
 
-	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles']);
-	menusSheet.appendRow([sheet.getName(), sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd, JSON.stringify(getMenuArticles(sheet))]);
+	const period = getPlanningPeriod(data.pickupDateStart, data.pickupDateEnd);
+
+	const headers = ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles', 'planningYear', 'planningMonth'];
+	const menusSheet = targetSheet || getOrCreateSheet(ss, 'Menus', headers);
+	menusSheet.appendRow([sheet.getName(), sheet.getName(), data.name, data.pickupDateStart, data.pickupDateEnd, JSON.stringify(getMenuArticles(sheet)), period.year, period.month]);
 }
+
+/**
+ * Computes the planning period (year and month) from a date range.
+ *
+ * @param {Date|string} start The start of the range.
+ * @param {Date|string} end The end of the range.
+ * @returns {{year: number|string, month: number|string}} The planning year and month.
+ */
+function getPlanningPeriod(start, end)
+{
+	const startDate = start instanceof Date ? start : new Date(start);
+	const endDate = end instanceof Date ? end : new Date(end);
+
+	if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()))
+	{
+		return { year: '', month: '' };
+	}
+
+	let current = new Date(startDate.getTime());
+	while (current <= endDate)
+	{
+		const tick = dateToTick(current);
+		const parsed = parseTick(tick);
+		if (parsed && parsed.year && parsed.month)
+		{
+			return { year: parsed.year, month: parsed.month };
+		}
+		current.setDate(current.getDate() + 1);
+	}
+
+	return { year: '', month: '' };
+}
+
 /**
  * Recomputes all menu data in the 'Menus' sheet.
  */
 function recomputeAllMenuData()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const headers = ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles'];
+	const headers = ['menuId', 'sheetName', 'menuName', 'pickupDateStart', 'pickupDateEnd', 'articles', 'planningYear', 'planningMonth'];
 	const menusSheet = getOrCreateSheet(ss, 'Menus', headers);
 
 	menusSheet.clearContents();
