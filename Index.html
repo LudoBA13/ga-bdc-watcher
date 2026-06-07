@@ -266,13 +266,13 @@
 			<form id="orderForm" onsubmit="handleFormSubmit(this)">
 				<fieldset id="orderDetails">
 					<label for="email">
-						Email
-						<input type="email" id="email" name="email" required>
+						Email de contact
+						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required>
 					</label>
 
 					<label for="codeVif">
-						Code VIF
-						<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[0-9]{7,8}$" required oninput="checkCodeVif(this.value)">
+						Code VIF de votre structure
+						<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[0-9]{7,8}$" placeholder="1130XXX" required oninput="checkCodeVif(this.value)">
 					</label>
 
 					<label for="pickupDate">
