@@ -350,13 +350,15 @@ function computePlanningDates(start, end)
 	let current = new Date(startDate.getTime());
 	while (current <= endDate)
 	{
-		const code = dateToPlanning(current);
-		if (code)
+		const tick = dateToTick(current);
+		const parsed = parseTick(tick);
+		if (parsed && parsed.timeslot <= 3 && parsed.code)
 		{
 			const yyyy = current.getFullYear();
 			const mm = String(current.getMonth() + 1).padStart(2, '0');
 			const dd = String(current.getDate()).padStart(2, '0');
-			result[code] = yyyy + '-' + mm + '-' + dd;
+			const dateStr = yyyy + '-' + mm + '-' + dd;
+			result[parsed.code] = dateStr;
 		}
 		current.setDate(current.getDate() + 1);
 	}
