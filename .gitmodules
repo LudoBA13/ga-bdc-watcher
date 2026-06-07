@@ -1,0 +1,3 @@
+[submodule "ext/ga-calendrier-enlevement"]
+	path = ext/ga-calendrier-enlevement
+	url = https://github.com/LudoBA13/ga-calendrier-enlevement.git
