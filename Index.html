@@ -337,6 +337,10 @@
 		</dialog>
 
 		<script>
+			// Embedded data from the server
+			window.embeddedArticles = <?!= embeddedArticles ?>;
+			window.embeddedMenuData = <?!= embeddedMenuData ?>;
+
 			function debounce(func, wait)
 			{
 				let timeout;
@@ -431,17 +435,8 @@
 			function pruneCaches()
 			{
 				const html = document.documentElement;
-				const currentMenuId = html.dataset.cacheMenuId;
 				const currentOrgDate = html.dataset.cacheOrg;
-
-				const cachedMenuId = localStorage.getItem('menuId');
 				const cachedOrgDate = localStorage.getItem('orgMaxDate');
-
-				if (currentMenuId !== cachedMenuId)
-				{
-					localStorage.removeItem('articlesData');
-					localStorage.setItem('menuId', currentMenuId);
-				}
 
 				if (currentOrgDate !== cachedOrgDate)
 				{
@@ -515,22 +510,9 @@
 					}
 				});
 
-				const cachedData = localStorage.getItem('articlesData');
-
-				if (cachedData)
-				{
-					renderArticles(JSON.parse(cachedData));
-					restoreFormData();
-				}
-				else
-				{
-					google.script.run.withSuccessHandler(response =>
-					{
-						localStorage.setItem('articlesData', JSON.stringify(response.articles));
-						renderArticles(response.articles);
-						restoreFormData();
-					}).getCurrentArticles();
-				}
+				// Render articles immediately from embedded data
+				renderArticles(window.embeddedArticles);
+				restoreFormData();
 			};
 
 			function getCategoryLabel(category)

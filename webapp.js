@@ -3,9 +3,8 @@
  */
 function doGet()
 {
-	const ss = SpreadsheetApp.getActiveSpreadsheet();
-
 	const menuData = getCurrentMenu();
+	const articlesResponse = getCurrentArticles();
 
 	// Retrieve maxDate from script properties
 	const maxDate = PropertiesService.getScriptProperties().getProperty('maxDate') || '';
@@ -27,6 +26,10 @@ function doGet()
 	template.pickupDateStart = formatDate(menuData.pickupDateStart);
 	template.pickupDateEnd = formatDate(menuData.pickupDateEnd);
 	template.menuId = menuData.menuId || '';
+
+	// Embed raw data for immediate client-side rendering
+	template.embeddedArticles = JSON.stringify(articlesResponse.articles);
+	template.embeddedMenuData = JSON.stringify(menuData);
 
 	return template.evaluate()
 		.setTitle('Formulaire de Commande BA 13')
