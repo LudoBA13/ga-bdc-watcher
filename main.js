@@ -511,12 +511,6 @@ function mapCategory(typeKey)
 	return 'Asso|ES';
 }
 
-function extractSpreadsheetId(url)
-{
-	const dMatch = url.match(/\/d\/([-\w]+)/);
-	return dMatch ? dMatch[1] : (url.match(/[-\w]{25,}/) || [])[0];
-}
-
 function sanitizeSheetName(name)
 {
 	const menuMatch = name.match(CONFIG.REGEX_MENU_PATTERN);
@@ -600,85 +594,14 @@ function logImport(fileName, sheetName, ss, fileId)
 	sheet.appendRow([new Date, fileName, sheetName, fileId]);
 }
 
-function trimSheet(sheet)
-{
-	const lastRow = sheet.getLastRow();
-	const maxRows = sheet.getMaxRows();
-	if (maxRows > lastRow)
-	{
-		sheet.deleteRows(lastRow + 1, maxRows - lastRow);
-	}
-
-	const lastCol = sheet.getLastColumn();
-	const maxCols = sheet.getMaxColumns();
-	if (maxCols > lastCol)
-	{
-		sheet.deleteColumns(lastCol + 1, maxCols - lastCol);
-	}
-}
-
 function onOpen()
 {
 	SpreadsheetApp.getUi().createMenu('BA Tools')
-		.addItem('Extract Articles from Current Sheet', 'extractArticlesFromActiveSheet')
-		.addItem('Recompute all articles', 'recomputeAllArticles')
 		.addItem('Extract all menu data', 'recomputeAllMenuData')
 		.addItem('Extract Current Articles', 'extractCurrentArticles')
-		.addItem('Import from Spreadsheet URL', 'importFromSpreadsheetUrl')
 		.addSeparator()
-		.addItem('Redeploy Web App', 'redeployWebApp')
-		.addSeparator()
-		.addItem('Test Email Notification', 'testEmailNotification')
+		.addItem('Setup Trigger', 'setupTrigger')
 		.addToUi();
-}
-
-/**
- * Redeploys the web app using the Apps Script REST API.
- */
-function redeployWebApp()
-{
-	const ui = SpreadsheetApp.getUi();
-	const scriptId = ScriptApp.getScriptId();
-	const deploymentId = 'AKfycbz05TREq9zCqEhyAFxhdm3UahkCrnpVk2nGzGlbnU_EjXYW6MDGJ173fQ77Ot-Meh69';
-
-	try
-	{
-		ui.alert('Creating new version and redeploying...');
-		const token = ScriptApp.getOAuthToken();
-		const baseUrl = 'https://script.googleapis.com/v1/projects/' + scriptId;
-
-		// 1. Create new version
-		const versionResponse = UrlFetchApp.fetch(baseUrl + '/versions', {
-			method: 'post',
-			headers: { 'Authorization': 'Bearer ' + token },
-			contentType: 'application/json',
-			payload: JSON.stringify({ description: 'Automated redeploy from menu' }),
-			muteHttpExceptions: true
-		});
-		if (versionResponse.getResponseCode() !== 200) {
-			throw new Error('Version creation failed: ' + versionResponse.getContentText());
-		}
-		const version = JSON.parse(versionResponse.getContentText());
-		const versionNumber = version.versionNumber;
-
-		// 2. Update deployment
-		const deployResponse = UrlFetchApp.fetch(baseUrl + '/deployments/' + deploymentId, {
-			method: 'patch',
-			headers: { 'Authorization': 'Bearer ' + token },
-			contentType: 'application/json',
-			payload: JSON.stringify({ versionNumber: versionNumber }),
-			muteHttpExceptions: true
-		});
-		if (deployResponse.getResponseCode() !== 200) {
-			throw new Error('Deployment update failed: ' + deployResponse.getContentText());
-		}
-
-		ui.alert('Redeploy successful! Version: ' + versionNumber);
-	}
-	catch (e)
-	{
-		ui.alert('Error redeploying: ' + e.message);
-	}
 }
 
 function extractCurrentArticles()
@@ -715,59 +638,6 @@ function extractCurrentArticles()
 	trimSheet(currentArticlesSheet);
 
 	ss.toast('Extracted ' + filteredRows.length + ' current articles from ' + lastSheetName);
-}
-
-function recomputeAllArticles()
-{
-	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const articlesSheet = ss.getSheetByName('Articles');
-	if (articlesSheet)
-	{
-		ss.deleteSheet(articlesSheet);
-	}
-
-	getOrCreateSheet(ss, 'Articles', ['Sheet Name', 'Category', 'Article ID', 'Label', 'Unit', 'Unit Weight', 'Max Qty']);
-
-	const sheets = ss.getSheets().filter(s => /^Menu\d/.test(s.getName())).sort((a, b) => a.getName().localeCompare(b.getName()));
-
-	sheets.forEach(sheet =>
-	{
-		ss.toast('Processing ' + sheet.getName() + '...');
-		extractArticles(sheet);
-	});
-
-	const finalArticlesSheet = ss.getSheetByName('Articles');
-	if (finalArticlesSheet)
-	{
-		trimSheet(finalArticlesSheet);
-	}
-
-	ss.toast('Recomputation complete.');
-}
-
-function testEmailNotification()
-{
-	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	try
-	{
-		sendNotificationEmail('TEST_FILE.xlsx', ss);
-		SpreadsheetApp.getUi().alert('Test email sent to ' + CONFIG.NOTIFICATION_EMAIL);
-	}
-	catch (e)
-	{
-		SpreadsheetApp.getUi().alert('Error sending email: ' + e.message);
-	}
-}
-
-function extractArticlesFromActiveSheet()
-{
-	const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-	if (['Files', 'Articles'].includes(sheet.getName()))
-	{
-		SpreadsheetApp.getUi().alert('Cannot extract articles from this sheet.');
-		return;
-	}
-	extractArticles(sheet);
 }
 
 function setupTrigger()
