@@ -75,7 +75,7 @@ function sendNotificationEmail(fileName, ss)
  */
 function isAlreadyProcessed(fileName, ss)
 {
-	const filesSheet = getOrCreateSheet(ss, 'Files', ['Date', 'Filename', 'Sheet Name', 'File ID']);
+	const filesSheet = getOrCreateSheet(ss, 'Files', ['Date', 'Filename', 'sheetName', 'File ID']);
 	const lastRow = filesSheet.getLastRow();
 	if (lastRow <= 1)
 	{
@@ -592,7 +592,7 @@ function deleteSheetIfExists(ss, name)
 
 function logImport(fileName, sheetName, ss, fileId)
 {
-	const sheet = getOrCreateSheet(ss, 'Files', ['Date', 'Filename', 'Sheet Name', 'File ID']);
+	const sheet = getOrCreateSheet(ss, 'Files', ['Date', 'Filename', 'sheetName', 'File ID']);
 	sheet.appendRow([new Date, fileName, sheetName, fileId]);
 }
 
