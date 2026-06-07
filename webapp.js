@@ -39,7 +39,7 @@ function doGet()
 	template.menuId = menuData.menuId || '';
 
 	return template.evaluate()
-		.setTitle('Formulaire de Commande BDC')
+		.setTitle('Formulaire de Commande BA 13')
 		.addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
