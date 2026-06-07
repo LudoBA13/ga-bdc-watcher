@@ -4,7 +4,21 @@
 function doGet()
 {
 	const menuData = getCurrentMenu();
-	const articlesResponse = getCurrentArticles();
+	const menuId = menuData.menuId || '';
+	PropertiesService.getScriptProperties().setProperty('menuId', menuId);
+
+	const mappedArticles = (menuData.articles || []).map(a =>
+	{
+		return {
+			'Category': a.category,
+			'Article ID': a.id,
+			'Label': a.label,
+			'Unit': a.unit,
+			'Unit Weight': a.unitWeight,
+			'Max Qty': a.maxQty,
+			'Sheet Name': menuId
+		};
+	});
 
 	// Retrieve maxDate from script properties
 	const maxDate = PropertiesService.getScriptProperties().getProperty('maxDate') || '';
@@ -25,10 +39,10 @@ function doGet()
 
 	template.pickupDateStart = formatDate(menuData.pickupDateStart);
 	template.pickupDateEnd = formatDate(menuData.pickupDateEnd);
-	template.menuId = menuData.menuId || '';
+	template.menuId = menuId;
 
 	// Embed raw data for immediate client-side rendering
-	template.embeddedArticles = JSON.stringify(articlesResponse.articles);
+	template.embeddedArticles = JSON.stringify(mappedArticles);
 	template.embeddedMenuData = JSON.stringify(menuData);
 
 	return template.evaluate()
@@ -55,42 +69,23 @@ function getCurrentMenu()
 
 	for (let i = 1; i < data.length; i++)
 	{
-		result[data[i][0]] = data[i][1];
+		const key = data[i][0];
+		let val = data[i][1];
+		if (key === 'articles' && typeof val === 'string' && val.startsWith('['))
+		{
+			try
+			{
+				val = JSON.parse(val);
+			}
+			catch (e)
+			{
+				console.error('Error parsing articles JSON:', e);
+			}
+		}
+		result[key] = val;
 	}
 
 	return result;
-}
-
-/**
- * Returns data from CurrentArticles sheet as objects, with a cache-buster value.
- */
-function getCurrentArticles()
-{
-	const menuData = getCurrentMenu();
-	const articlesJson = menuData.articles;
-	const menuId = menuData.menuId || '';
-
-	if (!articlesJson)
-	{
-		return { articles: [], menuId: menuId };
-	}
-
-	const parsedArticles = JSON.parse(articlesJson);
-	const mappedArticles = parsedArticles.map(a =>
-	{
-		return {
-			'Category': a.category,
-			'Article ID': a.id,
-			'Label': a.label,
-			'Unit': a.unit,
-			'Unit Weight': a.unitWeight,
-			'Max Qty': a.maxQty,
-			'Sheet Name': menuId
-		};
-	});
-
-	PropertiesService.getScriptProperties().setProperty('menuId', menuId);
-	return { articles: mappedArticles, menuId: menuId };
 }
 
 /**
