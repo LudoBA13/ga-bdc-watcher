@@ -120,46 +120,99 @@ function importExcelContent(blob, fileName, ss)
 }
 
 /**
- * Updates the 'CurrentMenu' sheet based on the sheet with the highest menuId (sorted lexicographically).
+ * Updates the 'CurrentMenu' sheet based on the sheet name of the most recent imported file in 'Files',
+ * mapping key-values from the 'Menus' sheet.
  */
 function recomputeCurrentMenu()
 {
 	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const sheets = ss.getSheets().filter(s => /^Menu\d/.test(s.getName()));
-
-	if (sheets.length === 0)
+	const filesSheet = ss.getSheetByName('Files');
+	if (!filesSheet)
 	{
-		return;
+		throw new Error('Sheet "Files" not found.');
 	}
 
-	// Sort sheets lexicographically in descending order and pick the first one
-	sheets.sort((a, b) => b.getName().localeCompare(a.getName()));
+	const filesData = filesSheet.getDataRange().getValues();
+	if (filesData.length <= 1)
+	{
+		throw new Error('Sheet "Files" contains no import data.');
+	}
 
-	updateCurrentMenuSheet(sheets[0]);
-}
+	const filesHeaders = filesData[0];
+	const dateIndex = filesHeaders.indexOf('Date');
+	const sheetNameIndex = filesHeaders.indexOf('sheetName');
 
-/**
- * Updates the 'CurrentMenu' sheet with data from the given sheet.
- *
- * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet The sheet to extract data from.
- */
-function updateCurrentMenuSheet(sheet)
-{
-	const ss = SpreadsheetApp.getActiveSpreadsheet();
-	const menuData = extractMenuData(sheet);
+	if (dateIndex === -1)
+	{
+		throw new Error('Column "Date" not found in "Files" sheet.');
+	}
+	if (sheetNameIndex === -1)
+	{
+		throw new Error('Column "sheetName" not found in "Files" sheet.');
+	}
+
+	let latestTime = -1;
+	let targetSheetName = '';
+
+	for (let i = 1; i < filesData.length; i++)
+	{
+		const dateVal = filesData[i][dateIndex];
+		const date = dateVal instanceof Date ? dateVal : new Date(dateVal);
+		if (date && !isNaN(date.getTime()) && date.getTime() > latestTime)
+		{
+			latestTime = date.getTime();
+			targetSheetName = String(filesData[i][sheetNameIndex]);
+		}
+	}
+
+	if (!targetSheetName)
+	{
+		throw new Error('No target sheetName could be found from the most recent imported file.');
+	}
+
+	const menusSheet = ss.getSheetByName('Menus');
+	if (!menusSheet)
+	{
+		throw new Error('Sheet "Menus" not found.');
+	}
+
+	const menusData = menusSheet.getDataRange().getValues();
+	if (menusData.length <= 1)
+	{
+		throw new Error('Sheet "Menus" contains no data.');
+	}
+
+	const menusHeaders = menusData[0];
+	const menusSheetNameIndex = menusHeaders.indexOf('sheetName');
+	if (menusSheetNameIndex === -1)
+	{
+		throw new Error('Column "sheetName" not found in "Menus" sheet.');
+	}
+
+	let targetRow = null;
+	for (let i = 1; i < menusData.length; i++)
+	{
+		if (String(menusData[i][menusSheetNameIndex]) === targetSheetName)
+		{
+			targetRow = menusData[i];
+			break;
+		}
+	}
+
+	if (!targetRow)
+	{
+		throw new Error('Could not find a row in "Menus" matching sheetName: ' + targetSheetName);
+	}
 
 	const currentMenuSheet = getOrCreateSheet(ss, 'CurrentMenu', ['Property', 'Value']);
 	currentMenuSheet.clearContents();
 	currentMenuSheet.appendRow(['Property', 'Value']);
 
-	if (menuData)
+	for (let j = 0; j < menusHeaders.length; j++)
 	{
-		currentMenuSheet.appendRow(['menuId', sheet.getName()]);
-		currentMenuSheet.appendRow(['sheetName', sheet.getName()]);
-		currentMenuSheet.appendRow(['menuName', menuData.name]);
-		currentMenuSheet.appendRow(['pickupDateStart', menuData.pickupDateStart]);
-		currentMenuSheet.appendRow(['pickupDateEnd', menuData.pickupDateEnd]);
-		currentMenuSheet.appendRow(['articles', JSON.stringify(getMenuArticles(sheet))]);
+		const key = menusHeaders[j];
+		const val = targetRow[j];
+		currentMenuSheet.appendRow([key, val]);
 	}
 	trimSheet(currentMenuSheet);
 }
