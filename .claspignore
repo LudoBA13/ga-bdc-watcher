@@ -1,0 +1,4 @@
+ext/**
+.git/**
+.gitmodules
+node_modules/**
