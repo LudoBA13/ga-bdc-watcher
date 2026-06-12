@@ -273,7 +273,7 @@
 			<h1>Formulaire de commande</h1>
 			<h3><?= menuName ?></h3>
 			<h5>Enlèvements du <?= pickupDateStart ?> au <?= pickupDateEnd ?></h5>
-			<form id="orderForm" onsubmit="handleFormSubmit(this)">
+			<form id="orderForm" onsubmit="handleFormSubmit(event)">
 				<fieldset id="orderDetails">
 					<label for="codeVif">
 						Code VIF de votre structure
