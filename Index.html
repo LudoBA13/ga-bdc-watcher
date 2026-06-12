@@ -881,6 +881,9 @@
 				document.getElementById('summaryDate').textContent = formattedDate;
 				document.getElementById('summaryWeight').textContent = document.getElementById('footerTotalWeight').textContent;
 				
+				const allInputs = document.querySelectorAll('#articleSections input[type="number"]');
+				const totalAvailable = allInputs.length;
+				let totalOrdered = 0;
 				let lowQtyWarnings = [];
 				let exceededQtyWarnings = [];
 				let totalOrderedWeight = parseFloat(document.getElementById('footerTotalWeight').textContent.replace(',', '.')) || 0;
