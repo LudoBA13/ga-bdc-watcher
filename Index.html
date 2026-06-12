@@ -263,6 +263,7 @@
 				margin-top: 1rem;
 				border: 1px solid #ffcc00;
 				font-weight: bold;
+				text-align: center;
 			}
 		</style>
 	</head>
@@ -335,6 +336,10 @@
 					<strong>Date d'enlèvement :</strong> <span id="summaryDate"></span><br>
 					<strong>Poids total :</strong> <span id="summaryWeight"></span> kg
 				</p>
+				<div id="observationsSection" class="hidden">
+					<strong>Observations :</strong>
+					<ul id="observationsList"></ul>
+				</div>
 				<label for="orderComments">
 					Commentaires (optionnel)
 					<textarea id="orderComments" name="comments" placeholder="Ajoutez vos précisions ici..."></textarea>
@@ -875,6 +880,61 @@
 
 				document.getElementById('summaryDate').textContent = formattedDate;
 				document.getElementById('summaryWeight').textContent = document.getElementById('footerTotalWeight').textContent;
+				
+				// Calculations for Observations
+				const allInputs = document.querySelectorAll('#articleSections input[type="number"]');
+				const totalAvailable = allInputs.length;
+				let totalOrdered = 0;
+				let lowQtyWarnings = [];
+
+				allInputs.forEach(input =>
+				{
+					const val = parseFloat(input.value) || 0;
+					const maxQtyStr = input.closest('tr').cells[2].textContent.replace(',', '.');
+					const maxQty = parseFloat(maxQtyStr) || 0;
+
+					if (val > 0)
+					{
+						totalOrdered++;
+						if (maxQty > 0 && val < (maxQty * 0.5))
+						{
+							// Find label (it's the first cell)
+							const label = input.closest('tr').cells[0].innerText;
+							lowQtyWarnings.push(label);
+						}
+					}
+				});
+
+				const orderedPercentage = totalAvailable > 0 ? (totalOrdered / totalAvailable) * 100 : 0;
+				
+				// Populate Modal
+				const obsSection = document.getElementById('observationsSection');
+				const obsList = document.getElementById('observationsList');
+				obsList.innerHTML = '';
+				
+				if (orderedPercentage > 0 && orderedPercentage < 50)
+				{
+					const li = document.createElement('li');
+					li.textContent = `Vous n'avez commandé que ${orderedPercentage.toFixed(0)}% des articles disponibles.`;
+					obsList.appendChild(li);
+				}
+				
+				if (lowQtyWarnings.length > 0)
+				{
+					const li = document.createElement('li');
+					li.textContent = `Certains produits sont commandés en faible quantité (inférieur à 50% du max) : ${lowQtyWarnings.join(', ')}.`;
+					obsList.appendChild(li);
+				}
+				
+				if ((orderedPercentage > 0 && orderedPercentage < 50) || lowQtyWarnings.length > 0)
+				{
+					obsSection.classList.remove('hidden');
+				}
+				else
+				{
+					obsSection.classList.add('hidden');
+				}
+
 				document.getElementById('confirmModal').showModal();
 			}
 
@@ -893,7 +953,8 @@
 				btn.disabled = true;
 
 				google.script.run
-					.withSuccessHandler(response => {
+					.withSuccessHandler(response =>
+					{
 						alert(response);
 						closeModal();
 						btn.ariaBusy = "false";
@@ -916,7 +977,8 @@
 							validateQty(input);
 						}
 					})
-					.withFailureHandler(err => {
+					.withFailureHandler(err =>
+					{
 						alert("Erreur: " + err);
 						btn.ariaBusy = "false";
 						btn.disabled = false;
