@@ -915,7 +915,7 @@
 				if (orderedPercentage > 0 && orderedPercentage < 60)
 				{
 					const li = document.createElement('li');
-					li.textContent = `Vous n'avez commandé que ${orderedPercentage.toFixed(0)}% des articles disponibles.`;
+					li.textContent = `Vous n'avez commandé que ${totalOrdered} sur ${totalAvailable} articles disponibles.`;
 					obsList.appendChild(li);
 				}
 				
