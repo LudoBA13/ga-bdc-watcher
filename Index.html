@@ -886,6 +886,8 @@
 				const totalAvailable = allInputs.length;
 				let totalOrdered = 0;
 				let lowQtyWarnings = [];
+				let totalOrderedWeight = parseFloat(document.getElementById('footerTotalWeight').textContent.replace(',', '.')) || 0;
+				let maxAllowedWeight = window.currentOrgData ? (parseFloat(window.currentOrgData['UD']) || 0) : 0;
 
 				allInputs.forEach(input =>
 				{
@@ -919,6 +921,13 @@
 					obsList.appendChild(li);
 				}
 				
+				if (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6))
+				{
+					const li = document.createElement('li');
+					li.textContent = `${totalOrderedWeight.toFixed(2)} kg sur ${maxAllowedWeight.toFixed(2)} kg autorisé.`;
+					obsList.appendChild(li);
+				}
+				
 				if (lowQtyWarnings.length > 0)
 				{
 					const li = document.createElement('li');
@@ -926,7 +935,7 @@
 					obsList.appendChild(li);
 				}
 				
-				if ((orderedPercentage > 0 && orderedPercentage < 60) || lowQtyWarnings.length > 0)
+				if ((orderedPercentage > 0 && orderedPercentage < 60) || (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6)) || lowQtyWarnings.length > 0)
 				{
 					obsSection.classList.remove('hidden');
 				}
