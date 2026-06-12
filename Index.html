@@ -881,11 +881,8 @@
 				document.getElementById('summaryDate').textContent = formattedDate;
 				document.getElementById('summaryWeight').textContent = document.getElementById('footerTotalWeight').textContent;
 				
-				// Calculations for Observations
-				const allInputs = document.querySelectorAll('#articleSections input[type="number"]');
-				const totalAvailable = allInputs.length;
-				let totalOrdered = 0;
 				let lowQtyWarnings = [];
+				let exceededQtyWarnings = [];
 				let totalOrderedWeight = parseFloat(document.getElementById('footerTotalWeight').textContent.replace(',', '.')) || 0;
 				let maxAllowedWeight = window.currentOrgData ? (parseFloat(window.currentOrgData['UD']) || 0) : 0;
 
@@ -894,15 +891,19 @@
 					const val = parseFloat(input.value) || 0;
 					const maxQtyStr = input.closest('tr').cells[2].textContent.replace(',', '.');
 					const maxQty = parseFloat(maxQtyStr) || 0;
+					const label = input.closest('tr').cells[0].innerText;
 
 					if (val > 0)
 					{
 						totalOrdered++;
 						if (maxQty > 0 && val < (maxQty * 0.5))
 						{
-							// Find label (it's the first cell)
-							const label = input.closest('tr').cells[0].innerText;
 							lowQtyWarnings.push(label);
+						}
+						
+						if (maxQty > 0 && val > maxQty)
+						{
+							exceededQtyWarnings.push(label);
 						}
 					}
 				});
@@ -934,8 +935,20 @@
 					li.textContent = `Certains produits sont commandés en faible quantité (inférieur à 50% du max) : ${lowQtyWarnings.join(', ')}.`;
 					obsList.appendChild(li);
 				}
+
+				if (exceededQtyWarnings.length > 0)
+				{
+					exceededQtyWarnings.forEach(label =>
+					{
+						const li = document.createElement('li');
+						li.className = 'error';
+						li.style.color = 'red';
+						li.textContent = `Veuillez indiquez la raison pour laquelle vous souhaitez commander plus de ${label} à fin de traiter votre commande favorablement.`;
+						obsList.appendChild(li);
+					});
+				}
 				
-				if ((orderedPercentage > 0 && orderedPercentage < 60) || (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6)) || lowQtyWarnings.length > 0)
+				if ((orderedPercentage > 0 && orderedPercentage < 60) || (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6)) || lowQtyWarnings.length > 0 || exceededQtyWarnings.length > 0)
 				{
 					obsSection.classList.remove('hidden');
 				}
