@@ -912,7 +912,7 @@
 				const obsList = document.getElementById('observationsList');
 				obsList.innerHTML = '';
 				
-				if (orderedPercentage > 0 && orderedPercentage < 50)
+				if (orderedPercentage > 0 && orderedPercentage < 60)
 				{
 					const li = document.createElement('li');
 					li.textContent = `Vous n'avez commandé que ${orderedPercentage.toFixed(0)}% des articles disponibles.`;
@@ -926,7 +926,7 @@
 					obsList.appendChild(li);
 				}
 				
-				if ((orderedPercentage > 0 && orderedPercentage < 50) || lowQtyWarnings.length > 0)
+				if ((orderedPercentage > 0 && orderedPercentage < 60) || lowQtyWarnings.length > 0)
 				{
 					obsSection.classList.remove('hidden');
 				}
