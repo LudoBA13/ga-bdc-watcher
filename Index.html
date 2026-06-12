@@ -255,6 +255,15 @@
 			 {
 				margin-bottom: .4em;
 			 }
+			.ddm-notice
+			{
+				background-color: yellow;
+				color: red;
+				padding: 0.5rem;
+				margin-top: 1rem;
+				border: 1px solid #ffcc00;
+				font-weight: bold;
+			}
 		</style>
 	</head>
 	<body>
@@ -265,14 +274,14 @@
 			<h5>Enlèvements du <?= pickupDateStart ?> au <?= pickupDateEnd ?></h5>
 			<form id="orderForm" onsubmit="handleFormSubmit(this)">
 				<fieldset id="orderDetails">
-					<label for="email">
-						Email de contact
-						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required>
-					</label>
-
 					<label for="codeVif">
 						Code VIF de votre structure
 						<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[0-9]{7,8}$" placeholder="1130XXX" required oninput="checkCodeVif(this.value)">
+					</label>
+
+					<label for="email">
+						Email de contact
+						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required>
 					</label>
 
 					<label for="pickupDate">
@@ -301,6 +310,7 @@
 				</div>
 				
 				<div id="articleSections"></div>
+				<div class="ddm-notice">Nota : Certains produits peuvent avoir une date DDM dépassée.</div>
 			</form>
 		</main>
 
@@ -888,9 +898,14 @@
 						closeModal();
 						btn.ariaBusy = "false";
 						btn.disabled = false;
+
+						// Special case: Do not clear form for author
+						if (orderData.email && orderData.email.includes('ludovic.arnaud'))
+						{
+							return;
+						}
 						
 						// Clear draft and non-persistent fields
-						/*
 						localStorage.removeItem('orderDraft');
 						document.getElementById('pickupDate').value = '';
 						document.getElementById('orderComments').value = '';
@@ -900,7 +915,6 @@
 							input.value = '';
 							validateQty(input);
 						}
-						*/
 					})
 					.withFailureHandler(err => {
 						alert("Erreur: " + err);
