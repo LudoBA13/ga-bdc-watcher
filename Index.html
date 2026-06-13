@@ -949,7 +949,7 @@
 				
 				const hasLowTotalWeight = maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6);
 				const hasLowTotalItems = lowQtyWarnings.length > 0;
-				const hasLowOrderedPercentage = orderedPercentage > 0 && orderedPercentage < 60;
+				const hasLowOrderedPercentage = orderedPercentage > 0 && orderedPercentage < 50;
 
 				if (hasLowOrderedPercentage || hasLowTotalWeight || hasLowTotalItems || hasExceededQty)
 				{
