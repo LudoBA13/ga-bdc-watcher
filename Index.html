@@ -124,7 +124,6 @@
 				animation: spin 1s linear infinite;
 			}
 			@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-			
 			.col-label > b,
 			.col-label > i,
 			.col-label > span,
@@ -279,18 +278,15 @@
 						Code VIF de votre structure
 						<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[0-9]{7,8}$" placeholder="1130XXX" required oninput="checkCodeVif(this.value)">
 					</label>
-
 					<label for="email">
 						Email de contact
 						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required>
 					</label>
-
 					<label for="pickupDate">
 						Date d'enlèvement
 						<input type="date" id="pickupDate" name="pickupDate" required>
 					</label>
 				</fieldset>
-
 				<div id="orgSection" class="disabled">
 					<div id="orgSpinner" class="spinner"></div>
 					<fieldset>
@@ -309,12 +305,10 @@
 						</dl>
 					</fieldset>
 				</div>
-				
 				<div id="articleSections"></div>
 				<div class="ddm-notice">Nota : Certains produits peuvent avoir une date DDM dépassée.</div>
 			</form>
 		</main>
-
 		<footer class="sticky-footer">
 			<div class="container grid">
 				<div style="display: flex; align-items: center; justify-content: center;">
@@ -325,7 +319,6 @@
 				</div>
 			</div>
 		</footer>
-
 		<dialog id="confirmModal">
 			<article>
 				<header>
@@ -350,11 +343,9 @@
 				</footer>
 			</article>
 		</dialog>
-
 		<script>
 			// Embedded data from the server
 			window.embeddedMenuData = <?!= embeddedMenuData ?>;
-
 			function debounce(func, wait)
 			{
 				let timeout;
@@ -401,6 +392,21 @@
 				}
 			}, 1000);
 
+			function pruneUnauthorizedInputs()
+			{
+				const container = document.getElementById('articleSections');
+				const selector = container.classList.contains('filter-for_asso') ?
+					'#articleSections.filter-for_asso > :not(.for_asso) input[type="number"]' :
+					'#articleSections.filter-for_es > :not(.for_es) input[type="number"]';
+
+				const unauthorizedInputs = document.querySelectorAll(selector);
+				unauthorizedInputs.forEach(input =>
+				{
+					input.value = '';
+					validateQty(input);
+				});
+			}
+
 			function restoreFormData()
 			{
 				const draftStr = localStorage.getItem('orderDraft');
@@ -443,6 +449,8 @@
 							}
 						}
 					}
+
+					pruneUnauthorizedInputs();
 				}
 			}
 
@@ -451,7 +459,6 @@
 				const html = document.documentElement;
 				const currentOrgDate = html.dataset.cacheOrg;
 				const cachedOrgDate = localStorage.getItem('orgMaxDate');
-
 				if (currentOrgDate !== cachedOrgDate)
 				{
 					for (let i = localStorage.length - 1; i >= 0; i--)
@@ -469,26 +476,20 @@
 			window.onload = function()
 			{
 				pruneCaches();
-
 				// Set pickupDate range: today + 7 to today + 31
 				const pickupDateEl = document.getElementById('pickupDate');
 				const now = new Date();
 				const formatDate = (date) => date.toISOString().split('T')[0];
-				
 				const minDate = new Date(now);
 				minDate.setDate(now.getDate() + 7);
 				const maxDate = new Date(now);
 				maxDate.setDate(now.getDate() + 31);
-				
 				pickupDateEl.min = formatDate(minDate);
 				pickupDateEl.max = formatDate(maxDate);
-
 				const emailEl = document.getElementById('email');
 				const codeVifEl = document.getElementById('codeVif');
-
 				const savedEmail = localStorage.getItem('email');
 				const savedOrg = localStorage.getItem('codeVif');
-
 				if (savedEmail) {
 					emailEl.value = savedEmail;
 				}
@@ -496,19 +497,15 @@
 					codeVifEl.value = savedOrg;
 					checkCodeVif(savedOrg);
 				}
-
 				emailEl.addEventListener('input', (e) => {
 					autosave();
 				});
-
 				codeVifEl.addEventListener('input', (e) => {
 					autosave();
 				});
-
 				document.getElementById('pickupDate').addEventListener('input', (e) => {
 					autosave();
 				});
-
 				const orderForm = document.getElementById('orderForm');
 				orderForm.addEventListener('keydown', function(e)
 				{
@@ -523,7 +520,6 @@
 						}
 					}
 				});
-
 				// Render articles immediately from embedded data
 				renderArticles(window.embeddedMenuData.articles);
 				restoreFormData();
@@ -561,7 +557,6 @@
 			function formatLabel(root, text)
 			{
 				text = text.replace(/\s+/g, ' ');
-
 				// Case 1: FSE/CNES with parcel description
 				const regex = /(.*?) ((FSE|CNES) ?\d+) (1 ?col.*)/s;
 				const match = text.match(regex);
@@ -569,18 +564,15 @@
 				{
 					const b = document.createElement('b');
 					b.textContent = match[1];
-
 					const type = match[3]; // FSE or CNES
 					const span = document.createElement('span');
 					span.className = 'label-' + type.toLowerCase();
 					span.textContent = ' ' + match[2];
-
 					const i = document.createElement('i');
 					i.textContent = match[4];
 					root.append(b, ' ', span, ' ', i);
 					return;
 				}
-
 				// Case 3: /(.*?) (1 ?col.*)/s
 				const colRegex = /(.*?) (1 ?col.*)/s;
 				const matchCol = text.match(colRegex);
@@ -588,13 +580,11 @@
 				{
 					const b = document.createElement('b');
 					b.textContent = matchCol[1];
-
 					const i = document.createElement('i');
 					i.textContent = matchCol[2];
 					root.append(b, ' ', i);
 					return;
 				}
-
 				// Case 2: /(.*)(:.*)/s
 				const colonRegex = /(.*)(:.*)/s;
 				const matchColon = text.match(colonRegex);
@@ -605,7 +595,6 @@
 					root.append(b, ' ', document.createTextNode(matchColon[2]));
 					return;
 				}
-
 				// Default: Simply append the text wrapped in <b>
 				const b = document.createElement('b');
 				b.textContent = text;
@@ -615,13 +604,11 @@
 			function createProductElement(product)
 			{
 				const tr = document.createElement('tr');
-				
 				// Label
 				const tdLabel = document.createElement('td');
 				tdLabel.className = 'col-label';
 				formatLabel(tdLabel, product['Label']);
 				tr.appendChild(tdLabel);
-				
 				// Unit Weight
 				const tdWeight = document.createElement('td');
 				tdWeight.className = 'col-unit-weight cell-unit-kg';
@@ -629,14 +616,12 @@
 				tdWeight.dataset.unitWeight = weight;
 				tdWeight.textContent = weight.toLocaleString('fr-FR', {minimumFractionDigits: 1, maximumFractionDigits: 1});
 				tr.appendChild(tdWeight);
-
 				// Qty Max
 				const tdMax = document.createElement('td');
 				tdMax.className = 'col-max-qty ' + (product['Unit'] === 'colis' ? 'cell-unit-colis' : 'cell-unit-kg');
 				tdMax.dataset.baseQty = product['Max Qty'];
 				tdMax.textContent = product['Max Qty']; // Will be updated by updateMaxQtys
 				tr.appendChild(tdMax);
-
 				// Qty Input
 				const tdInput = document.createElement('td');
 				tdInput.className = 'col-order-qty ' + (product['Unit'] === 'colis' ? 'cell-unit-colis' : 'cell-unit-kg');
@@ -651,13 +636,11 @@
 				input.onfocus = function() { this.select(); };
 				tdInput.appendChild(input);
 				tr.appendChild(tdInput);
-
 				// Poids total
 				const tdTotal = document.createElement('td');
 				tdTotal.className = 'col-total-weight cell-unit-kg';
 				tdTotal.textContent = '0';
 				tr.appendChild(tdTotal);
-
 				return tr;
 			}
 
@@ -680,7 +663,6 @@
 					</thead>
 					<tbody></tbody>
 				`;
-				
 				const tbody = table.querySelector('tbody');
 				filtered.forEach(product =>
 				{
@@ -704,7 +686,6 @@
 				const container = document.getElementById('articleSections');
 				const categories = ['ES', 'Asso', 'Asso|ES'];
 				const units = ['colis', 'kg'];
-				
 				categories.forEach(category =>
 				{
 					const hasArticles = articles.some(a => a.Category === category);
@@ -712,10 +693,8 @@
 					{
 						return;
 					}
-
 					const categoryClass = category.toLowerCase().split('|').map(c => 'for_' + c).join(' ');
 					const categorySection = createCategorySection(category, categoryClass);
-					
 					units.forEach(unit =>
 					{
 						const filtered = articles.filter(a => a.Category === category && a.Unit === unit);
@@ -723,18 +702,15 @@
 						{
 							return;
 						}
-
 						const unitSection = createUnitSection(unit, filtered, categoryClass);
 						categorySection.appendChild(unitSection);
 					});
 					container.appendChild(categorySection);
 				});
-				
 				if (window.currentOrgData)
 				{
 					updateMaxQtys(window.currentOrgData);
 				}
-				
 				validateAllQtys();
 			}
 
@@ -763,9 +739,7 @@
 				const unitWeight = parseFloat(row.cells[1].dataset.unitWeight) || 1;
 				const tdTotal = row.querySelector('.col-total-weight');
 				const trimmedValue = input.value.replace(',', '.');
-
 				const enteredQty = parseFloat(trimmedValue) || 0;
-
 				// Validate qty exceeded
 				if (enteredQty > maxQty)
 				{
@@ -775,7 +749,6 @@
 				{
 					row.classList.remove('qty-exceeded');
 				}
-
 				// Update Total kg
 				const totalKg = enteredQty * unitWeight;
 				if (totalKg === 0)
@@ -792,13 +765,11 @@
 				autosave();
 			}
 
-
 			function updateMaxQtys(orgData)
 			{
 				const ud = parseFloat(orgData['UD']) || 0;
 				const passages = Math.max(1, parseInt(orgData['Passages Sec'], 10) || 0);
 				const coef = Math.max(1, (ud / 100) / passages);
-
 				const maxQtyElements = document.querySelectorAll('.col-max-qty[data-base-qty]');
 				maxQtyElements.forEach(td =>
 				{
@@ -817,7 +788,6 @@
 					section.className = 'disabled';
 					return;
 				}
-
 				const cachedData = localStorage.getItem('orgData_' + val);
 				if (cachedData)
 				{
@@ -843,7 +813,6 @@
 					section.className = 'disabled';
 					return;
 				}
-
 				// Apply data to UI
 				for (const key in data)
 				{
@@ -853,11 +822,12 @@
 						el.textContent = data[key];
 					}
 				}
-				
 				updateMaxQtys(data);
+
+				pruneUnauthorizedInputs();
+
 				validateAllQtys();
 				section.className = 'loaded';
-
 				const container = document.getElementById('articleSections');
 				const dist = data['Modes de distribution de l\'aide alimentaire'] || '';
 				if (dist.includes('picerie'))
@@ -877,10 +847,8 @@
 				const parts = pickupDateValue.split('-');
 				const date = new Date(parts[0], parts[1] - 1, parts[2]);
 				const formattedDate = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
 				document.getElementById('summaryDate').textContent = formattedDate;
 				document.getElementById('summaryWeight').textContent = document.getElementById('footerTotalWeight').textContent;
-				
 				const allInputs = document.querySelectorAll('#articleSections input[type="number"]');
 				const totalAvailable = allInputs.length;
 				let totalOrdered = 0;
@@ -888,7 +856,6 @@
 				let hasExceededQty = false;
 				let totalOrderedWeight = parseFloat(document.getElementById('footerTotalWeight').textContent.replace(',', '.')) || 0;
 				let maxAllowedWeight = window.currentOrgData ? (parseFloat(window.currentOrgData['UD']) || 0) : 0;
-
 				allInputs.forEach(input =>
 				{
 					const val = parseFloat(input.value) || 0;
@@ -896,7 +863,6 @@
 					const maxQty = parseFloat(maxQtyStr) || 0;
 					const labelElement = input.closest('tr').cells[0].querySelector('b');
 					const label = labelElement ? labelElement.textContent : input.closest('tr').cells[0].innerText;
-
 					if (val > 0)
 					{
 						totalOrdered++;
@@ -904,53 +870,44 @@
 						{
 							lowQtyWarnings.push(label);
 						}
-						
 						if (maxQty > 0 && val > maxQty)
 						{
 							hasExceededQty = true;
 						}
 					}
 				});
-
 				const orderedRatio = totalAvailable > 0 ? (totalOrdered / totalAvailable) : 0;
-				
 				// Populate Modal
 				const obsSection = document.getElementById('observationsSection');
 				const obsList = document.getElementById('observationsList');
 				obsList.innerHTML = '';
-				
 				if (orderedRatio > 0 && orderedRatio < 0.6)
 				{
 					const li = document.createElement('li');
 					li.textContent = `Vous n'avez commandé que ${totalOrdered} sur ${totalAvailable} articles disponibles.`;
 					obsList.appendChild(li);
 				}
-				
 				if (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6))
 				{
 					const li = document.createElement('li');
 					li.textContent = `${totalOrderedWeight.toFixed(2)} kg sur ${maxAllowedWeight.toFixed(2)} kg autorisé.`;
 					obsList.appendChild(li);
 				}
-				
 				if (lowQtyWarnings.length > 0)
 				{
 					const li = document.createElement('li');
 					li.textContent = `Certains produits sont commandés en faible quantité (inférieure à 50%) : ${lowQtyWarnings.join(', ')}.`;
 					obsList.appendChild(li);
 				}
-
 				if (hasExceededQty)
 				{
 					const li = document.createElement('li');
 					li.textContent = 'Votre commande excède certaines quantités allouées, veuillez indiquer les circonstances afin de traiter votre demande favorablement.';
 					obsList.appendChild(li);
 				}
-				
 				const hasLowTotalWeight = maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6);
 				const hasLowQtyItems = lowQtyWarnings.length > 0;
 				const hasLowOrderedRatio = orderedRatio > 0 && orderedRatio < 0.5;
-
 				if (hasLowOrderedRatio || hasLowTotalWeight || hasLowQtyItems || hasExceededQty)
 				{
 					obsSection.classList.remove('hidden');
@@ -959,7 +916,6 @@
 				{
 					obsSection.classList.add('hidden');
 				}
-
 				document.getElementById('confirmModal').showModal();
 				document.getElementById('orderComments').focus();
 			}
@@ -974,10 +930,8 @@
 				const btn = document.getElementById('confirmSendBtn');
 				const orderData = collectFormData();
 				orderData.comments = document.getElementById('orderComments').value;
-				
 				btn.ariaBusy = "true";
 				btn.disabled = true;
-
 				google.script.run
 					.withSuccessHandler(response =>
 					{
@@ -985,13 +939,11 @@
 						closeModal();
 						btn.ariaBusy = "false";
 						btn.disabled = false;
-
 						// Special case: Do not clear form for author
 						if (orderData.email && orderData.email.includes('ludovic.arnaud'))
 						{
 							return;
 						}
-						
 						// Clear draft and non-persistent fields
 						localStorage.removeItem('orderDraft');
 						document.getElementById('pickupDate').value = '';
