@@ -948,10 +948,10 @@
 				}
 				
 				const hasLowTotalWeight = maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6);
-				const hasLowTotalItems = lowQtyWarnings.length > 0;
+				const hasLowQtyItems = lowQtyWarnings.length > 0;
 				const hasLowOrderedPercentage = orderedPercentage > 0 && orderedPercentage < 50;
 
-				if (hasLowOrderedPercentage || hasLowTotalWeight || hasLowTotalItems || hasExceededQty)
+				if (hasLowOrderedPercentage || hasLowTotalWeight || hasLowQtyItems || hasExceededQty)
 				{
 					obsSection.classList.remove('hidden');
 				}
