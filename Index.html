@@ -912,14 +912,14 @@
 					}
 				});
 
-				const orderedPercentage = totalAvailable > 0 ? (totalOrdered / totalAvailable) * 100 : 0;
+				const orderedRatio = totalAvailable > 0 ? (totalOrdered / totalAvailable) : 0;
 				
 				// Populate Modal
 				const obsSection = document.getElementById('observationsSection');
 				const obsList = document.getElementById('observationsList');
 				obsList.innerHTML = '';
 				
-				if (orderedPercentage > 0 && orderedPercentage < 60)
+				if (orderedRatio > 0 && orderedRatio < 0.6)
 				{
 					const li = document.createElement('li');
 					li.textContent = `Vous n'avez commandé que ${totalOrdered} sur ${totalAvailable} articles disponibles.`;
@@ -949,9 +949,9 @@
 				
 				const hasLowTotalWeight = maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6);
 				const hasLowQtyItems = lowQtyWarnings.length > 0;
-				const hasLowOrderedPercentage = orderedPercentage > 0 && orderedPercentage < 50;
+				const hasLowOrderedRatio = orderedRatio > 0 && orderedRatio < 0.5;
 
-				if (hasLowOrderedPercentage || hasLowTotalWeight || hasLowQtyItems || hasExceededQty)
+				if (hasLowOrderedRatio || hasLowTotalWeight || hasLowQtyItems || hasExceededQty)
 				{
 					obsSection.classList.remove('hidden');
 				}
