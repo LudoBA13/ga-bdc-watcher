@@ -601,9 +601,18 @@
 				root.appendChild(b);
 			}
 
-			function createProductElement(product)
+			function createProductRow(product)
 			{
 				const tr = document.createElement('tr');
+				tr.className = 'product';
+				tr.onclick = function()
+				{
+					const input = this.querySelector('input');
+					if (input)
+					{
+						input.focus();
+					}
+				};
 				// Label
 				const tdLabel = document.createElement('td');
 				tdLabel.className = 'col-label';
@@ -666,7 +675,7 @@
 				const tbody = table.querySelector('tbody');
 				filtered.forEach(product =>
 				{
-					tbody.appendChild(createProductElement(product));
+					tbody.appendChild(createProductRow(product));
 				});
 				table.appendChild(tbody);
 				unitSection.appendChild(table);
