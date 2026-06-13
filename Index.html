@@ -947,7 +947,11 @@
 					obsList.appendChild(li);
 				}
 				
-				if ((orderedPercentage > 0 && orderedPercentage < 60) || (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6)) || lowQtyWarnings.length > 0 || hasExceededQty)
+				const hasLowTotalWeight = maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6);
+				const hasLowTotalItems = lowQtyWarnings.length > 0;
+				const hasLowOrderedPercentage = orderedPercentage > 0 && orderedPercentage < 60;
+
+				if (hasLowOrderedPercentage || hasLowTotalWeight || hasLowTotalItems || hasExceededQty)
 				{
 					obsSection.classList.remove('hidden');
 				}
