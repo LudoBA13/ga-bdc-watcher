@@ -885,7 +885,7 @@
 				const totalAvailable = allInputs.length;
 				let totalOrdered = 0;
 				let lowQtyWarnings = [];
-				let exceededQtyWarnings = [];
+				let hasExceededQty = false;
 				let totalOrderedWeight = parseFloat(document.getElementById('footerTotalWeight').textContent.replace(',', '.')) || 0;
 				let maxAllowedWeight = window.currentOrgData ? (parseFloat(window.currentOrgData['UD']) || 0) : 0;
 
@@ -906,7 +906,7 @@
 						
 						if (maxQty > 0 && val > maxQty)
 						{
-							exceededQtyWarnings.push(label);
+							hasExceededQty = true;
 						}
 					}
 				});
@@ -939,19 +939,14 @@
 					obsList.appendChild(li);
 				}
 
-				if (exceededQtyWarnings.length > 0)
+				if (hasExceededQty)
 				{
-					exceededQtyWarnings.forEach(label =>
-					{
-						const li = document.createElement('li');
-						li.className = 'error';
-						li.style.color = 'red';
-						li.textContent = `Veuillez indiquez la raison pour laquelle vous souhaitez commander plus de ${label} à fin de traiter votre demande favorablement.`;
-						obsList.appendChild(li);
-					});
+					const li = document.createElement('li');
+					li.textContent = 'Votre commande excède certaines quantités allouées, veuillez indiquer la raison pour laquelle vous souhaitez commander plus, afin de traiter votre demande favorablement.';
+					obsList.appendChild(li);
 				}
 				
-				if ((orderedPercentage > 0 && orderedPercentage < 60) || (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6)) || lowQtyWarnings.length > 0 || exceededQtyWarnings.length > 0)
+				if ((orderedPercentage > 0 && orderedPercentage < 60) || (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6)) || lowQtyWarnings.length > 0 || hasExceededQty)
 				{
 					obsSection.classList.remove('hidden');
 				}
