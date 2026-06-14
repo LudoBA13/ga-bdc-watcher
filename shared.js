@@ -44,23 +44,25 @@ function generateObservations(formData, menuData, orgData)
 		const qtyStr = formData.articles[a['Article ID']];
 		const qty = parseFloat(qtyStr) || 0;
 
-		if (qty > 0 && isAuthorized)
+		if (qty <= 0 || !isAuthorized)
 		{
-			totalOrdered++;
-			const baseQty = parseInt(a['Max Qty'], 10) || 0;
-			const maxQty = Math.floor(baseQty * coef);
-			const unitWeight = parseFloat(a['Unit Weight']) || 0;
+			return;
+		}
 
-			totalOrderedWeight += qty * unitWeight;
+		totalOrdered++;
+		const baseQty = parseInt(a['Max Qty'], 10) || 0;
+		const maxQty = Math.floor(baseQty * coef);
+		const unitWeight = parseFloat(a['Unit Weight']) || 0;
 
-			if (maxQty > 0 && qty < (maxQty * 0.5))
-			{
-				lowQtyWarnings.push(a['Label']);
-			}
-			if (maxQty > 0 && qty > maxQty)
-			{
-				hasExceededQty = true;
-			}
+		totalOrderedWeight += qty * unitWeight;
+
+		if (maxQty > 0 && qty < (maxQty * 0.5))
+		{
+			lowQtyWarnings.push(a['Label']);
+		}
+		if (maxQty > 0 && qty > maxQty)
+		{
+			hasExceededQty = true;
 		}
 	});
 
