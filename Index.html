@@ -896,17 +896,29 @@
 				const form = document.getElementById('orderForm');
 				const errorContainer = document.getElementById('formErrorMessage');
 				
-				if (!form.checkValidity())
+				// Validate all required fields
+				const requiredInputs = form.querySelectorAll('input[required]');
+				let allValid = true;
+				
+				requiredInputs.forEach(input =>
+				{
+					validateField(input);
+					if (!input.checkValidity())
+					{
+						allValid = false;
+					}
+				});
+
+				if (!allValid)
 				{
 					const firstInvalid = form.querySelector(':invalid');
 					if (firstInvalid)
 					{
-						firstInvalid.focus();
 						firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
 						errorContainer.textContent = 'Veuillez remplir correctement tous les champs obligatoires.';
 						errorContainer.style.display = 'block';
-						return false;
 					}
+					return false;
 				}
 				
 				errorContainer.style.display = 'none';
