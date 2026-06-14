@@ -548,7 +548,8 @@
 				restoreFormData();
 				
 				// Focus first empty required field
-				const firstEmpty = document.querySelector('input[required]:not([value]), input[required][value=""]');
+				const requiredInputs = Array.from(document.querySelectorAll('input[required]'));
+				const firstEmpty = requiredInputs.find(input => input.value === '');
 				if (firstEmpty)
 				{
 					firstEmpty.focus();
