@@ -277,15 +277,18 @@
 				<fieldset id="orderDetails">
 					<label for="codeVif">
 						Code VIF de votre structure
-						<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[0-9]{7,8}$" placeholder="1130XXX" required oninput="checkCodeVif(this.value)" onblur="this.reportValidity()">
+						<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[0-9]{7,8}$" placeholder="1130XXX" required oninput="checkCodeVif(this.value)" onblur="validateField(this)">
+						<span id="codeVifError" style="color: red; display: none; font-size: small;">Veuillez entrer un code VIF valide (7 à 8 chiffres).</span>
 					</label>
 					<label for="email">
 						Email de contact
-						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required onblur="this.reportValidity()">
+						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required onblur="validateField(this)">
+						<span id="emailError" style="color: red; display: none; font-size: small;">Veuillez entrer une adresse email valide.</span>
 					</label>
 					<label for="pickupDate">
 						Date d'enlèvement
-						<input type="date" id="pickupDate" name="pickupDate" required onblur="this.reportValidity()">
+						<input type="date" id="pickupDate" name="pickupDate" required onblur="validateField(this)">
+						<span id="pickupDateError" style="color: red; display: none; font-size: small;">Veuillez sélectionner une date.</span>
 					</label>
 				</fieldset>
 				<div id="orgSection" class="disabled">
@@ -864,6 +867,23 @@
 				}
 			}
 
+
+
+			function validateField(input)
+			{
+				const errorSpan = document.getElementById(input.id + 'Error');
+				if (errorSpan)
+				{
+					if (!input.checkValidity())
+					{
+						errorSpan.style.display = 'block';
+					}
+					else
+					{
+						errorSpan.style.display = 'none';
+					}
+				}
+			}
 
 			function validateOrderInputs()
 			{
