@@ -194,12 +194,17 @@ function processForm(formData)
 				.join('\n');
 		}
 
+		const menuData = getCurrentMenu();
+		const observations = generateObservations(formData, menuData, orgData);
+		const obsText = observations.length > 0 ? observations.map(o => '- ' + o).join('\n') : 'Aucune';
+
 		const ownerEmail = Session.getEffectiveUser().getEmail();
 		const orgName = orgData ? orgData['Nom'] : 'Inconnu';
 		const subject = 'Nouvelle commande - ' + orgName + ' (' + formData.codeVif + ')';
 		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + orgName + ' (' + formData.codeVif + ')' +
 			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate +
 			'\nClient : ' + formData.email +
+			'\n\n--- Observations ---\n' + obsText +
 			'\n\n--- Détails Partenaire ---\n' + orgInfo +
 			'\n\nCommentaires : ' + (formData.comments || 'Aucun') +
 			'\n\n--- Debug Logs ---\n' + (logs || 'No logs available.');

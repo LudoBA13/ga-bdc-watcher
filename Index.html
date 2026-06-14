@@ -349,6 +349,9 @@
 			</article>
 		</dialog>
 		<script>
+			<?!= HtmlService.createHtmlOutputFromFile('Shared').getContent(); ?>
+		</script>
+		<script>
 			// Embedded data from the server
 			window.embeddedMenuData = <?!= embeddedMenuData ?>;
 			function debounce(func, wait)
@@ -955,73 +958,30 @@
 				const formattedDate = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 				document.getElementById('summaryDate').textContent = formattedDate;
 				document.getElementById('summaryWeight').textContent = document.getElementById('footerTotalWeight').textContent;
-				const allInputs = document.querySelectorAll('#articleSections input[type="number"]');
-				const totalAvailable = allInputs.length;
-				let totalOrdered = 0;
-				let lowQtyWarnings = [];
-				let hasExceededQty = false;
-				let totalOrderedWeight = parseFloat(document.getElementById('footerTotalWeight').textContent.replace(',', '.')) || 0;
-				let maxAllowedWeight = window.currentOrgData ? (parseFloat(window.currentOrgData['UD']) || 0) : 0;
-				allInputs.forEach(input =>
-				{
-					const val = parseFloat(input.value) || 0;
-					const maxQtyStr = input.closest('tr').cells[2].textContent.replace(',', '.');
-					const maxQty = parseFloat(maxQtyStr) || 0;
-					const labelElement = input.closest('tr').cells[0].querySelector('b');
-					const label = labelElement ? labelElement.textContent : input.closest('tr').cells[0].innerText;
-					if (val > 0)
-					{
-						totalOrdered++;
-						if (maxQty > 0 && val < (maxQty * 0.5))
-						{
-							lowQtyWarnings.push(label);
-						}
-						if (maxQty > 0 && val > maxQty)
-						{
-							hasExceededQty = true;
-						}
-					}
-				});
-				const orderedRatio = totalAvailable > 0 ? (totalOrdered / totalAvailable) : 0;
+				
+				const formData = collectFormData();
+				const observations = generateObservations(formData, window.embeddedMenuData, window.currentOrgData);
+
 				// Populate Modal
 				const obsSection = document.getElementById('observationsSection');
 				const obsList = document.getElementById('observationsList');
 				obsList.innerHTML = '';
-				if (orderedRatio > 0 && orderedRatio < 0.6)
+				
+				if (observations.length > 0)
 				{
-					const li = document.createElement('li');
-					li.textContent = `Vous n'avez commandé que ${totalOrdered} des ${totalAvailable} articles disponibles.`;
-					obsList.appendChild(li);
-				}
-				if (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6))
-				{
-					const li = document.createElement('li');
-					li.textContent = `Vous n'avez commandé que ${totalOrderedWeight.toFixed(2)} kg sur ${maxAllowedWeight.toFixed(2)} kg autorisé.`;
-					obsList.appendChild(li);
-				}
-				if (lowQtyWarnings.length > 0)
-				{
-					const li = document.createElement('li');
-					li.textContent = `Certains produits sont commandés en faible quantité (inférieure à 50%) : ${lowQtyWarnings.join(', ')}.`;
-					obsList.appendChild(li);
-				}
-				if (hasExceededQty)
-				{
-					const li = document.createElement('li');
-					li.textContent = 'Votre commande excède certaines quantités allouées, veuillez indiquer les circonstances afin de traiter votre demande favorablement.';
-					obsList.appendChild(li);
-				}
-				const hasLowTotalWeight = maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6);
-				const hasLowQtyItems = lowQtyWarnings.length > 0;
-				const hasLowOrderedRatio = orderedRatio > 0 && orderedRatio < 0.5;
-				if (hasLowOrderedRatio || hasLowTotalWeight || hasLowQtyItems || hasExceededQty)
-				{
+					observations.forEach(obs =>
+					{
+						const li = document.createElement('li');
+						li.textContent = obs;
+						obsList.appendChild(li);
+					});
 					obsSection.classList.remove('hidden');
 				}
 				else
 				{
 					obsSection.classList.add('hidden');
 				}
+
 				document.getElementById('confirmModal').showModal();
 				document.getElementById('orderComments').focus();
 			}
