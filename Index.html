@@ -287,7 +287,7 @@
 					</label>
 					<label for="pickupDate">
 						Date d'enlèvement
-						<input type="date" id="pickupDate" name="pickupDate" required onblur="validateField(this)">
+						<input type="date" id="pickupDate" name="pickupDate" required onblur="validateField(this)" oninput="validateField(this)">
 						<span id="pickupDateError" style="color: red; display: none; font-size: small;">Veuillez sélectionner une date.</span>
 					</label>
 				</fieldset>
