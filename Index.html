@@ -546,6 +546,13 @@
 				// Render articles immediately from embedded data
 				renderArticles(window.embeddedMenuData.articles);
 				restoreFormData();
+				
+				// Focus first empty required field
+				const firstEmpty = document.querySelector('input[required]:not([value]), input[required][value=""]');
+				if (firstEmpty)
+				{
+					firstEmpty.focus();
+				}
 			};
 
 			function getCategoryLabel(category)
