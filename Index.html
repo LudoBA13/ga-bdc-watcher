@@ -876,6 +876,12 @@
 				{
 					if (!input.checkValidity())
 					{
+						if (input.id === 'pickupDate' && input.min && input.max)
+						{
+							const minFr = new Date(input.min).toLocaleDateString('fr-FR');
+							const maxFr = new Date(input.max).toLocaleDateString('fr-FR');
+							errorSpan.textContent = 'Veuillez sélectionner une date entre le ' + minFr + ' et le ' + maxFr + '.';
+						}
 						errorSpan.style.display = 'block';
 					}
 					else
