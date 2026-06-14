@@ -423,7 +423,12 @@
 				const draft = JSON.parse(draftStr);
 				if (draft.pickupDate)
 				{
-					document.getElementById('pickupDate').value = draft.pickupDate;
+					const pickupDateEl = document.getElementById('pickupDate');
+					pickupDateEl.value = draft.pickupDate;
+					if (!pickupDateEl.checkValidity())
+					{
+						pickupDateEl.value = '';
+					}
 				}
 
 				if (draft.articles)
