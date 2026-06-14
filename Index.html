@@ -332,6 +332,7 @@
 				<div id="observationsSection" class="hidden">
 					<strong>Observations :</strong>
 					<ul id="observationsList"></ul>
+					<p><small><em>Ces observations sont faites à titre indicatif, elles n'empêchent pas de passer la commande.</em></small></p>
 				</div>
 				<label for="orderComments">
 					Commentaires (optionnel)
@@ -851,7 +852,26 @@
 
 			function handleFormSubmit(event)
 			{
+				console.log('handleFormSubmit triggered');
 				event.preventDefault();
+				const form = document.getElementById('orderForm');
+				console.log('Form validity:', form.checkValidity());
+				if (!form.checkValidity())
+				{
+					const firstInvalid = form.querySelector(':invalid');
+					console.log('First invalid:', firstInvalid);
+					if (firstInvalid)
+					{
+						firstInvalid.focus();
+						firstInvalid.scrollIntoView({ block: 'center' });
+						setTimeout(() =>
+						{
+							alert('Veuillez remplir correctement tous les champs obligatoires.');
+						}, 100);
+					}
+					return;
+				}
+
 				const pickupDateValue = document.getElementById('pickupDate').value;
 				const parts = pickupDateValue.split('-');
 				const date = new Date(parts[0], parts[1] - 1, parts[2]);
@@ -893,13 +913,13 @@
 				if (orderedRatio > 0 && orderedRatio < 0.6)
 				{
 					const li = document.createElement('li');
-					li.textContent = `Vous n'avez commandé que ${totalOrdered} sur ${totalAvailable} articles disponibles.`;
+					li.textContent = `Vous n'avez commandé que ${totalOrdered} des ${totalAvailable} articles disponibles.`;
 					obsList.appendChild(li);
 				}
 				if (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6))
 				{
 					const li = document.createElement('li');
-					li.textContent = `${totalOrderedWeight.toFixed(2)} kg sur ${maxAllowedWeight.toFixed(2)} kg autorisé.`;
+					li.textContent = `Vous n'avez commandé que ${totalOrderedWeight.toFixed(2)} kg sur ${maxAllowedWeight.toFixed(2)} kg autorisé.`;
 					obsList.appendChild(li);
 				}
 				if (lowQtyWarnings.length > 0)
