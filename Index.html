@@ -273,6 +273,7 @@
 			<h3><?= menuName ?></h3>
 			<h5>Enlèvements du <?= pickupDateStart ?> au <?= pickupDateEnd ?></h5>
 			<form id="orderForm" onsubmit="handleFormSubmit(event)">
+				<div id="formErrorMessage" style="color: red; margin: 10px 0; display: none; font-weight: bold;"></div>
 				<fieldset id="orderDetails">
 					<label for="codeVif">
 						Code VIF de votre structure
@@ -850,25 +851,36 @@
 				}
 			}
 
+
+			function validateOrderInputs()
+			{
+				const form = document.getElementById('orderForm');
+				const errorContainer = document.getElementById('formErrorMessage');
+				
+				if (!form.checkValidity())
+				{
+					const firstInvalid = form.querySelector(':invalid');
+					if (firstInvalid)
+					{
+						firstInvalid.focus();
+						firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+						errorContainer.textContent = 'Veuillez remplir correctement tous les champs obligatoires.';
+						errorContainer.style.display = 'block';
+						return false;
+					}
+				}
+				
+				errorContainer.style.display = 'none';
+				return true;
+			}
+
 			function handleFormSubmit(event)
 			{
 				console.log('handleFormSubmit triggered');
 				event.preventDefault();
-				const form = document.getElementById('orderForm');
-				console.log('Form validity:', form.checkValidity());
-				if (!form.checkValidity())
+				
+				if (!validateOrderInputs())
 				{
-					const firstInvalid = form.querySelector(':invalid');
-					console.log('First invalid:', firstInvalid);
-					if (firstInvalid)
-					{
-						firstInvalid.focus();
-						firstInvalid.scrollIntoView({ block: 'center' });
-						setTimeout(() =>
-						{
-							alert('Veuillez remplir correctement tous les champs obligatoires.');
-						}, 100);
-					}
 					return;
 				}
 
