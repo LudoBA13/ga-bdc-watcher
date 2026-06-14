@@ -277,15 +277,15 @@
 				<fieldset id="orderDetails">
 					<label for="codeVif">
 						Code VIF de votre structure
-						<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[0-9]{7,8}$" placeholder="1130XXX" required oninput="checkCodeVif(this.value)">
+						<input type="text" id="codeVif" name="codeVif" inputmode="numeric" pattern="^[0-9]{7,8}$" placeholder="1130XXX" required oninput="checkCodeVif(this.value)" onblur="this.reportValidity()">
 					</label>
 					<label for="email">
 						Email de contact
-						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required>
+						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required onblur="this.reportValidity()">
 					</label>
 					<label for="pickupDate">
 						Date d'enlèvement
-						<input type="date" id="pickupDate" name="pickupDate" required>
+						<input type="date" id="pickupDate" name="pickupDate" required onblur="this.reportValidity()">
 					</label>
 				</fieldset>
 				<div id="orgSection" class="disabled">
