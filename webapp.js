@@ -182,7 +182,6 @@ function processForm(formData)
 		logOrder(formData);
 		const result = generateOrderExcelBlob(formData);
 		const blob = result.blob;
-		const logs = result.logs;
 
 		// Retrieve partner organization details
 		const orgData = lookupOrganization(formData.codeVif);
@@ -206,8 +205,7 @@ function processForm(formData)
 			'\nClient : ' + formData.email +
 			'\n\n--- Observations ---\n' + obsText +
 			'\n\n--- Détails Partenaire ---\n' + orgInfo +
-			'\n\nCommentaires : ' + (formData.comments || 'Aucun') +
-			'\n\n--- Debug Logs ---\n' + (logs || 'No logs available.');
+			'\n\nCommentaires : ' + (formData.comments || 'Aucun');
 
 		MailApp.sendEmail({
 			to: formData.email,
@@ -221,7 +219,6 @@ function processForm(formData)
 	}
 	catch (e)
 	{
-		console.error('Error processing form:', e);
 		throw new Error('Erreur lors de l\'envoi de la commande : ' + e.message);
 	}
 }
