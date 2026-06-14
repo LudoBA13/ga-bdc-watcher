@@ -194,8 +194,11 @@ function processForm(formData)
 		}
 
 		const menuData = getCurrentMenu();
-		const observations = generateObservations(formData, menuData, orgData);
-		const obsText = observations.length > 0 ? observations.map(o => '- ' + o).join('\n') : 'Aucune';
+		const serverObservations = generateObservations(formData, menuData, orgData);
+		Logger.log('Server-side observations for ' + formData.codeVif + ': ' + JSON.stringify(serverObservations));
+		
+		// Use client-side observations passed in formData
+		const clientObsText = (formData.observations && formData.observations.length > 0) ? formData.observations.map(o => '- ' + o).join('\n') : 'Aucune';
 
 		const ownerEmail = Session.getEffectiveUser().getEmail();
 		const orgName = orgData ? orgData['Nom'] : 'Inconnu';
@@ -203,7 +206,7 @@ function processForm(formData)
 		const body = 'Veuillez trouver ci-joint la commande pour le partenaire ' + orgName + ' (' + formData.codeVif + ')' +
 			'.\n\nDate d\'enlèvement prévue : ' + formData.pickupDate +
 			'\nClient : ' + formData.email +
-			'\n\n--- Observations ---\n' + obsText +
+			'\n\n--- Observations ---\n' + clientObsText +
 			'\n\n--- Détails Partenaire ---\n' + orgInfo +
 			'\n\nCommentaires : ' + (formData.comments || 'Aucun');
 
