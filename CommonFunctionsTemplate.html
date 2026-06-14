@@ -1,1 +1,94 @@
-CommonFunctions.js
+<script>
+/**
+ * SHARED CODE
+ * This file contains logic intended to be used BOTH on the client-side (web browser) 
+ * and the server-side (Google Apps Script).
+ * 
+ * ONLY code that must be available in both environments should be placed here.
+ */
+
+/**
+ * Generates a list of observation messages for a given order, matching the client-side logic.
+ *
+ * @param {Object} formData The submitted order data (containing email, articles, etc.).
+ * @param {Object} menuData The current menu containing the list of articles.
+ * @param {Object} orgData The partner organization details (containing UD, Passages, etc.).
+ * @returns {string[]} An array of observation messages.
+ */
+function generateObservations(formData, menuData, orgData)
+{
+	if (!menuData || !menuData.articles || !orgData)
+	{
+		return [];
+	}
+
+	const dist = orgData['Modes de distribution de l\'aide alimentaire'] || '';
+	const isES = dist.indexOf('picerie') !== -1;
+	const allowedCategories = isES ? ['ES', 'Asso|ES'] : ['Asso', 'Asso|ES'];
+
+	const ud = parseFloat(orgData['UD']) || 0;
+	const passages = Math.max(1, parseInt(orgData['Passages Sec'], 10) || 0);
+	const coef = Math.max(1, (ud / 100) / passages);
+
+	// The client-side counts ALL inputs in the menu for totalAvailable
+	const totalAvailable = menuData.articles.length;
+
+	let totalOrdered = 0;
+	let totalOrderedWeight = 0;
+	const lowQtyWarnings = [];
+	let hasExceededQty = false;
+
+	menuData.articles.forEach(a =>
+	{
+		// Only count authorized categories for the organization
+		const isAuthorized = allowedCategories.indexOf(a.Category) !== -1;
+		const qtyStr = formData.articles[a['Article ID']];
+		const qty = parseFloat(qtyStr) || 0;
+
+		if (qty <= 0 || !isAuthorized)
+		{
+			return;
+		}
+
+		totalOrdered++;
+		const baseQty = parseInt(a['Max Qty'], 10) || 0;
+		const maxQty = Math.floor(baseQty * coef);
+		const unitWeight = parseFloat(a['Unit Weight']) || 0;
+
+		totalOrderedWeight += qty * unitWeight;
+
+		if (maxQty > 0 && qty < (maxQty * 0.5))
+		{
+			lowQtyWarnings.push(a['Label']);
+		}
+		if (maxQty > 0 && qty > maxQty)
+		{
+			hasExceededQty = true;
+		}
+	});
+
+	const orderedRatio = totalAvailable > 0 ? (totalOrdered / totalAvailable) : 0;
+	const maxAllowedWeight = ud;
+
+	const observations = [];
+
+	if (orderedRatio > 0 && orderedRatio < 0.6)
+	{
+		observations.push(`Vous n'avez commandé que ${totalOrdered} des ${totalAvailable} articles disponibles.`);
+	}
+	if (maxAllowedWeight > 0 && totalOrderedWeight < (maxAllowedWeight * 0.6))
+	{
+		observations.push(`Vous n'avez commandé que ${totalOrderedWeight.toFixed(2)} kg sur ${maxAllowedWeight.toFixed(2)} kg autorisé.`);
+	}
+	if (lowQtyWarnings.length > 0)
+	{
+		observations.push(`Certains produits sont commandés en faible quantité (inférieure à 50%) : ${lowQtyWarnings.join(', ')}.`);
+	}
+	if (hasExceededQty)
+	{
+		observations.push('Votre commande excède certaines quantités allouées, veuillez indiquer les circonstances afin de traiter votre demande favorablement.');
+	}
+
+	return observations;
+}
+</script>
