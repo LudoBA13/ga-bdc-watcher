@@ -492,12 +492,25 @@
 				const codeVifEl = document.getElementById('codeVif');
 				const savedEmail = localStorage.getItem('email');
 				const savedOrg = localStorage.getItem('codeVif');
-				if (savedEmail) {
+				if (savedEmail)
+				{
 					emailEl.value = savedEmail;
+					if (!emailEl.checkValidity())
+					{
+						emailEl.value = '';
+					}
 				}
-				if (savedOrg) {
+				if (savedOrg)
+				{
 					codeVifEl.value = savedOrg;
-					checkCodeVif(savedOrg);
+					if (!codeVifEl.checkValidity())
+					{
+						codeVifEl.value = '';
+					}
+					else
+					{
+						checkCodeVif(savedOrg);
+					}
 				}
 				emailEl.addEventListener('input', (e) => {
 					autosave();
