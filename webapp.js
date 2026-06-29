@@ -127,7 +127,7 @@ function lookupOrganization(codeVif)
 	const data = sheet.getDataRange().getValues();
 	const headers = data[0];
 	const codeIndex = headers.indexOf('Code VIF');
-	const requestedFields = ['Nom', 'UD', 'Planning', '$planning', 'Modes de distribution de l\'aide alimentaire', 'Entrepôt d\'enlèvement', 'Passages Sec'];
+	const requestedFields = ['Nom', 'UD', 'Planning', '$planning', 'Modes de distribution de l\'aide alimentaire', 'Entrepôt d\'enlèvement', 'Passages Sec', 'Le partenaire reçoit-il des produits CNES ?', 'Le partenaire reçoit-il des produits du FSE + ?'];
 
 	for (let i = 1; i < data.length; i++)
 	{
