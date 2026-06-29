@@ -723,6 +723,17 @@ function generateObservations(formData, menuData, orgData)
 			{
 				const tr = document.createElement('tr');
 				tr.className = 'product';
+				
+				const articleId = parseInt(product['Article ID'], 10);
+				if (articleId % 10 === 9)
+				{
+					tr.classList.add('isFSE');
+				}
+				else if (articleId % 10 === 3)
+				{
+					tr.classList.add('isCNES');
+				}
+
 				tr.onclick = function()
 				{
 					const input = this.querySelector('input');
