@@ -46,6 +46,7 @@ function doGet()
 
 	return template.evaluate()
 		.setTitle('Formulaire de Commande BA 13')
+		.setFaviconUrl('https://ba13.banquealimentaire.org/themes/custom/customer/favicon.ico')
 		.addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
