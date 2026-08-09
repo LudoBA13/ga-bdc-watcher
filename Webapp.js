@@ -16,8 +16,7 @@ function doGet()
 			'Label': a.label,
 			'Unit': a.unit,
 			'Unit Weight': a.unitWeight,
-			'Max Qty': a.maxQty,
-			'Sheet Name': menuId
+			'Max Qty': a.maxQty
 		};
 	});
 
