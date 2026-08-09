@@ -285,11 +285,22 @@
 						<input type="email" id="email" name="email" placeholder="Entrez votre adresse email" required onblur="validateField(this)">
 						<span id="emailError" style="color: red; display: none; font-size: small;">Veuillez entrer une adresse email valide.</span>
 					</label>
-					<label for="pickupDate">
-						Date d'enlèvement
-						<input type="date" id="pickupDate" name="pickupDate" required onblur="validateField(this)" oninput="validateField(this)">
+					<fieldset>
+						<legend>Date d'enlèvement</legend>
+						<? const dates = validPickupDates; ?>
+						<? for (let i = 0; i < dates.length; i++) { ?>
+							<label>
+								<input type="radio" name="pickupDate" value="<?= dates[i] ?>" required>
+								<?= dates[i] ?>
+							</label>
+						<? } ?>
+						<label>
+							<input type="radio" name="pickupDate" id="freeChoiceRadio" value="other" required onchange="if(this.checked) document.getElementById('freeChoiceDate').focus()">
+							Autre date :
+							<input type="date" id="freeChoiceDate" name="pickupDateOther" onfocus="document.getElementById('freeChoiceRadio').checked = true">
+						</label>
 						<span id="pickupDateError" style="color: red; display: none; font-size: small;">Veuillez sélectionner une date.</span>
-					</label>
+					</fieldset>
 				</fieldset>
 				<div id="orgSection" class="disabled">
 					<div id="orgSpinner" class="spinner"></div>
@@ -457,9 +468,16 @@ function generateObservations(formData, menuData, orgData)
 				const data = {
 					email: document.getElementById('email').value,
 					codeVif: parseInt(document.getElementById('codeVif').value, 10),
-					pickupDate: document.getElementById('pickupDate').value,
 					articles: {}
 				};
+
+				const selectedDate = document.querySelector('input[name="pickupDate"]:checked');
+				if (selectedDate && selectedDate.value === 'other') {
+					data.pickupDate = document.getElementById('freeChoiceDate').value;
+				} else if (selectedDate) {
+					data.pickupDate = selectedDate.value;
+				}
+
 				const inputs = document.querySelectorAll('#articleSections input[type="number"]');
 				for (const input of inputs)
 				{
@@ -510,11 +528,16 @@ function generateObservations(formData, menuData, orgData)
 				const draft = JSON.parse(draftStr);
 				if (draft.pickupDate)
 				{
-					const pickupDateEl = document.getElementById('pickupDate');
-					pickupDateEl.value = draft.pickupDate;
-					if (!pickupDateEl.checkValidity())
+					const radio = document.querySelector(`input[name="pickupDate"][value="${draft.pickupDate}"]`);
+					if (radio)
 					{
-						pickupDateEl.value = '';
+						radio.checked = true;
+					}
+					else
+					{
+						const freeChoiceRadio = document.getElementById('freeChoiceRadio');
+						freeChoiceRadio.checked = true;
+						document.getElementById('freeChoiceDate').value = draft.pickupDate;
 					}
 				}
 
@@ -573,16 +596,6 @@ function generateObservations(formData, menuData, orgData)
 			window.onload = function()
 			{
 				pruneCaches();
-				// Set pickupDate range: today + 7 to today + 31
-				const pickupDateEl = document.getElementById('pickupDate');
-				const now = new Date();
-				const formatDate = (date) => date.toISOString().split('T')[0];
-				const minDate = new Date(now);
-				minDate.setDate(now.getDate() + 7);
-				const maxDate = new Date(now);
-				maxDate.setDate(now.getDate() + 31);
-				pickupDateEl.min = formatDate(minDate);
-				pickupDateEl.max = formatDate(maxDate);
 				const emailEl = document.getElementById('email');
 				const codeVifEl = document.getElementById('codeVif');
 				const savedEmail = localStorage.getItem('email');
@@ -630,10 +643,16 @@ function generateObservations(formData, menuData, orgData)
 						}
 					}
 				});
+
+				// Add autosave listener to date inputs
+				orderForm.querySelectorAll('input[name="pickupDate"], #freeChoiceDate').forEach(el => {
+					el.addEventListener('change', autosave);
+				});
+
 				// Render articles immediately from embedded data
 				renderArticles(window.embeddedMenuData.articles);
 				restoreFormData();
-				
+
 				// Focus first empty required field
 				const requiredInputs = Array.from(document.querySelectorAll('input[required]'));
 				const firstEmpty = requiredInputs.find(input => input.value === '');
@@ -723,7 +742,7 @@ function generateObservations(formData, menuData, orgData)
 			{
 				const tr = document.createElement('tr');
 				tr.className = 'product';
-				
+
 				const articleId = parseInt(product['Article ID'], 10);
 				if (articleId % 10 === 9)
 				{
@@ -1006,11 +1025,11 @@ function generateObservations(formData, menuData, orgData)
 			{
 				const form = document.getElementById('orderForm');
 				const errorContainer = document.getElementById('formErrorMessage');
-				
+
 				// Validate all required fields
 				const requiredInputs = form.querySelectorAll('input[required]');
 				let allValid = true;
-				
+
 				requiredInputs.forEach(input =>
 				{
 					validateField(input);
@@ -1031,7 +1050,7 @@ function generateObservations(formData, menuData, orgData)
 					}
 					return false;
 				}
-				
+
 				errorContainer.style.display = 'none';
 				return true;
 			}
@@ -1040,19 +1059,21 @@ function generateObservations(formData, menuData, orgData)
 			{
 				console.log('handleFormSubmit triggered');
 				event.preventDefault();
-				
+
 				if (!validateOrderInputs())
 				{
 					return;
 				}
 
-				const pickupDateValue = document.getElementById('pickupDate').value;
+				const selectedDate = document.querySelector('input[name="pickupDate"]:checked');
+				const pickupDateValue = (selectedDate.value === 'other') ? document.getElementById('freeChoiceDate').value : selectedDate.value;
+
 				const parts = pickupDateValue.split('-');
 				const date = new Date(parts[0], parts[1] - 1, parts[2]);
 				const formattedDate = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 				document.getElementById('summaryDate').textContent = formattedDate;
 				document.getElementById('summaryWeight').textContent = document.getElementById('footerTotalWeight').textContent;
-				
+
 				const formData = collectFormData();
 				const observations = generateObservations(formData, window.embeddedMenuData, window.currentOrgData);
 
@@ -1060,7 +1081,7 @@ function generateObservations(formData, menuData, orgData)
 				const obsSection = document.getElementById('observationsSection');
 				const obsList = document.getElementById('observationsList');
 				obsList.innerHTML = '';
-				
+
 				if (observations.length > 0)
 				{
 					observations.forEach(obs =>
@@ -1105,7 +1126,6 @@ function generateObservations(formData, menuData, orgData)
 						}
 						// Clear draft and non-persistent fields
 						localStorage.removeItem('orderDraft');
-						document.getElementById('pickupDate').value = '';
 						document.getElementById('orderComments').value = '';
 						const inputs = document.querySelectorAll('#articleSections input[type="number"]');
 						for (const input of inputs)

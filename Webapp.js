@@ -3,6 +3,7 @@
  */
 function doGet()
 {
+	const template = HtmlService.createTemplateFromFile('Index');
 	const menuData = getCurrentMenu();
 	const menuId = menuData.menuId || '';
 	PropertiesService.getScriptProperties().setProperty('menuId', menuId);
@@ -20,12 +21,33 @@ function doGet()
 		};
 	});
 
-	// Retrieve maxDate from script properties
-	const maxDate = PropertiesService.getScriptProperties().getProperty('maxDate') || '';
+const MIN_PICKUP_DELAY = 5;
 
-	const template = HtmlService.createTemplateFromFile('Index');
-	template.maxDate = maxDate;
-	template.menuName = menuData.menuName || 'Inconnu';
+/**
+ * Retrieves valid pickup dates for the current menu.
+ */
+function getValidPickupDates()
+{
+	const menuData = getCurrentMenu();
+	const startDate = new Date(menuData.pickupDateStart);
+	const endDate = new Date(menuData.pickupDateEnd);
+	const validDates = [];
+
+	const minPickupDate = new Date();
+	minPickupDate.setDate(minPickupDate.getDate() + MIN_PICKUP_DELAY);
+	minPickupDate.setHours(0, 0, 0, 0);
+
+	let currentDate = new Date(startDate);
+	while (currentDate <= endDate)
+	{
+		if (currentDate >= minPickupDate)
+		{
+			validDates.push(currentDate.toISOString().split('T')[0]);
+		}
+		currentDate.setDate(currentDate.getDate() + 1);
+	}
+	return validDates;
+}
 
 	const formatDate = (date) =>
 	{
@@ -40,6 +62,9 @@ function doGet()
 	template.pickupDateStart = formatDate(menuData.pickupDateStart);
 	template.pickupDateEnd = formatDate(menuData.pickupDateEnd);
 	template.menuId = menuId;
+	template.menuName = menuData.menuName || 'Inconnu';
+	template.maxDate = PropertiesService.getScriptProperties().getProperty('maxDate') || '';
+	template.validPickupDates = getValidPickupDates();
 
 	// Embed raw data for immediate client-side rendering
 	template.embeddedMenuData = JSON.stringify(menuData);
@@ -197,7 +222,7 @@ function processForm(formData)
 		const menuData = getCurrentMenu();
 		const serverObservations = generateObservations(formData, menuData, orgData);
 		Logger.log('Server-side observations for ' + formData.codeVif + ': ' + JSON.stringify(serverObservations));
-		
+
 		// Use client-side observations passed in formData
 		const clientObsText = (formData.observations && formData.observations.length > 0) ? formData.observations.map(o => '- ' + o).join('\n') : 'Aucune';
 
