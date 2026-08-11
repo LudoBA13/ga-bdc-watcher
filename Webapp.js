@@ -1,4 +1,27 @@
 /**
+ * Debug function to measure getCurrentMenu performance.
+ */
+function _debug()
+{
+	let start = new Date().getTime();
+	let menuData = getCurrentMenu();
+	let end = new Date().getTime();
+	Logger.log('1: getCurrentMenu took ' + (end - start) + 'ms');
+
+	start = new Date().getTime();
+	menuData = getCurrentMenu();
+	end = new Date().getTime();
+	Logger.log('2: getCurrentMenu took ' + (end - start) + 'ms');
+
+	start = new Date().getTime();
+	menuData = getCurrentMenu();
+	end = new Date().getTime();
+	Logger.log('3: getCurrentMenu took ' + (end - start) + 'ms');
+
+	Logger.log('Menu Data: ' + JSON.stringify(menuData));
+}
+
+/**
  * Web App entry point.
  */
 function doGet()

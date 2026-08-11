@@ -736,6 +736,7 @@ function onOpen()
 {
 	SpreadsheetApp.getUi().createMenu('BA Tools')
 		.addItem('Extract all menu data', 'recomputeAllMenuData')
+		.addItem('Recompute current menu', 'recomputeCurrentMenu')
 		.addSeparator()
 		.addItem('Setup Trigger', 'setupTrigger')
 		.addToUi();
